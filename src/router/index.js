@@ -11,7 +11,47 @@ const router = createRouter({
                 {
                     path: '/',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/Dashboard.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all',
+                    }
+                },
+                {
+                    path: '/participant',
+                    name: 'participant',
+                    component: () => import('@/views/pages/participant/List.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all',
+                    }
+                },
+                {
+                    path: '/participant/:id',
+                    name: 'participantdetail',
+                    component: () => import('@/views/pages/participant/Detail.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all',
+                    }
+                },
+                {
+                    path: '/user',
+                    name: 'user',
+                    component: () => import('@/views/pages/user/List.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all',
+                    }
+                },
+                {
+                    path: '/report',
+                    name: 'report',
+                    component: () => import('@/views/pages/report/List.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all',
+                    }
                 },
                 {
                     path: '/uikit/formlayout',
@@ -160,6 +200,11 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
+            path: '/auth/register',
+            name: 'register',
+            component: () => import('@/views/pages/auth/Register.vue')
+        },
+        {
             path: '/auth/access',
             name: 'accessDenied',
             component: () => import('@/views/pages/auth/Access.vue')
@@ -171,5 +216,58 @@ const router = createRouter({
         }
     ]
 });
+
+router.beforeEach((to, from, next) => {
+
+    // if (authRequired && token) {
+    //     return '/'
+    // } else {
+    //     return '/auth/login';
+    // }
+
+    // const token =  window.localStorage.getItem("token")
+    //
+    //  if(token) {
+    //
+    //  } else {
+    //      next('auth/login')
+    //  }
+
+    const token = window.localStorage.getItem("token")
+    if(to.path === '/auth/login'){
+        if(token){
+            next('/')
+        }
+    }
+
+    if(to.path === '/'){
+        if(!token){
+            next('/auth/login')
+        }
+    }
+
+
+    if (to.meta.requiredAuthorization) {
+        if (!token) {
+            next('/auth/login')
+        }
+        // const base64Url = token.split('.')[1];
+        // console.log(base64Url)
+        // if (!base64Url) {
+        //     next('/auth/login')
+        // }
+        // const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        // const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        //     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        // }).join(''));
+        // const user = JSON.parse(jsonPayload);
+
+        next()
+
+    } else {
+        next()
+    }
+
+})
 
 export default router;
