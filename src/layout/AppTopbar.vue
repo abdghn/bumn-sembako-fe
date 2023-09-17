@@ -23,10 +23,6 @@ computed(() => {
 const onTopBarMenuButton = () => {
     topbarMenuActive.value = !topbarMenuActive.value;
 };
-const onSettingsClick = () => {
-    topbarMenuActive.value = false;
-    router.push('/documentation');
-};
 const topbarMenuClasses = computed(() => {
     return {
         'layout-topbar-menu-mobile-active': topbarMenuActive.value
@@ -57,6 +53,21 @@ const isOutsideClicked = (event) => {
 
     return !(sidebarEl.isSameNode(event.target) || sidebarEl.contains(event.target) || topbarEl.isSameNode(event.target) || topbarEl.contains(event.target));
 };
+
+const overlayMenuItems = ref([
+    {
+        label: 'Logout',
+        icon: 'pi pi-times',
+        command: () => {
+            window.localStorage.clear();
+            router.push('/auth/login');
+        }
+    }
+]);
+const menu = ref(null);
+const toggleMenu = (event) => {
+    menu.value.toggle(event);
+};
 </script>
 
 <template>
@@ -75,12 +86,14 @@ const isOutsideClicked = (event) => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <span class="py-3">Hallo, <b>{{user}}</b></span>
-            <button @click="onTopBarMenuButton()" class="p-link layout-topbar-button">
+            <span class="py-3"
+                >Hallo, <b>{{ user }}</b></span
+            >
+            <Menu ref="menu" :model="overlayMenuItems" :popup="true" />
+            <button @click="toggleMenu" class="p-link layout-topbar-button">
                 <i class="pi pi-user"></i>
-                <span>Profile</span>
             </button>
-            <button @click="onSettingsClick()" class="p-link layout-topbar-button">
+            <button class="p-link layout-topbar-button">
                 <i class="pi pi-cog"></i>
                 <span>Settings</span>
             </button>

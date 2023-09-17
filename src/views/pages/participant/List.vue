@@ -1,7 +1,6 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
-import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
 import ParticipantService from '@/service/ParticipantService';
 import RegionService from '@/service/RegionService';
@@ -24,10 +23,31 @@ const regionService = new RegionService();
 onBeforeMount(() => {
     initFilters();
 });
-onMounted(() => {
+onMounted(async () => {
+    const params = { page: 1, size: 100 };
     // productService.getProducts().then((data) => (products.value = data));
-    participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
-    regionService.getProvincies({}).then((result) => (statuses.value = result));
+    await regionService.getProvincies({}).then((result) => (statuses.value = result));
+
+    const province = ref(window.localStorage.getItem('provinsi'));
+    const city = ref(window.localStorage.getItem('kota'));
+
+    if (province.value !== null) {
+        province.value = province.value.toUpperCase();
+        provinsi.value = statuses.value[findStatusIndexByName(province.value)].name;
+        status.value = statuses.value[findStatusIndexByName(province.value)].id;
+        await regionService.getRegencies({ province_id: status.value }).then((result) => (types.value = result));
+        params.provinsi = provinsi.value;
+    }
+
+    if (city.value !== null) {
+        city.value = city.value.toUpperCase();
+        type.value = types.value[findTypeIndexByName(city.value)].name;
+        params.kota = type.value;
+    }
+
+    participantService.getParticipants(params).then((result) => (products.value = result));
+    window.localStorage.removeItem('provinsi');
+    window.localStorage.removeItem('kota');
 });
 
 const hideDialog = () => {
@@ -84,6 +104,28 @@ const findStatusIndexById = (id) => {
     return index;
 };
 
+const findStatusIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < statuses.value.length; i++) {
+        if (statuses.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findTypeIndexByName = (name) => {
+  let index = -1;
+  for (let i = 0; i < types.value.length; i++) {
+    if (types.value[i].name === name) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+};
+
 const createId = () => {
     let id = '';
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -116,20 +158,22 @@ const handleProvinsi = () => {
     regionService.getRegencies({ province_id: status.value }).then((result) => (types.value = result));
 };
 
+const resetFilter = () => {
+    provinsi.value = null;
+    type.value = null;
+    participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
+};
+
 const handleFilter = () => {
-  const params = {
-    page: 1,
-    size: 100
-  }
+    const params = {
+        page: 1,
+        size: 100
+    };
 
-  if(provinsi.value) params.provinsi = provinsi.value
-  if(type.value) params.kota = type.value
+    if (provinsi.value) params.provinsi = provinsi.value;
+    if (type.value) params.kota = type.value;
 
-  participantService.getParticipants(params).then((result) => (products.value = result));
-  // provinsi: provinsi.value,
-  //     type: type.value
-
-
+    participantService.getParticipants(params).then((result) => (products.value = result));
 };
 
 const initFilters = () => {
@@ -150,11 +194,12 @@ const initFilters = () => {
                             <Dropdown class="ml-3 mr-4" v-model="status" :options="statuses" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                             <Dropdown class="mr-4" v-model="type" :options="types" optionValue="name" optionLabel="name" placeholder="Kota" />
                             <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
+                            <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
                         </div>
                     </template>
 
                     <template v-slot:end>
-                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
+                        <!--                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />-->
                     </template>
                 </Toolbar>
 

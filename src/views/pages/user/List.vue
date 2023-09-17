@@ -1,7 +1,6 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
-import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
 import UserService from '@/service/UserService';
 
@@ -16,8 +15,6 @@ const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-
-const productService = new ProductService();
 const userService = new UserService();
 
 onBeforeMount(() => {
@@ -54,12 +51,12 @@ const saveProduct = () => {
             }
         } else {
             try {
-                userService.addUser(product.value).then(() => {
+                userService.addUser(product.value).then((result) => {
                     toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
-                    products.value.push(product.value);
+                    products.value.push(result);
                 });
             } catch (e) {
-                toast.add({ severity: 'error', summary: 'Failed add new CID', detail: 'Error when add new CID ', life: 3000 });
+                toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 });
             }
         }
         productDialog.value = false;
@@ -69,7 +66,6 @@ const saveProduct = () => {
 
 const editProduct = (editProduct) => {
     product.value = { ...editProduct };
-    console.log(product);
     productDialog.value = true;
 };
 
@@ -80,7 +76,7 @@ const confirmDeleteProduct = (editProduct) => {
 
 const deleteProduct = () => {
     try {
-      const id = product.value.id
+        const id = product.value.id;
         userService.deleteUser(id).then(() => {
             products.value = products.value.filter((val) => val.id !== id);
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
@@ -101,15 +97,6 @@ const findIndexById = (id) => {
         }
     }
     return index;
-};
-
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
 };
 
 const deleteSelectedProducts = () => {
