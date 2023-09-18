@@ -17,6 +17,7 @@ const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
+const calendarValue = ref(null);
 const kecamatans = ref([
     { name: 'New York', code: 'NY' },
     { name: 'Rome', code: 'RM' },
@@ -229,6 +230,7 @@ const initFilters = () => {
                         <div class="my-2">
                             <Dropdown class="ml-3 mr-4" v-model="status" :options="statuses" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                             <Dropdown class="mr-4" v-model="type" :options="types" optionValue="name" optionLabel="name" placeholder="Kota" />
+                            <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="w-2 mr-4" v-model="calendarValue"></Calendar>
                             <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
                             <Button label="Clear Filter" class="p-button-info ml-2" @click="resetFilter" />
                         </div>
