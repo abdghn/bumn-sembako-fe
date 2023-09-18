@@ -13,6 +13,30 @@ const toast = useToast();
 const router = useRouter();
 const name = ref('');
 const confirmedPassword = ref('');
+const dropdownValuesEO = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const dropdownValuesProv = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const dropdownValuesCity = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const dropdownValueEO = ref(null);
+const dropdownValueCity = ref(null);
+const dropdownValueProv = ref(null);
 
 const logoUrl = computed(() => {
     return `layout/images/login1.png`;
@@ -46,10 +70,19 @@ const handleRegister = () => {
                     <div class="text-center mb-5"></div>
                     <div>
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Nama Lengkap</label>
-                        <InputText id="name1" type="text" placeholder="" class="w-full md:w-30rem mb-5" style="padding: 1rem" v-model="name" />
+                        <InputText id="name1" type="text" placeholder="Nama Lengkap" class="w-full md:w-30rem mb-3" style="padding: 1rem" v-model="name" />
+
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
+                        <Dropdown v-model="dropdownValueEO" class="w-full md:w-30rem mb-3" :options="dropdownValuesEO" optionLabel="name" placeholder="Select" />
+
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
+                        <Dropdown v-model="dropdownValueProv" class="w-full md:w-30rem mb-3" :options="dropdownValuesProv" optionLabel="name" placeholder="Select" />
+
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">City</label>
+                        <Dropdown v-model="dropdownValueCity" class="w-full md:w-30rem mb-3" :options="dropdownValuesCity" optionLabel="name" placeholder="Select" :disabled="!dropdownValueProv"/>
 
                         <label for="username1" class="block text-900 text-xl font-medium mb-2">Username</label>
-                        <InputText id="username1" type="text" placeholder="Username" class="w-full md:w-30rem mb-5" style="padding: 1rem" v-model="username" />
+                        <InputText id="username1" type="text" placeholder="Username" class="w-full md:w-30rem mb-3" style="padding: 1rem" v-model="username" />
 
                         <label for="password1" class="block text-900 font-medium text-xl mb-2">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }"></Password>

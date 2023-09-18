@@ -217,57 +217,57 @@ const router = createRouter({
     ]
 });
 
-router.beforeEach((to, from, next) => {
+// router.beforeEach((to, from, next) => {
 
-    // if (authRequired && token) {
-    //     return '/'
-    // } else {
-    //     return '/auth/login';
-    // }
+//     // if (authRequired && token) {
+//     //     return '/'
+//     // } else {
+//     //     return '/auth/login';
+//     // }
 
-    // const token =  window.localStorage.getItem("token")
-    //
-    //  if(token) {
-    //
-    //  } else {
-    //      next('auth/login')
-    //  }
+//     // const token =  window.localStorage.getItem("token")
+//     //
+//     //  if(token) {
+//     //
+//     //  } else {
+//     //      next('auth/login')
+//     //  }
 
-    const token = window.localStorage.getItem("token")
-    if(to.path === '/auth/login'){
-        if(token){
-            next('/')
-        }
-    }
+//     const token = window.localStorage.getItem("token")
+//     if(to.path === '/auth/login'){
+//         if(token){
+//             next('/')
+//         }
+//     }
 
-    if(to.path === '/'){
-        if(!token){
-            next('/auth/login')
-        }
-    }
+//     if(to.path === '/'){
+//         if(!token){
+//             next('/auth/login')
+//         }
+//     }
 
 
-    if (to.meta.requiredAuthorization) {
-        if (!token) {
-            next('/auth/login')
-        }
-        // const base64Url = token.split('.')[1];
-        // console.log(base64Url)
-        // if (!base64Url) {
-        //     next('/auth/login')
-        // }
-        // const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        // const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        //     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        // }).join(''));
-        // const user = JSON.parse(jsonPayload);
+//     if (to.meta.requiredAuthorization) {
+//         if (!token) {
+//             next('/auth/login')
+//         }
+//         // const base64Url = token.split('.')[1];
+//         // console.log(base64Url)
+//         // if (!base64Url) {
+//         //     next('/auth/login')
+//         // }
+//         // const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+//         // const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+//         //     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+//         // }).join(''));
+//         // const user = JSON.parse(jsonPayload);
 
-        next()
+//         next()
 
-    } else {
-        next()
-    }
+//     } else {
+//         next()
+//     }
 
-})
+// })
 
 export default router;
