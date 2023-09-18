@@ -178,7 +178,7 @@ const generateStatus = (value) => {
               </div>
               <div class="field">
                 <label for="email1">Nomor KTP</label>
-                <InputText id="email1" type="text" :disabled="!gugur == 1" v-model.trim="newParticipant.nik" />
+                <InputText id="email1" type="number" :required="true" :disabled="!gugur == 1" v-model.trim="newParticipant.nik" />
               </div>
               <div class="field">
                 <label for="age1">Jenis Kelamin</label>
@@ -275,4 +275,12 @@ const generateStatus = (value) => {
     </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+  input[type=number]::-webkit-inner-spin-button, 
+  input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+</style>

@@ -253,7 +253,14 @@ const initFilters = () => {
                             </span>
                         </div>
                     </template>
-
+                    <Column header="Action" headerStyle="min-width:6rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Action</span>
+                            <router-link :to="`participant/${slotProps.data.id}`">
+                                <Button label="Detail" class="p-button-info mr-2" />
+                            </router-link>
+                        </template>
+                    </Column>
                     <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No</span>
@@ -380,14 +387,14 @@ const initFilters = () => {
                             {{ slotProps.data.residence_kode_pos }}
                         </template>
                     </Column>
-                    <Column header="Action" headerStyle="min-width:5rem;">
+                    <!-- <Column header="Action" headerStyle="min-width:5rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Action</span>
                             <router-link :to="`participant/${slotProps.data.id}`">
                                 <Button label="Detail" class="p-button-info mr-2" />
                             </router-link>
                         </template>
-                    </Column>
+                    </Column> -->
                 </DataTable>
 
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">

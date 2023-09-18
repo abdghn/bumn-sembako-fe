@@ -2,6 +2,7 @@
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import Editor from 'primevue/editor';
 import ParticipantService from '@/service/ParticipantService';
 import RegionService from '@/service/RegionService';
 
@@ -238,8 +239,20 @@ const initFilters = () => {
                         <Button label="Tampilkan data" class="p-button-info ml-2" @click="resetFilter" />
                     </template>
                 </Toolbar>
-                <!-- https://primevue.org/editor/ -->
-                <Editor v-model="value" editorStyle="height: 320px" />
+                  <div class="grid">
+                    <div class="col-4">
+                    <h5>Jam</h5>
+                    <Editor v-model="value" editorStyle="height: 320px" />
+                    </div>
+                    <div class="col-4">
+                      <h5>Evaluasi</h5>
+                    <Editor v-model="value" editorStyle="height: 320px" />
+                    </div>
+                    <div class="col-4">
+                      <h5>Solusi</h5>
+                    <Editor v-model="value" editorStyle="height: 320px" />
+                    </div>
+                  </div>
             </div>
         </div>
     </div>
