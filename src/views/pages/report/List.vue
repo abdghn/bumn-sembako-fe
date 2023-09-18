@@ -253,9 +253,9 @@ const initFilters = () => {
                     <Editor v-model="value" editorStyle="height: 320px" />
                     </div>
                   </div>
-                  <div class="flex justify-content-right">
-                  <Button label="Tampilkan data" class="p-button-info ml-2" @click="resetFilter" />
-                  </div>
+                  <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                    <Button label="Tampilkan data" class="p-button-info ml-2" @click="resetFilter" />
+                </div>
             </div>
         </div>
     </div>
