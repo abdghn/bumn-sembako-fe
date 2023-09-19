@@ -13,6 +13,8 @@ const toast = useToast();
 const gugur = ref(false);
 const file = ref(null);
 const newParticipant = ref({});
+const newParticipant2 = ref({});
+const isSelected= ref(false);
 const baseUrl = ref(import.meta.env.VITE_BACKEND_URL)
 const isRejected = ref(false);
 const provinces = ref([
@@ -133,6 +135,32 @@ const handleSesuai = () => {
     }
 };
 
+const handleCopy = () => {
+  try {
+    const formData = new FormData();
+      formData.append('name', newParticipant.value.name = participant.value.name);
+      formData.append('nik', newParticipant.value.nik = participant.value.nik);
+      formData.append('gender', newParticipant.value.gender = participant.value.gender);
+      formData.append('phone', newParticipant.value.phone = participant.value.phone);
+      formData.append('address', newParticipant.value.address = participant.value.address);
+      formData.append('rt', newParticipant.value.rt = participant.value.rt);
+      formData.append('rw', newParticipant.value.rw = participant.value.rw);
+  } catch (e) {
+    console.log(e);
+  };
+};
+
+const handleSameKTP = () => {
+  try {
+    const formData = new FormData();
+      formData.append('address', newParticipant2.value.address = participant.value.address);
+      formData.append('rt', newParticipant2.value.rt = participant.value.rt);
+      formData.append('rw', newParticipant2.value.rw = participant.value.rw);
+  } catch (e) {
+    console.log(e);
+  };
+}
+
 const onSelectedFiles = (event) => {
     event.files.forEach((result) => {
         file.value = result;
@@ -182,9 +210,10 @@ const generateStatus = (value) => {
                 <p>Nama: {{ participant?.name }}</p>
                 <p>NIK: {{ participant?.nik }}</p>
                 <p>Jenis Kelamin: {{ participant?.gender }}</p>
-                <p>No Handphone: {{ participant?.phone }}</p>
+                <p>No Handphone: +{{ participant?.phone }}</p>
             </div>
             <div class="field col">
+              <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
               <div class="mb-4">
                 <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === 1" @select="onSelectedFiles" />
               </div>
@@ -194,8 +223,8 @@ const generateStatus = (value) => {
         <div class="formgrid grid">
             <div class="field col-3">
                 <p>Alamat Sesuai KTP: {{ participant?.address }}</p>
-                <p>RT: {{ participant?.rt }}</p>
-                <p>RW: {{ participant?.rw }}</p>
+                <p>RT: 0{{ participant?.rt }}</p>
+                <p>RW: 0{{ participant?.rw }}</p>
                 <p>Provinsi: {{ participant?.provinsi }}</p>
                 <p>Kota: {{ participant?.kota }}</p>
                 <p>Kecamatan: {{ participant?.kecamatan }}</p>
@@ -204,8 +233,8 @@ const generateStatus = (value) => {
             </div>
             <div class="field col-3">
                 <p>Alamat Domisili: {{ participant?.address }}</p>
-                <p>RT: {{ participant?.rt }}</p>
-                <p>RW: {{ participant?.rw }}</p>
+                <p>RT: 0{{ participant?.rt }}</p>
+                <p>RW: 0{{ participant?.rw }}</p>
                 <p>Provinsi: {{ participant?.provinsi }}</p>
                 <p>Kota: {{ participant?.kota }}</p>
                 <p>Kecamatan: {{ participant?.kecamatan }}</p>
@@ -213,6 +242,7 @@ const generateStatus = (value) => {
                 <p>Kode POS: {{ participant?.kode_pos }}</p>
             </div>
             <div class="field col">
+              <h5 class="mb-2 text-900">Unggah Foto Menerima Sembako Jelas</h5>
               <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === 1" @select="onSelectedFiles" />
             </div>
         </div>
@@ -231,7 +261,7 @@ const generateStatus = (value) => {
               </div>
               <div class="col-12 md:col-4">
                 <div class="field-checkbox mb-2">
-                    <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" @click="handleSesuai"/>
+                    <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" @click="handleCopy"/>
                 </div>
               </div>
             </div>
@@ -256,9 +286,11 @@ const generateStatus = (value) => {
             </div>
           </div>
           <div class="field col">
-            <div class="mb-4">
+            <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
+            <div class="mb-6">
               <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur == 1" @select="onSelectedFiles" />
             </div>
+            <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
             <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur == 1" @select="onSelectedFiles" />
           </div>
         </div>
@@ -314,21 +346,21 @@ const generateStatus = (value) => {
             <div class="p-fluid">
               <h5>Alamat Domisili</h5>
                 <div class="field-checkbox mb-4">
-                    <Checkbox id="checkOption1" name="option" value="Chicago" v-model="checkboxValue" :disabled="!gugur == 1"/>
-                    <label for="checkOption1">Alamat sesuai KTP</label>
+                    <Checkbox id="checkOption2" name="option" :value="handleSameKTP" v-model="isSelected" />
+                    <label for="checkOption2">Alamat sesuai KTP</label>
                 </div>
               <div class="field">
                 <label for="name1">Alamat</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" placeholder="Alamat" v-model="newParticipant.residence_address" />
+                <InputText id="name1" type="text" :disabled="!gugur == 1" placeholder="Alamat" v-model="newParticipant2.residence_address" />
               </div>
               <div class="grid formgrid mb-4">
                 <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                   <label for="email1">RT</label>
-                  <InputText id="email1" type="text" :disabled="!gugur == 1" placeholder="RT" v-model="newParticipant.residence_rt" />
+                  <InputText id="email1" type="text" :disabled="!gugur == 1" placeholder="RT" v-model="newParticipant2.residence_rt" />
                 </div>
                 <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                   <label for="age1">RW</label>
-                  <InputText id="age1" type="text" :disabled="!gugur == 1" placeholder="RW" v-model="newParticipant.residence_rw" />
+                  <InputText id="age1" type="text" :disabled="!gugur == 1" placeholder="RW" v-model="newParticipant2.residence_rw" />
                 </div>
               </div>
               <div class="field">
