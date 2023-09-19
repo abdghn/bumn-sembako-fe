@@ -8,12 +8,59 @@ const route = useRoute();
 const router = useRouter();
 const participant = ref({});
 const participantService = new ParticipantService();
+const checkboxValue = ref([]);
 const toast = useToast();
 const gugur = ref(false);
 const file = ref(null);
 const newParticipant = ref({});
 const baseUrl = ref(import.meta.env.VITE_BACKEND_URL)
 const isRejected = ref(false);
+const provinces = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const province = ref(null);
+const cities = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const city = ref(null);
+const subdistricts = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const subdistrict = ref(null);
+const wards = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const ward = ref(null);
+const poscodes = ref([
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+]);
+const poscode = ref(null);
+const genders = ref([
+    { name: 'Pria', code: 'PR' },
+    { name: 'Wanita', code: 'WN' },
+    { name: 'Others', code: 'OT' },
+]);
+const gender = ref(null);
 
 onMounted(() => {
     participantService.getParticipant(route.params.id).then((result) => (participant.value = result));
@@ -125,10 +172,9 @@ const generateStatus = (value) => {
             </template>
 
             <template v-slot:end v-if="participant.status !== `DONE` ">
-
-                <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" />
-                <Button label="Sesuai" class="p-button-info ml-2" @click="handleSesuai"
-            /></template>
+              <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" />
+              <Button label="Sesuai" class="p-button-info ml-2" @click="handleSesuai"/>
+            </template>
         </Toolbar>
         <div class="formgrid grid">
             <div class="field col">
@@ -171,22 +217,36 @@ const generateStatus = (value) => {
       <div v-if="participant.status !== `DONE` && (participant.status !== `REJECTED` || isRejected)">
         <div class="formgrid grid">
           <div class="field col">
+            <div class="grid my-4">
+              <div class="col-12 md:col-3">
+                <div class="field-checkbox mb-2">
+                    <Checkbox id="checkOption1" name="option" value="Chicago" v-model="checkboxValue" />
+                    <label for="checkOption1">Penerima Gugur</label>
+                </div>
+              </div>
+              <div class="col-12 md:col-4">
+                <div class="field-checkbox mb-2">
+                    <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" @click="handleSesuai"/>
+                </div>
+              </div>
+            </div>
             <div class="p-fluid">
               <div class="field">
-                <label for="name1">Nama Peserta</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model.trim="newParticipant.name" />
+                <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
+                <InputText id="name1" type="text" :disabled="!gugur == 1" placeholder="Nama Peserta" v-model.trim="newParticipant.name" />
               </div>
               <div class="field">
                 <label for="email1">Nomor KTP</label>
-                <InputText id="email1" type="number" :required="true" :disabled="!gugur == 1" v-model.trim="newParticipant.nik" />
+                <InputText id="email1" type="number" :required="true" :disabled="!gugur == 1" placeholder="No. KTP" v-model.trim="newParticipant.nik" />
               </div>
               <div class="field">
                 <label for="age1">Jenis Kelamin</label>
-                <InputText id="age1" type="text" :disabled="!gugur == 1" v-model="newParticipant.gender" />
+                <!-- <InputText id="age1" type="text" :disabled="!gugur == 1" v-model="newParticipant.gender" /> -->
+                <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Jenis Kelamin" />
               </div>
               <div class="field">
                 <label for="age1">No Handphone</label>
-                <InputText id="age1" type="text" :disabled="!gugur == 1" v-model="newParticipant.phone" />
+                <InputText id="age1" type="text" :disabled="!gugur == 1" placeholder="08*********" v-model="newParticipant.phone" />
               </div>
             </div>
           </div>
@@ -198,74 +258,96 @@ const generateStatus = (value) => {
           <div class="field col">
             <div class="p-fluid">
               <h5>Alamat Sesuai KTP</h5>
+              <div class="field-checkbox mb-6">
+                  <div class="mb-1"></div>
+                </div>
               <div class="field">
                 <label for="name1">Alamat</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.address" />
+                <InputText id="name1" type="text" :disabled="!gugur == 1" placeholder="Alamat" v-model="newParticipant.address" />
               </div>
-              <div class="field">
-                <label for="email1">RT</label>
-                <InputText id="email1" type="text" :disabled="!gugur == 1" v-model="newParticipant.rt" />
-              </div>
-              <div class="field">
-                <label for="age1">RW</label>
-                <InputText id="age1" type="text" :disabled="!gugur == 1" v-model="newParticipant.rw" />
+              <div class="grid formgrid mb-4">
+                <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                  <label for="email1" class="mb-2">RT</label>
+                  <InputText id="email1" type="text" :disabled="!gugur == 1" placeholder="RT" v-model="newParticipant.rt" />
+                </div>
+                <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                  <label for="age1">RW</label>
+                  <InputText id="age1" type="text" :disabled="!gugur == 1" placeholder="RW" v-model="newParticipant.rw" />
+                </div>
               </div>
               <div class="field">
                 <label for="name1">Provinsi</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.provinsi" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.provinsi" /> -->
+                <Dropdown class="mr-4" v-model="province" :options="provinces" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Provinsi" />
               </div>
               <div class="field">
                 <label for="name1">Kota</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kota" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kota" /> -->
+                <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kota" />
               </div>
               <div class="field">
                 <label for="name1">Kecamatan</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kecamatan" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kecamatan" /> -->
+                <Dropdown class="mr-4" v-model="subdistrict" :disabled="!gugur == 1" :options="subdistricts" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
               </div>
               <div class="field">
                 <label for="name1">Kelurahan</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kelurahan" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kelurahan" /> -->
+                <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
               </div>
               <div class="field">
                 <label for="name1">Kode POS</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kode_pos" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.kode_pos" /> -->
+                <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kode POS" />
               </div>
             </div>
           </div>
           <div class="field col">
             <div class="p-fluid">
               <h5>Alamat Domisili</h5>
+                <div class="field-checkbox mb-4">
+                    <Checkbox id="checkOption1" name="option" value="Chicago" v-model="checkboxValue" :disabled="!gugur == 1"/>
+                    <label for="checkOption1">Alamat sesuai KTP</label>
+                </div>
               <div class="field">
                 <label for="name1">Alamat</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_address" />
+                <InputText id="name1" type="text" :disabled="!gugur == 1" placeholder="Alamat" v-model="newParticipant.residence_address" />
               </div>
-              <div class="field">
-                <label for="email1">RT</label>
-                <InputText id="email1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_rt" />
-              </div>
-              <div class="field">
-                <label for="age1">RW</label>
-                <InputText id="age1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_rw" />
+              <div class="grid formgrid mb-4">
+                <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                  <label for="email1">RT</label>
+                  <InputText id="email1" type="text" :disabled="!gugur == 1" placeholder="RT" v-model="newParticipant.residence_rt" />
+                </div>
+                <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                  <label for="age1">RW</label>
+                  <InputText id="age1" type="text" :disabled="!gugur == 1" placeholder="RW" v-model="newParticipant.residence_rw" />
+                </div>
               </div>
               <div class="field">
                 <label for="name1">Provinsi</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_provinsi" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_provinsi" /> -->
+                <Dropdown class="mr-4" v-model="province" :options="provinces" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Provinsi" />
               </div>
               <div class="field">
                 <label for="name1">Kota</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kota" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kota" /> -->
+                <Dropdown 
+                  class="mr-4" v-model="city" :options="cities" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kota" />
               </div>
               <div class="field">
                 <label for="name1">Kecamatan</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kecamatan" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kecamatan" /> -->
+                <Dropdown class="mr-4" v-model="subdistrict" :options="subdistricts" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
               </div>
               <div class="field">
                 <label for="name1">Kelurahan</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kelurahan" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kelurahan" /> -->
+                <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
               </div>
               <div class="field">
                 <label for="name1">Kode POS</label>
-                <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kode_pos" />
+                <!-- <InputText id="name1" type="text" :disabled="!gugur == 1" v-model="newParticipant.residence_kode_pos" /> -->
+                <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kode POS" />
               </div>
             </div>
           </div>
