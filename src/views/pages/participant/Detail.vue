@@ -185,12 +185,14 @@ const generateStatus = (value) => {
                 <p>No Handphone: {{ participant?.phone }}</p>
             </div>
             <div class="field col">
+              <div class="mb-4">
                 <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === 1" @select="onSelectedFiles" />
-              <img v-if="participant.status === `DONE`" :src="baseUrl+ `/v1/` + participant.image" height="250" alt="Logo" class="mr-2" />
+              </div>
+                <img v-if="participant.status === `DONE`" :src="baseUrl+ `/v1/` + participant.image" height="250" alt="Logo" class="mr-2" />
             </div>
         </div>
         <div class="formgrid grid">
-            <div class="field col">
+            <div class="field col-3">
                 <p>Alamat Sesuai KTP: {{ participant?.address }}</p>
                 <p>RT: {{ participant?.rt }}</p>
                 <p>RW: {{ participant?.rw }}</p>
@@ -200,7 +202,7 @@ const generateStatus = (value) => {
                 <p>Kelurahan: {{ participant?.kelurahan }}</p>
                 <p>Kode POS: {{ participant?.kode_pos }}</p>
             </div>
-            <div class="field col">
+            <div class="field col-3">
                 <p>Alamat Domisili: {{ participant?.address }}</p>
                 <p>RT: {{ participant?.rt }}</p>
                 <p>RW: {{ participant?.rw }}</p>
@@ -210,11 +212,14 @@ const generateStatus = (value) => {
                 <p>Kelurahan: {{ participant?.kelurahan }}</p>
                 <p>Kode POS: {{ participant?.kode_pos }}</p>
             </div>
+            <div class="field col">
+              <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === 1" @select="onSelectedFiles" />
+            </div>
         </div>
 
         <hr />
 
-      <div v-if="participant.status !== `DONE` && (participant.status !== `REJECTED` || isRejected)">
+      <!-- <div v-if="participant.status !== `DONE` && (participant.status !== `REJECTED` || isRejected)"> -->
         <div class="formgrid grid">
           <div class="field col">
             <div class="grid my-4">
@@ -251,6 +256,9 @@ const generateStatus = (value) => {
             </div>
           </div>
           <div class="field col">
+            <div class="mb-4">
+              <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur == 1" @select="onSelectedFiles" />
+            </div>
             <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur == 1" @select="onSelectedFiles" />
           </div>
         </div>
@@ -355,7 +363,7 @@ const generateStatus = (value) => {
             </div>
           </div>
         </div>
-      </div>
+      <!-- </div> -->
 
     </div>
 </template>
