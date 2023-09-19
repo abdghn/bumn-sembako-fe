@@ -17,28 +17,18 @@ const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
 const kecamatans = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
+    { name: 'Pasir Luyu', code: 'PL' }
 ]);
 const kecamatan = ref(null);
 
 const kelurahans = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
+    { name: 'Cihampelas', code: 'CH' }
 ]);
 const kelurahan = ref(null);
 const statuss = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
+    { name: 'Selesai', code: 'Done' },
+    { name: 'Belum unggah foto', code: 'NotUpload' },
+    { name: 'Gugur', code: 'Gugur' },
 ]);
 const stat = ref(null);
 
@@ -219,8 +209,8 @@ const initFilters = () => {
                             <Dropdown class="ml-3 mr-4" v-model="status" :options="statuses" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                             <Dropdown class="mr-4" v-model="type" :options="types" optionValue="name" optionLabel="name" placeholder="Kota" />
                             <Dropdown class="mr-4" v-model="kecamatan" :options="kecamatans" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
-                            <Dropdown v-if="kecamatan" class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
-                            <Dropdown v-if="kelurahan" class="mr-4" v-model="stat" :options="statuss" optionValue="name" optionLabel="name" placeholder="Status" />
+                            <Dropdown class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
+                            <Dropdown class="mr-4" v-model="stat" :options="statuss" optionValue="name" optionLabel="name" placeholder="Status" />
                             <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
                             <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
                         </div>
