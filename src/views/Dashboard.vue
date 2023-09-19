@@ -90,47 +90,45 @@ watch(
   <div className="card">
     <h3 class="text-center">Dashboard Bakti Sosial 2023</h3>
   </div>
-  <!-- <div className="card">
-    <div class="grid">
-
-    </div>
-  </div> -->
+  <div className="card">
+      <h3 class="text-left">Total Sembako di kota anda : 2023</h3>
+  </div>
     <div class="grid">
       <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
+        <div class="card mb-0" :style="{ 'height': '100%'}">
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3">Total Penerima</h3>
+              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Total Penerima Bantuan Kota Anda</h3>
               <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>152</h3> </div>
             </div>
           </div>
         </div>
       </div>
       <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
+        <div class="card mb-0" :style="{ 'height': '100%'}">
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3">Done</h3>
+              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Sudah Menerima Bantuan</h3>
               <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>152</h3> </div>
             </div>
           </div>
         </div>
       </div>
       <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
+        <div class="card mb-0" :style="{ 'height': '100%'}">
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3">Partially Done</h3>
+              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Unggah Foto Penerima Bantuan</h3>
               <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>152</h3> </div>
             </div>
           </div>
         </div>
       </div>
       <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
+        <div class="card mb-0" :style="{ 'height': '100%'}">
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3">Belum Menerima</h3>
+              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Menerima Bantuan</h3>
               <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>152</h3> </div>
             </div>
           </div>
@@ -140,10 +138,10 @@ watch(
         
       </div>
       <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
+        <div class="card mb-0" :style="{ 'height': '100%'}">
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3">Gugur</h3>
+              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>
               <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>152</h3> </div>
             </div>
           </div>

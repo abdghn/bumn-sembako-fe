@@ -261,7 +261,7 @@ const initFilters = () => {
                             </router-link>
                         </template>
                     </Column>
-                    <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:4rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No</span>
                             {{ slotProps.index + 1 }}
@@ -297,13 +297,13 @@ const initFilters = () => {
                             {{ slotProps.data.address }}
                         </template>
                     </Column>
-                    <Column field="rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">RT</span>
                             {{ slotProps.data.rt }}
                         </template>
                     </Column>
-                    <Column field="rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:4rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">RW</span>
                             {{ slotProps.data.rw }}
@@ -333,7 +333,7 @@ const initFilters = () => {
                             {{ slotProps.data.kelurahan }}
                         </template>
                     </Column>
-                    <Column field="kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Kode POS</span>
                             {{ slotProps.data.kode_pos }}
@@ -345,13 +345,13 @@ const initFilters = () => {
                             {{ slotProps.data.residence_address }}
                         </template>
                     </Column>
-                    <Column field="residence_rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="residence_rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">RT</span>
                             {{ slotProps.data.residence_rt }}
                         </template>
                     </Column>
-                    <Column field="residence_rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="residence_rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:4rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">RW</span>
                             {{ slotProps.data.residence_rw }}
@@ -381,7 +381,7 @@ const initFilters = () => {
                             {{ slotProps.data.residence_kelurahan }}
                         </template>
                     </Column>
-                    <Column field="residence_kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="residence_kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Kode POS</span>
                             {{ slotProps.data.residence_kode_pos }}
