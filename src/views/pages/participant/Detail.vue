@@ -350,6 +350,9 @@ const generateStatus = (value) => {
                 <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Kode POS" />
               </div>
             </div>
+            <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+              <Button label="Submit" class="p-button-info mr-4" />
+            </div>
           </div>
         </div>
       </div>
