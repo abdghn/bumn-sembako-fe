@@ -214,49 +214,48 @@ const initFilters = () => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-              <h5>Menampilkan Data : Provinsi DKI Jakarta, Kota Jakarta Selatan, Kecamatan Kebayoran Baru</h5>
+                <h5>Menampilkan Data : Provinsi DKI Jakarta, Kota Jakarta Selatan, Kecamatan Kebayoran Baru</h5>
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <span class="mr-8"><b>Total: 12.121</b></span>
-                            <span class="mr-8"><b>Done: 7000</b></span>
-                            <span class="mr-8"><b>Belum Unggah Foto: 3921</b></span>
-                            <span class="mr-8"><b>Belum Menerima: 1300</b></span>
+                            <span class="mr-4"><b>Total: 12.121</b></span>
+                            <span class="mr-4"><b>Done: 7.000</b></span>
+                            <span class="mr-4"><b>Belum Unggah Foto: 3921</b></span>
+                            <span class="mr-4"><b>Belum Menerima: 1300</b></span>
                         </div>
                     </template>
                 </Toolbar>
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2">
-                            <Dropdown class="ml-3 mr-4" v-model="status" :options="statuses" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-                            <Dropdown class="mr-4" v-model="type" :options="types" optionValue="name" optionLabel="name" placeholder="Kota" />
-                            <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="w-2 mr-4" v-model="calendarValue"></Calendar>
-                            <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
-                            <Button label="Clear Filter" class="p-button-info ml-2" @click="resetFilter" />
+                        <div>
+                            <Dropdown class="mr-2" v-model="status" :options="statuses" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
+                            <Dropdown class="mr-2" v-model="type" :options="types" optionValue="name" optionLabel="name" placeholder="Kota" />
+                            <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
+                            <Button label="Search" class="p-button-secondary mb-2" @click="handleFilter" />
+                            <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
                         </div>
                     </template>
 
                     <template v-slot:end>
-                        <!-- <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />-->
-                        <Button label="Tampilkan data" class="p-button-info ml-2" @click="resetFilter" />
+                        <Button label="Tampilkan data" class="p-button-info ml-2 inline-block" @click="resetFilter" />
                     </template>
                 </Toolbar>
-                  <div class="grid">
-                    <div class="col-4">
-                    <h5>Jam</h5>
-                    <Editor v-model="value" editorStyle="height: 320px" />
+                <div class="grid p-fluid">
+                    <div class="col-12 xl:col-4">
+                        <h5>Jam</h5>
+                        <Editor v-model="value" editorStyle="height: 320px" />
                     </div>
-                    <div class="col-4">
-                      <h5>Evaluasi</h5>
-                    <Editor v-model="value" editorStyle="height: 320px" />
+                    <div class="col-12 xl:col-4">
+                        <h5>Evaluasi</h5>
+                        <Editor v-model="value" editorStyle="height: 320px" />
                     </div>
-                    <div class="col-4">
-                      <h5>Solusi</h5>
-                    <Editor v-model="value" editorStyle="height: 320px" />
+                    <div class="col-12 xl:col-4">
+                        <h5>Solusi</h5>
+                        <Editor v-model="value" editorStyle="height: 320px" />
                     </div>
-                  </div>
-                  <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                </div>
+                <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
                     <Button label="Tampilkan data" class="p-button-info ml-2" @click="resetFilter" />
                 </div>
             </div>
