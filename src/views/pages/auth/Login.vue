@@ -11,7 +11,8 @@ const authService = new AuthService();
 const username = ref('');
 const password = ref('');
 const toast = useToast();
-const router = useRouter()
+const router = useRouter();
+const errors = ref(null);
 
 const logoUrl = computed(() => {
     return `layout/images/login1.png`;
@@ -27,6 +28,7 @@ const handleLogin = () => {
           router.push('/')
         })
         .catch((e) =>  {
+          errors.value = e.response.status
           toast.add({ severity: 'error', summary: 'Failed Login', detail: 'Username/Password Invalid', life: 3000 })
         })
 
@@ -57,15 +59,15 @@ const handleLogin = () => {
 
                         <label for="password1" class="block text-900 font-medium text-xl mb-2">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }"></Password>
-
-<!--                        <div class="flex align-items-center justify-content-between mb-5 gap-5">-->
-<!--                            <div class="flex align-items-center">-->
-<!--                                <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>-->
-<!--                                <label for="rememberme1">Remember me</label>-->
-<!--                            </div>-->
-<!--                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(&#45;&#45;primary-color)">Forgot password?</a>-->
-<!--                        </div>-->
-                      <Button label="Sign In" class="w-full p-3 text-xl" @click="handleLogin" />
+                        <div v-if="errors" class="my-4 text-center" style="font-style: italic; color: #E92121;">
+                          <span>Anda sudah gagal login sebanyak 3x, mohon hubungi Admin</span>
+                        </div>
+                        <div v-if="errors">
+                          <Button label="Sign In" class="w-full p-3 text-xl" @click="handleLogin" disabled/>
+                        </div>
+                        <div v-else>
+                          <Button label="Sign In" class="w-full p-3 text-xl" @click="handleLogin" />
+                        </div>
                     </div>
                 </div>
             </div>
