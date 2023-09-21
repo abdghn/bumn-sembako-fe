@@ -33,7 +33,8 @@ const kecamatan = ref({});
 const provinsi = ref(null);
 const kota = ref(null);
 const kcmatan = ref(null);
-// const klurahan = ref(null);
+const klurahan = ref(null);
+const status = ref(null);
 const stat = ref(null);
 
 
@@ -131,10 +132,21 @@ const findKecamatanIndexById = (id) => {
     return index;
 };
 
-const findStatusIndexById = (id) => {
+const findKelurahanIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < kelurahans.value.length; i++) {
+        if (kelurahans.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findStatusIndexById = (code) => {
     let index = -1;
     for (let i = 0; i < statuss.value.length; i++) {
-        if (statuss.value[i].id === id) {
+        if (statuss.value[i].code === code) {
             index = i;
             break;
         }
@@ -221,15 +233,19 @@ const handleKecamatan = () => {
     regionService.getVillage({ district_id: kecamatan.value }).then((result) => (kelurahans.value = result));
 };
 
+const handleKelurahan = () => {
+    klurahan.value = kelurahans.value[findKelurahanIndexById(kelurahan.value)].name;
+};
+
 const handleStatus = () => {
-    stat.value = statuss.value[findStatusIndexById(stat.value)].name;
-    console.log(stat.value);
+    status.value = statuss.value[findStatusIndexById(stat.value)].code;
 };
 
 const resetFilter = () => {
     provinsi.value = null;
     kota.value = null;
-    kcmatan.value = null;
+    kecamatan.value = null;
+    kelurahan.value = null;
     participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
 };
 
@@ -241,6 +257,9 @@ const handleFilter = () => {
 
     if (provinsi.value) params.provinsi = provinsi.value;
     if (kota.value) params.kota = kota.value;
+    if (kcmatan.value) params.kecamatan = kcmatan.value;
+    if (klurahan.value) params.kelurahan = klurahan.value;
+    if (stat.value) params.status = stat.value;
 
     participantService.getParticipants(params).then((result) => (products.value = result));
 };
@@ -313,8 +332,8 @@ const getDataDropdown = async () => {
                             <Dropdown class="ml-3 mr-4" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                             <Dropdown class="mr-4" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleKota" />
                             <Dropdown class="mr-4" v-model="kecamatan" :options="kecamatans" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleKecamatan" />
-                            <Dropdown class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="id" optionLabel="name" placeholder="Kelurahan" />
-                            <Dropdown class="mr-4" v-model="stat" :options="statuss" optionValue="id" optionLabel="name" placeholder="Status" @change="handleStatus"/>
+                            <Dropdown class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleKelurahan"/>
+                            <Dropdown class="mr-4" v-model="stat" :options="statuss" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
                             <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
                             <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
                         </div>
