@@ -4,7 +4,7 @@ import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import ParticipantService from '@/service/ParticipantService';
 import RegionService from '@/service/RegionService';
-import { axiosApp } from '@/utils/axios';
+import TextClamp from 'vue3-text-clamp';
 
 const toast = useToast();
 
@@ -33,7 +33,7 @@ const kecamatan = ref({});
 const provinsi = ref(null);
 const kota = ref(null);
 const kcmatan = ref(null);
-const klurahan = ref(null);
+// const klurahan = ref(null);
 const stat = ref(null);
 
 
@@ -197,9 +197,9 @@ const createId = () => {
     return id;
 };
 
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
+// const exportCSV = () => {
+//     dt.value.exportCSV();
+// };
 
 const deleteSelectedProducts = () => {
     products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
@@ -390,7 +390,7 @@ const getDataDropdown = async () => {
                     <Column field="address" header="Alamat Sesuai KTP" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat Sesuai KTP</span>
-                            {{ slotProps.data.address }}
+                            <text-clamp :text="slotProps.data.address" :max-lines='2' />
                         </template>
                     </Column>
                     <Column field="rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
@@ -438,7 +438,7 @@ const getDataDropdown = async () => {
                     <Column field="residence_address" header="Alamat Domisili" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat Domisili</span>
-                            {{ slotProps.data.residence_address }}
+                            <text-clamp :text="slotProps.data.residence_address" :max-lines='2' />
                         </template>
                     </Column>
                     <Column field="residence_rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
