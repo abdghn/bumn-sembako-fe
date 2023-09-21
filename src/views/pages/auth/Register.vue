@@ -61,14 +61,14 @@ const handleRegister = () => {
 
 <template>
     <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-      <Toast />
+        <Toast />
         <div class="flex flex-column align-items-center justify-content-center">
-          <h4>Halaman Registrasi</h4>
-          <h2>Dashboard Bakti Sosial 2023</h2>
+            <h4>Halaman Registrasi</h4>
+            <h2>Dashboard Bakti Sosial 2023</h2>
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                 <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius: 53px">
                     <div class="text-center mb-5"></div>
-                    <div>
+                    <form>
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Nama Lengkap</label>
                         <InputText id="name1" type="text" placeholder="Nama Lengkap" class="w-full md:w-30rem mb-3" style="padding: 1rem" v-model="name" />
 
@@ -90,14 +90,13 @@ const handleRegister = () => {
                         <label for="confirmPassword1" class="block text-900 font-medium text-xl mb-2">Konfirmasi Password</label>
                         <Password id="confirmPassword1" v-model="confirmedPassword" placeholder="Password" :toggleMask="false" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }"></Password>
                         <Button label="Register" class="w-full p-3 text-xl" @click="handleRegister"></Button>
-                      <div class="text-center mb-5">
-                        <span class="text-600 font-medium line-height-3">Sudah Punya Akun?</span>
-                        <router-link :to="`/auth/login`">
-                          <a class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Ke halaman login</a>
-                        </router-link>
-
-                      </div>
-                    </div>
+                        <div class="text-center mb-5">
+                            <span class="text-600 font-medium line-height-3">Sudah Punya Akun?</span>
+                            <router-link :to="`/auth/login`">
+                                <a class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Ke halaman login</a>
+                            </router-link>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
