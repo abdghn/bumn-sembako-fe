@@ -37,9 +37,7 @@ const kcmatan = ref(null);
 const stat = ref(null);
 
 
-const kelurahans = ref([
-    { name: 'Cihampelas', code: 'CH' }
-]);
+const kelurahans = ref(null);
 const kelurahan = ref(null);
 const statuss = ref([
     { name: 'Selesai', code: 'DONE' },
