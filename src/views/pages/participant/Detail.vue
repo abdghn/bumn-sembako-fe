@@ -6,6 +6,8 @@ import { useToast } from 'primevue/usetoast';
 
 const route = useRoute();
 const router = useRouter();
+const displayConfirmationGugur = ref(false);
+const displayConfirmationSesuai = ref(false);
 const participant = ref({});
 const participantService = new ParticipantService();
 const checkboxValue = ref([]);
@@ -75,8 +77,9 @@ const onUpload = () => {
 
 const handleGugur = () => {
     gugur.value = !gugur.value;
-    participant.value.status = gugur.value ? "REJECTED" : "NOT DONE"
-    isRejected.value = gugur.value
+    participant.value.status = gugur.value ? 'REJECTED' : 'NOT DONE';
+    isRejected.value = gugur.value;
+    displayConfirmationGugur.value = true;
 };
 
 const handleBack = () => {
@@ -84,6 +87,10 @@ const handleBack = () => {
     window.localStorage.setItem('kota', participant?.value.kota);
     // window.localStorage.setItem('kecamatan', participant?.value.kecamatan);
     router.push('/participant');
+};
+
+const openDialog = () => {
+  displayConfirmationSesuai.value = true;
 };
 
 const handleSesuai = () => {
@@ -130,12 +137,13 @@ const handleSesuai = () => {
             participant.value = result;
         });
 
-        if(participant.value.status === "REJECTED") {
+        if( participant.value.status === "REJECTED" ) {
           router.push('/participant')
         }
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
+    displayConfirmationSesuai.value = false;
 };
 
 const handleCopy = () => {
@@ -190,6 +198,11 @@ const generateStatus = (value) => {
 
   return status;
 };
+
+const closeConfirmation = () => {
+    displayConfirmationGugur.value = false;
+    displayConfirmationSesuai.value = false;
+};
 </script>
 
 <template>
@@ -203,8 +216,8 @@ const generateStatus = (value) => {
             </template>
 
             <template v-slot:end v-if="participant.status !== `DONE` ">
-              <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" />
-              <Button label="Sesuai" class="p-button-info ml-2" @click="handleSesuai"/>
+              <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" :modal="true" />
+              <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" />
             </template>
         </Toolbar>
         <div class="formgrid grid">
@@ -399,7 +412,28 @@ const generateStatus = (value) => {
           </div>
         </div>
       <!-- </div> -->
-
+      <!-- dialog gugur -->
+      <Dialog header="Confirmation" v-model:visible="displayConfirmationGugur" :style="{ width: '550px' }" :modal="true">
+        <div class="flex align-items-center justify-content-center">
+          <h5 class="text-center">Apakah anda yakin mengubah ke status <b>GUGUR?</b></h5>
+        </div>
+        <template #footer>
+          <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+          <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" autofocus />
+        </template>
+      </Dialog>
+      <!-- dialog -->
+      <!-- dialog Terima -->
+      <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
+        <div class="flex align-items-center justify-content-center">
+          <h5 class="text-center">Apakah data penerima sudah <b>SESUAI</b> ?</h5>
+        </div>
+        <template #footer>
+          <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+          <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
+        </template>
+      </Dialog>
+      <!-- dialog -->
     </div>
 </template>
 
