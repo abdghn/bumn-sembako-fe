@@ -1,10 +1,11 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppConfig from '@/layout/AppConfig.vue';
 import AuthService from '@/service/AuthService';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import OrganizationService from '@/service/OrganizationService';
+import RegionService from '@/service/RegionService';
 
 const authService = new AuthService();
 const username = ref('');
@@ -13,42 +14,109 @@ const toast = useToast();
 const router = useRouter();
 const name = ref('');
 const confirmedPassword = ref('');
-const dropdownValuesEO = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
-]);
-const dropdownValuesProv = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
-]);
-const dropdownValuesCity = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
-]);
-const dropdownValueEO = ref(null);
-const dropdownValueCity = ref(null);
-const dropdownValueProv = ref(null);
 
-const logoUrl = computed(() => {
-    return `layout/images/login1.png`;
+const provinces = ref(null);
+const province = ref({});
+const provinsi = ref(null);
+
+const cities = ref(null);
+const city = ref({});
+
+const organizations = ref(null);
+const organization = ref({});
+
+
+const regionService = new RegionService();
+const organizationService = new OrganizationService();
+
+// const logoUrl = computed(() => {
+//     return `layout/images/login1.png`;
+// });
+
+onMounted(async () => {
+    getDataDropdown();
 });
+
+
+const findProvinceIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findCityIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findStatusIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const getDataDropdown = async () => {
+    try {
+        const params = { page: 1, size: 100 };
+        // productService.getProducts().then((data) => (products.value = data));
+        await regionService.getProvincies({}).then((result) => (provinces.value = result));
+        await organizationService.getOrganization({}).then((result) => (organizations.value = result));
+
+        const dataProvince = ref(window.localStorage.getItem('provinsi'));
+        const dataCity = ref(window.localStorage.getItem('kota'));
+
+        if (dataProvince.value !== null) {
+            dataProvince.value = dataProvince.value.toUpperCase();
+            provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
+            province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
+            await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+            params.provinsi = provinsi.value;
+        }
+
+        if (dataCity.value !== null) {
+            dataCity.value = dataCity.value.toUpperCase();
+            city.value = cities.value[findCityIndexByName(dataCity.value)].name;
+            params.kota = city.value;
+        }
+
+        window.localStorage.removeItem('provinsi');
+        window.localStorage.removeItem('kota');
+        // state.detail = data
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const handleProvinsi = () => {
+    provinsi.value = provinces.value[findStatusIndexById(province.value)].name;
+    regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+};
 
 const handleRegister = () => {
     if (username.value && password.value) {
         authService
-            .register({ username: username.value, password: password.value, name: name.value })
+            .register({ username: username.value, password: password.value, name: name.value, provinsi: provinsi.value, kota: city.value, organization_id: organization.value })
             .then(() => {
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Register Success', life: 3000 });
-                router.push('/auth/login');
+                setTimeout(() => {
+                    router.push('/auth/login');
+                }, 1000);
             })
             .catch((e) => {
                 toast.add({ severity: 'error', summary: 'Failed Register', detail: 'Username/Password Invalid', life: 3000 });
@@ -73,13 +141,13 @@ const handleRegister = () => {
                         <InputText id="name1" type="text" placeholder="Nama Lengkap" class="w-full md:w-30rem mb-3" style="padding: 1rem" v-model="name" />
 
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
-                        <Dropdown v-model="dropdownValueEO" class="w-full md:w-30rem mb-3" :options="dropdownValuesEO" optionLabel="name" placeholder="Select" />
+                        <Dropdown v-model="organization" class="w-full md:w-30rem mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization"/>
 
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
-                        <Dropdown v-model="dropdownValueProv" class="w-full md:w-30rem mb-3" :options="dropdownValuesProv" optionLabel="name" placeholder="Select" />
+                        <Dropdown v-model="province" class="w-full md:w-30rem mb-3" :options="provinces" optionValue="id" optionLabel="name" placeholder="Select Provinsi" @change="handleProvinsi" />
 
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">City</label>
-                        <Dropdown v-model="dropdownValueCity" class="w-full md:w-30rem mb-3" :options="dropdownValuesCity" optionLabel="name" placeholder="Select" :disabled="!dropdownValueProv"/>
+                        <Dropdown v-model="city" class="w-full md:w-30rem mb-3" :options="cities" optionValue="name" optionLabel="name" placeholder="Select Kota" :disabled="!provinces" />
 
                         <label for="username1" class="block text-900 text-xl font-medium mb-2">Username</label>
                         <InputText id="username1" type="text" placeholder="Username" class="w-full md:w-30rem mb-3" style="padding: 1rem" v-model="username" />
