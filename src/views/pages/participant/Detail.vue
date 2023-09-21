@@ -82,7 +82,7 @@ const handleGugur = () => {
 const handleBack = () => {
     window.localStorage.setItem('provinsi', participant?.value.provinsi);
     window.localStorage.setItem('kota', participant?.value.kota);
-    window.localStorage.setItem('kecamatan', participant?.value.kecamatan);
+    // window.localStorage.setItem('kecamatan', participant?.value.kecamatan);
     router.push('/participant');
 };
 
