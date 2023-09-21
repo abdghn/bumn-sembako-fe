@@ -12,6 +12,7 @@ const checkboxValue = ref([]);
 const toast = useToast();
 const gugur = ref(false);
 const file = ref(null);
+const file_penerima = ref(null);
 const newParticipant = ref({});
 const newParticipant2 = ref({});
 const isSelected= ref(false);
@@ -81,6 +82,7 @@ const handleGugur = () => {
 const handleBack = () => {
     window.localStorage.setItem('provinsi', participant?.value.provinsi);
     window.localStorage.setItem('kota', participant?.value.kota);
+    window.localStorage.setItem('kecamatan', participant?.value.kecamatan);
     router.push('/participant');
 };
 
@@ -101,6 +103,7 @@ const handleSesuai = () => {
     try {
         const formData = new FormData();
         formData.append('file', file.value);
+        formData.append('file_penerima', file_penerima.value);
         formData.append('name', newParticipant.value.name ? newParticipant.value.name : participant.value.name);
         formData.append('nik', newParticipant.value.nik ? newParticipant.value.nik : participant.value.nik);
         formData.append('gender', newParticipant.value.gender ? newParticipant.value.gender : participant.value.gender);
@@ -138,13 +141,13 @@ const handleSesuai = () => {
 const handleCopy = () => {
   try {
     const formData = new FormData();
-      formData.append('name', newParticipant.value.name = participant.value.name);
-      formData.append('nik', newParticipant.value.nik = participant.value.nik);
-      formData.append('gender', newParticipant.value.gender = participant.value.gender);
-      formData.append('phone', newParticipant.value.phone = participant.value.phone);
-      formData.append('address', newParticipant.value.address = participant.value.address);
-      formData.append('rt', newParticipant.value.rt = participant.value.rt);
-      formData.append('rw', newParticipant.value.rw = participant.value.rw);
+    formData.append('name', newParticipant.value.name = participant.value.name);
+    formData.append('nik', newParticipant.value.nik = participant.value.nik);
+    formData.append('gender', newParticipant.value.gender = participant.value.gender);
+    formData.append('phone', newParticipant.value.phone = participant.value.phone);
+    formData.append('address', newParticipant.value.address = participant.value.address);
+    formData.append('rt', newParticipant.value.rt = participant.value.rt);
+    formData.append('rw', newParticipant.value.rw = participant.value.rw);
   } catch (e) {
     console.log(e);
   };
@@ -261,7 +264,7 @@ const generateStatus = (value) => {
               </div>
               <div class="col-12 md:col-4">
                 <div class="field-checkbox mb-2">
-                    <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" @click="handleCopy"/>
+                    <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" @click="handleCopy" />
                 </div>
               </div>
             </div>

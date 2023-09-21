@@ -34,6 +34,7 @@ const provinsi = ref(null);
 const kota = ref(null);
 const kcmatan = ref(null);
 // const klurahan = ref(null);
+const stat = ref(null);
 
 
 const kelurahans = ref([
@@ -41,11 +42,11 @@ const kelurahans = ref([
 ]);
 const kelurahan = ref(null);
 const statuss = ref([
-    { name: 'Selesai', code: 'Done' },
-    { name: 'Belum unggah foto', code: 'NotUpload' },
-    { name: 'Gugur', code: 'Gugur' },
+    { name: 'Selesai', code: 'DONE' },
+    { name: 'Belum unggah foto', code: 'PARTIAL_DONE' },
+    { name: 'Gugur', code: 'REJECTED' },
+    { name: 'Not Done', code: 'NOT DONE' }
 ]);
-const stat = ref(null);
 
 const participantService = new ParticipantService();
 const regionService = new RegionService();
@@ -100,7 +101,7 @@ const findIndexById = (id) => {
     return index;
 };
 
-const findStatusIndexById = (id) => {
+const findProvincesIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
         if (provinces.value[i].id === id) {
@@ -110,8 +111,40 @@ const findStatusIndexById = (id) => {
     }
     return index;
 };
+const findCityIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
 
-const findStatusIndexByName = (name) => {
+const findKecamatanIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < kecamatans.value.length; i++) {
+        if (kecamatans.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findStatusIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < statuss.value.length; i++) {
+        if (statuss.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findProvinceIndexByName = (name) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
         if (provinces.value[i].name === name) {
@@ -123,14 +156,25 @@ const findStatusIndexByName = (name) => {
 };
 
 const findTypeIndexByName = (name) => {
-  let index = -1;
-  for (let i = 0; i < cities.value.length; i++) {
-    if (cities.value[i].name === name) {
-      index = i;
-      break;
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].name === name) {
+            index = i;
+            break;
+        }
     }
-  }
-  return index;
+    return index;
+};
+
+const findKecamatanIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < kecamatans.value.length; i++) {
+        if (kecamatans.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
 };
 
 const createId = () => {
@@ -154,17 +198,29 @@ const deleteSelectedProducts = () => {
 };
 
 const handleProvinsi = () => {
-    provinsi.value = provinces.value[findStatusIndexById(province.value)].name;
+    provinsi.value = provinces.value[findProvincesIndexById(province.value)].name;
     regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
 };
+
 const handleKota = () => {
-    kota.value = cities.value[findStatusIndexById(city.value)].name;
-    regionService.getRegencies({ regency_id: city.value }).then((result) => (kecamatans.value = result));
+    kota.value = cities.value[findCityIndexById(city.value)].name;
+    regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
+};
+
+const handleKecamatan = () => {
+    kcmatan.value = kecamatans.value[findKecamatanIndexById(kecamatan.value)].name;
+    regionService.getVillage({ district_id: kecamatan.value }).then((result) => (kelurahans.value = result));
+};
+
+const handleStatus = () => {
+    stat.value = statuss.value[findStatusIndexById(stat.value)].name;
+    console.log(stat.value);
 };
 
 const resetFilter = () => {
     provinsi.value = null;
-    city.value = null;
+    kota.value = null;
+    kcmatan.value = null;
     participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
 };
 
@@ -175,7 +231,8 @@ const handleFilter = () => {
     };
 
     if (provinsi.value) params.provinsi = provinsi.value;
-    if (city.value) params.kota = city.value;
+    if (kota.value) params.kota = kota.value;
+    if (kcmatan.value) params.kcmatan = kcmatan.value;
 
     participantService.getParticipants(params).then((result) => (products.value = result));
 };
@@ -194,68 +251,39 @@ const getDataDropdown = async () => {
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
         const dataCity = ref(window.localStorage.getItem('kota'));
-        // const dataKecamatan = ref(window.localStorage.getItem('kecamatan'));
+        const dataKecamatan = ref(window.localStorage.getItem('kecamatan'));
         // const kelurahan = ref(window.localStorage.getItem('kelurahan'));
-        // const status = ref(window.localStorage.getItem('status'));
+        // const dataStatus = ref(window.localStorage.getItem('status'));
 
         if (dataProvince.value !== null) {
             dataProvince.value = dataProvince.value.toUpperCase();
-            provinsi.value = provinces.value[findStatusIndexByName(dataProvince.value)].name;
-            province.value = provinces.value[findStatusIndexByName(dataProvince.value)].id;
+            provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
+            province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
             await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
             params.provinsi = provinsi.value;
         }
-        regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
-
         if (dataCity.value !== null) {
             dataCity.value = dataCity.value.toUpperCase();
             city.value = cities.value[findTypeIndexByName(dataCity.value)].name;
+            city.value = cities.value[findTypeIndexByName(dataCity.value)].id;
+            await regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
             params.kota = city.value;
         }
-        // if (dataCity.value !== null) {
-        //     dataCity.value = dataCity.value.toUpperCase();
-        //     // kota.value = cities.value[findStatusIndexByName(dataCity.value)].name;
-        //     city.value = cities.value[findStatusIndexByName(dataCity.value)].id;
-        //     // await regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
-        //     params.kota = kota.value;
-        // }
-        // console.log(kecamatans.value)
-        // regionService.getDistrict({ id: city.value }).then((result) => (kecamatans.value = result));
 
-        // if (dataKecamatan.value !== null) {
-        //     dataKecamatan.value = dataKecamatan.value.toUpperCase();
-        //     kcmatan.value = kecamatans.value[findStatusIndexByName(dataKecamatan.value)].name;
-        //     kecamatan.value = kecamatans.value[findStatusIndexByName(dataKecamatan.value)].id;
-        //     await regionService.getVillage({ district_id: city.value }).then((result) => (cities.value = result));
-        //     params.kcmatan = kcmatan.value;
-        // }
-
-        // if (city.value !== null) {
-        //     city.value = city.value.toUpperCase();
-        //     city.value = types.value[findStatusIndexByName(city.value)].name;
-        //     type.value = types.value[findTypeIndexByName(city.value)].id;
-        //     console.log(type.value)
-        //     await regionService.getDistrict({ regency_id: type.value }).then((result) => (kecamatans.value = result));
-        //     params.kota = city.value;
-        // }
-
-        // if (dataKecamatan.value !== null) {
-        //     dataKecamatan.value = dataKecamatan.value.toUpperCase();
-        //     kecamatan.value = kecamatans.value[findTypeIndexByName(dataKecamatan.value)].name;
-        //     params.kota = kecamatan.value;
-        // }
-        // if (city.value !== null) {
-        //     city.value = city.value.toUpperCase();
-        //     type.value = types.value[findTypeIndexByName(city.value)].name;
-        //     params.kota = type.value;
-        // }
+        if (dataKecamatan.value !== null) {
+            dataKecamatan.value = dataKecamatan.value.toUpperCase();
+            kecamatan.value = kecamatans.value[findKecamatanIndexByName(dataKecamatan.value)].name;
+            kecamatan.value = kecamatans.value[findKecamatanIndexByName(dataKecamatan.value)].id;
+            await regionService.getVillage({ district_id: kecamatan.value }).then((result) => (kelurahans.value = result));
+            params.kcmatan = kecamatan.value;
+        }
 
         participantService.getParticipants(params).then((result) => (products.value = result));
         window.localStorage.removeItem('provinsi');
         window.localStorage.removeItem('kota');
         // state.detail = data
     } catch (error) {
-        console.log('test');
+        console.log(error);
     }
 }
 
@@ -269,20 +297,19 @@ const getDataDropdown = async () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <!-- todo: fetch API untuk dropdown wajib vmodel dan option nya sama jangan lupa bikin state nya rapihin -->
                             <Dropdown class="ml-3 mr-4" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-                            <Dropdown class="mr-4" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" @change="handleKota" />
-                            <Dropdown class="mr-4" v-model="kecamatan" :options="kecamatans" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
-                            <Dropdown class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
-                            <Dropdown class="mr-4" v-model="stat" :options="statuss" optionValue="name" optionLabel="name" placeholder="Status" />
+                            <Dropdown class="mr-4" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleKota" />
+                            <Dropdown class="mr-4" v-model="kecamatan" :options="kecamatans" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleKecamatan" />
+                            <Dropdown class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="id" optionLabel="name" placeholder="Kelurahan" />
+                            <Dropdown class="mr-4" v-model="stat" :options="statuss" optionValue="id" optionLabel="name" placeholder="Status" @change="handleStatus"/>
                             <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
                             <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
                         </div>
                     </template>
 
-                    <template v-slot:end>
-                        <!--                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />-->
-                    </template>
+                    <!-- <template v-slot:end>
+                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
+                    </template> -->
                 </Toolbar>
 
                 <DataTable
@@ -447,14 +474,6 @@ const getDataDropdown = async () => {
                             {{ slotProps.data.status.toLowerCase() }}
                         </template>
                     </Column>
-                    <!-- <Column header="Action" headerStyle="min-width:5rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Action</span>
-                            <router-link :to="`participant/${slotProps.data.id}`">
-                                <Button label="Detail" class="p-button-info mr-2" />
-                            </router-link>
-                        </template>
-                    </Column> -->
                 </DataTable>
 
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
