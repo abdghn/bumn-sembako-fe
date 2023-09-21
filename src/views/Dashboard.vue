@@ -14,8 +14,8 @@ const dashboardService = new DashboardService();
 
 // Method
 onMounted(() => {
-    getDetail();
     productService.getProductsSmall().then((data) => (products.value = data));
+    getDetail();
 });
 
 const getDetail = async () => {
@@ -112,7 +112,7 @@ watch(
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
               <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Total Penerima Bantuan Kota Anda</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail.tota_penerima}}</h3> </div>
+              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail?.tota_penerima}}</h3> </div>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ watch(
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
               <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Sudah Menerima Bantuan</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail.total_sudah_menerima}}</h3> </div>
+              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail?.total_sudah_menerima}}</h3> </div>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ watch(
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
               <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Unggah Foto Penerima Bantuan</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail.total_partial_done}}</h3> </div>
+              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail?.total_partial_done}}</h3> </div>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@ watch(
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
               <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Menerima Bantuan</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail.total_belum_menerima}}</h3> </div>
+              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail?.total_belum_menerima}}</h3> </div>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@ watch(
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
               <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail.total_data_gugur}}</h3> </div>
+              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{detail?.total_data_gugur}}</h3> </div>
             </div>
           </div>
         </div>
