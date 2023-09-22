@@ -61,11 +61,11 @@ const poscodes = ref([
 ]);
 const poscode = ref(null);
 const genders = ref([
-    { name: 'Pria', code: 'PR' },
-    { name: 'Wanita', code: 'WN' },
-    { name: 'Others', code: 'OT' },
+    { name: 'Pria', code: 'pria' },
+    { name: 'Perempuan', code: 'Perempuan' }
 ]);
 const gender = ref(null);
+const jenisKelamin = ref(null);
 
 onMounted(() => {
     participantService.getParticipant(route.params.id).then((result) => (participant.value = result));
@@ -93,6 +93,17 @@ const openDialog = () => {
   displayConfirmationSesuai.value = true;
 };
 
+const findGenderIndexById = (code) => {
+    let index = -1;
+    for (let i = 0; i < genders.value.length; i++) {
+        if (genders.value[i].code === code) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
 const handleSesuai = () => {
     if (file.value === null) {
         if (gugur.value) {
@@ -109,8 +120,12 @@ const handleSesuai = () => {
     }
     try {
         const formData = new FormData();
-        formData.append('file', file.value);
-        formData.append('file_penerima', file_penerima.value);
+        if (file.value !== null) {
+          formData.append('file', file.value);
+        }
+        if (file_penerima.value !== null) {
+          formData.append('file_penerima', file_penerima.value);
+        }
         formData.append('name', newParticipant.value.name ? newParticipant.value.name : participant.value.name);
         formData.append('nik', newParticipant.value.nik ? newParticipant.value.nik : participant.value.nik);
         formData.append('gender', newParticipant.value.gender ? newParticipant.value.gender : participant.value.gender);
@@ -146,6 +161,36 @@ const handleSesuai = () => {
     displayConfirmationSesuai.value = false;
 };
 
+const handleSubmit = () => {
+  // console.log('submit');
+  const payload = {
+    file: file.value,
+    file_penerima: file_penerima.value,
+    name: participant.value.name,
+    nik: participant.value.nik,
+    gender: participant.value.gender,
+    phone: participant.value.phone,
+    address: participant.value.address,
+    rt: participant.value.rt,
+    rw: participant.value.rw,
+    provinsi: participant.value.provinsi,
+    kota: participant.value.kota,
+    kecamatan: participant.value.kecamatan,
+    kelurahan: participant.value.kelurahan,
+    kode_pos: participant.value.kode_pos,
+    residence_address: participant.value.residence_address,
+    residence_rt: participant.value.residence_rt,
+    residence_rw: participant.value.residence_rw,
+    residence_provinsi: participant.value.residence_provinsi,
+    residence_kota: participant.value.residence_kota,
+    residence_kecamatan: participant.value.residence_kecamatan,
+    residence_kelurahan: participant.value.residence_kelurahan,
+    residence_kode_pos: participant.value.residence_kode_pos,
+    status: participant.value.status,
+  };
+  console.log(payload);
+};
+
 const handleCopy = () => {
   try {
     const formData = new FormData();
@@ -176,6 +221,11 @@ const onSelectedFiles = (event) => {
     event.files.forEach((result) => {
         file.value = result;
     });
+};
+
+const handleGender = () => {
+    jenisKelamin.value = participant.value.gender;
+    console.log(gender.value);
 };
 
 const generateStatus = (value) => {
@@ -293,7 +343,7 @@ const closeConfirmation = () => {
               <div class="field">
                 <label for="age1">Jenis Kelamin</label>
                 <!-- <InputText id="age1" type="text" :disabled="!gugur == 1" v-model="newParticipant.gender" /> -->
-                <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur == 1" optionValue="name" optionLabel="name" placeholder="Jenis Kelamin" />
+                <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur == 1" optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender"/>
               </div>
               <div class="field">
                 <label for="age1">No Handphone</label>
@@ -407,7 +457,7 @@ const closeConfirmation = () => {
               </div>
             </div>
             <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-              <Button label="Submit" class="p-button-info mr-4" />
+              <Button label="Submit" @click="handleSubmit" class="p-button-info mr-4" />
             </div>
           </div>
         </div>

@@ -44,7 +44,7 @@ const statuss = ref([
     { name: 'Selesai', code: 'DONE' },
     { name: 'Belum unggah foto', code: 'PARTIAL_DONE' },
     { name: 'Gugur', code: 'REJECTED' },
-    { name: 'Not Done', code: 'NOT DONE' }
+    { name: 'Calon Penerima', code: 'NOT DONE' }
 ]);
 
 const participantService = new ParticipantService();
@@ -246,6 +246,7 @@ const resetFilter = () => {
     kota.value = null;
     kecamatan.value = null;
     kelurahan.value = null;
+    status.value = null;
     participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
 };
 
@@ -502,7 +503,6 @@ const getDataDropdown = async () => {
                     </Column>
                     <Column field="residence_status" header="Status" :sortable="false" headerStyle="width:14%; min-width:8rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Kode POS</span>
                             {{ slotProps.data.status.toLowerCase() }}
                         </template>
                     </Column>

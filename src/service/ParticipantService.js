@@ -18,4 +18,7 @@ export default class ParticipantService {
             })
             .then((d) => d.data.data);
     }
+    report(body) {
+        return axiosApp.post('/v1/', body).then((d) => d.data.data);
+    }
 }
