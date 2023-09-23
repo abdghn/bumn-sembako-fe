@@ -597,7 +597,7 @@ const nik = defineComponentBinds('nik');
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
                             <!-- <InputText id="age1" type="text" :disabled="!gugur === true" v-model="newParticipant.gender" /> -->
-                            <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur === true"
+                            <Dropdown v-model="gender" :options="genders" :disabled="!gugur === true"
                                 optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
                         </div>
                         <div class="field">
@@ -645,35 +645,35 @@ const nik = defineComponentBinds('nik');
                         <div class="field">
                             <label for="name1">Provinsi</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.provinsi" :options="provinces"
+                            <Dropdown v-model="newParticipant.provinsi" :options="provinces"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
                                 @change="handleProvinsi" />
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.kota" :options="cities"
+                            <Dropdown v-model="newParticipant.kota" :options="cities"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
                                 @change="handleKota" />
                         </div>
                         <div class="field">
                             <label for="name1">Kecamatan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.kecamatan" :disabled="!gugur === true"
+                            <Dropdown v-model="newParticipant.kecamatan" :disabled="!gugur === true"
                                 :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan"
                                 @change="handleKecamatan" />
                         </div>
                         <div class="field">
                             <label for="name1">Kelurahan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.kelurahan" :options="villages"
+                            <Dropdown v-model="newParticipant.kelurahan" :options="villages"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kelurahan" />
                         </div>
                         <div class="field">
                             <label for="name1">Kode POS</label>
-                            <InputText id="name1" type="text" :disabled="!gugur === true"
+                            <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
                                 v-model="newParticipant.kode_pos" />
-                            <!--                        <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
+                            <!--                        <Dropdown v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
                         </div>
                     </div>
                 </div>
@@ -705,34 +705,34 @@ const nik = defineComponentBinds('nik');
                         <div class="field">
                             <label for="name1">Provinsi</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.residence_provinsi" :options="provinces"
+                            <Dropdown v-model="newParticipant.residence_provinsi" :options="provinces"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
                                 @change="handleResidenceProvinsi" />
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.residence_kota" :options="residence_cities"
+                            <Dropdown v-model="newParticipant.residence_kota" :options="residence_cities"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
                                 @change="handleResidenceKota" />
                         </div>
                         <div class="field">
                             <label for="name1">Kecamatan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.residence_kecamatan"
+                            <Dropdown v-model="newParticipant.residence_kecamatan"
                                 :options="residence_districts" :disabled="!gugur === true" optionValue="id"
                                 optionLabel="name" placeholder="Kecamatan" @change="handleResidenceKecamatan" />
                         </div>
                         <div class="field">
                             <label for="name1">Kelurahan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
-                            <Dropdown class="mr-4" v-model="newParticipant.residence_kelurahan"
+                            <Dropdown v-model="newParticipant.residence_kelurahan"
                                 :options="residence_villages" :disabled="!gugur === true" optionValue="id"
                                 optionLabel="name" placeholder="Kelurahan" />
                         </div>
                         <div class="field">
                             <label for="name1">Kode POS</label>
-                            <InputText id="name1" type="text" :disabled="!gugur === true"
+                            <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
                                 v-model="newParticipant.residence_kode_pos" />
                         </div>
                     </div>
