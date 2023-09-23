@@ -38,9 +38,11 @@ const genders = ref([
 const gender = ref(null);
 const jenisKelamin = ref(null);
 const regionService = new RegionService();
+const user = ref(window.localStorage.getItem('name'));
+const status = ref(null)
 
 onMounted(async () => {
-    participantService.getParticipant(route.params.id).then((result) => (participant.value = result));
+    await participantService.getParticipant(route.params.id).then((result) => (participant.value = result)).then(() => status.value = participant.value.status);
     await regionService.getProvincies({}).then((result) => (provinces.value = result));
 });
 
@@ -51,11 +53,12 @@ const onUpload = () => {
 const handleGugur = () => {
     if (!gugur.value) {
         gugur.value = !gugur.value;
-        participant.value.status = 'REJECTED';
+        status.value = participant.value.status
+        participant.value.status = 'TEMPORARY REJECTED';
         isRejected.value = gugur.value;
         displayConfirmationGugur.value = true;
     } else {
-        participant.value.status = 'NOT DONE';
+        participant.value.status = status.value;
         gugur.value = !gugur.value;
     }
 };
@@ -75,7 +78,7 @@ const openDialogSubmit = () => {
     displayConfirmationSubmit.value = true;
 };
 
-const findGenderIndexById = (code) => {
+const findGenderIndexByCode = (code) => {
     let index = -1;
     for (let i = 0; i < genders.value.length; i++) {
         if (genders.value[i].code === code) {
@@ -108,27 +111,28 @@ const handleSesuai = () => {
         if (file_penerima.value !== null) {
             formData.append('file_penerima', file_penerima.value);
         }
-        formData.append('name', newParticipant.value.name ? newParticipant.value.name : participant.value.name);
-        formData.append('nik', newParticipant.value.nik ? newParticipant.value.nik : participant.value.nik);
-        formData.append('gender', newParticipant.value.gender ? newParticipant.value.gender : participant.value.gender);
-        formData.append('phone', newParticipant.value.phone ? newParticipant.value.phone : participant.value.phone);
-        formData.append('address', newParticipant.value.address ? newParticipant.value.address : participant.value.address);
-        formData.append('rt', newParticipant.value.rt ? newParticipant.value.rt : participant.value.rt);
-        formData.append('rw', newParticipant.value.rw ? newParticipant.value.rw : participant.value.rw);
-        formData.append('provinsi', newParticipant.value.provinsi ? newParticipant.value.provinsi : participant.value.provinsi);
-        formData.append('kota', newParticipant.value.kota ? newParticipant.value.kota : participant.value.kota);
-        formData.append('kecamatan', newParticipant.value.kecamatan ? newParticipant.value.kecamatan : participant.value.kecamatan);
-        formData.append('kelurahan', newParticipant.value.kelurahan ? newParticipant.value.kelurahan : participant.value.kelurahan);
-        formData.append('kode_pos', newParticipant.value.kode_pos ? newParticipant.value.kode_pos : participant.value.kode_pos);
-        formData.append('residence_address', newParticipant.value.residence_address ? newParticipant.value.residence_address : participant.value.residence_address);
-        formData.append('residence_rt', newParticipant.value.residence_rt ? newParticipant.value.residence_rt : participant.value.residence_rt);
-        formData.append('residence_rw', newParticipant.value.residence_rw ? newParticipant.value.residence_rw : participant.value.residence_rw);
-        formData.append('residence_provinsi', newParticipant.value.residence_provinsi ? newParticipant.value.residence_provinsi : participant.value.residence_provinsi);
-        formData.append('residence_kota', newParticipant.value.residence_kota ? newParticipant.value.residence_kota : participant.value.residence_kota);
-        formData.append('residence_kecamatan', newParticipant.value.residence_kecamatan ? newParticipant.value.residence_kecamatan : participant.value.residence_kecamatan);
-        formData.append('residence_kelurahan', newParticipant.value.residence_kelurahan ? newParticipant.value.residence_kelurahan : participant.value.residence_kelurahan);
-        formData.append('residence_kode_pos', newParticipant.value.residence_kode_pos ? newParticipant.value.residence_kode_pos : participant.value.residence_kode_pos);
+        formData.append('name', participant.value.name);
+        formData.append('nik',  participant.value.nik);
+        formData.append('gender',  participant.value.gender);
+        formData.append('phone', participant.value.phone);
+        formData.append('address', participant.value.address);
+        formData.append('rt', participant.value.rt);
+        formData.append('rw',  participant.value.rw);
+        formData.append('provinsi', participant.value.provinsi);
+        formData.append('kota',  participant.value.kota);
+        formData.append('kecamatan',  participant.value.kecamatan);
+        formData.append('kelurahan', participant.value.kelurahan);
+        formData.append('kode_pos', participant.value.kode_pos);
+        formData.append('residence_address',  participant.value.residence_address);
+        formData.append('residence_rt', participant.value.residence_rt);
+        formData.append('residence_rw', participant.value.residence_rw);
+        formData.append('residence_provinsi',  participant.value.residence_provinsi);
+        formData.append('residence_kota',  participant.value.residence_kota);
+        formData.append('residence_kecamatan', participant.value.residence_kecamatan);
+        formData.append('residence_kelurahan',  participant.value.residence_kelurahan);
+        formData.append('residence_kode_pos',  participant.value.residence_kode_pos);
         formData.append('status', participant.value.status);
+      formData.append('updated_by', user.value);
         participantService.updateParticipant(participant.value.id, formData).then((result) => {
             toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
             participant.value = result;
@@ -153,30 +157,32 @@ const handleSubmits = () => {
         if (file_penerima.value !== null) {
             formData.append('file_penerima', file_penerima.value);
         }
-        formData.append('name', newParticipant.value.name ? newParticipant.value.name : participant.value.name);
-        formData.append('nik', newParticipant.value.nik ? newParticipant.value.nik : participant.value.nik);
-        formData.append('gender', newParticipant.value.gender ? newParticipant.value.gender : participant.value.gender);
-        formData.append('phone', newParticipant.value.phone ? newParticipant.value.phone : participant.value.phone);
-        formData.append('address', newParticipant.value.address ? newParticipant.value.address : participant.value.address);
-        formData.append('rt', newParticipant.value.rt ? newParticipant.value.rt : participant.value.rt);
-        formData.append('rw', newParticipant.value.rw ? newParticipant.value.rw : participant.value.rw);
-        formData.append('provinsi', newParticipant.value.provinsi ? newParticipant.value.provinsi : participant.value.provinsi);
-        formData.append('kota', newParticipant.value.kota ? newParticipant.value.kota : participant.value.kota);
-        formData.append('kecamatan', newParticipant.value.kecamatan ? newParticipant.value.kecamatan : participant.value.kecamatan);
-        formData.append('kelurahan', newParticipant.value.kelurahan ? newParticipant.value.kelurahan : participant.value.kelurahan);
-        formData.append('kode_pos', newParticipant.value.kode_pos ? newParticipant.value.kode_pos : participant.value.kode_pos);
-        formData.append('residence_address', newParticipant.value.residence_address ? newParticipant.value.residence_address : participant.value.residence_address);
-        formData.append('residence_rt', newParticipant.value.residence_rt ? newParticipant.value.residence_rt : participant.value.residence_rt);
-        formData.append('residence_rw', newParticipant.value.residence_rw ? newParticipant.value.residence_rw : participant.value.residence_rw);
-        formData.append('residence_provinsi', newParticipant.value.residence_provinsi ? newParticipant.value.residence_provinsi : participant.value.residence_provinsi);
-        formData.append('residence_kota', newParticipant.value.residence_kota ? newParticipant.value.residence_kota : participant.value.residence_kota);
-        formData.append('residence_kecamatan', newParticipant.value.residence_kecamatan ? newParticipant.value.residence_kecamatan : participant.value.residence_kecamatan);
-        formData.append('residence_kelurahan', newParticipant.value.residence_kelurahan ? newParticipant.value.residence_kelurahan : participant.value.residence_kelurahan);
-        formData.append('residence_kode_pos', newParticipant.value.residence_kode_pos ? newParticipant.value.residence_kode_pos : participant.value.residence_kode_pos);
-        formData.append('status', participant.value.status);
+        formData.append('name', newParticipant.value.name);
+        formData.append('nik', newParticipant.value.nik);
+        formData.append('gender', newParticipant.value.gender);
+        formData.append('phone', newParticipant.value.phone);
+        formData.append('address', newParticipant.value.address);
+        formData.append('rt', newParticipant.value.rt );
+        formData.append('rw', newParticipant.value.rw );
+        formData.append('provinsi', provinces.value[findProvincesIndexById(newParticipant.value.provinsi)].name);
+        formData.append('kota', cities.value[findCitiesIndexById(newParticipant.value.kota)].name);
+        formData.append('kecamatan', districts.value[findDistrictsIndexById(newParticipant.value.kecamatan)].name);
+        formData.append('kelurahan', villages.value[findVillagesIndexById(newParticipant.value.kelurahan)].name);
+        formData.append('kode_pos', newParticipant.value.kode_pos);
+        formData.append('residence_address', newParticipant.value.residence_address);
+        formData.append('residence_rt', newParticipant.value.residence_rt);
+        formData.append('residence_rw', newParticipant.value.residence_rw);
+        formData.append('residence_provinsi', provinces.value[findProvincesIndexById(newParticipant.value.residence_provinsi)].name);
+        formData.append('residence_kota', residence_cities.value[findResidenceCitiesIndexById(newParticipant.value.residence_kota)].name);
+        formData.append('residence_kecamatan',  residence_districts.value[findResidenceDistrictsIndexById(newParticipant.value.residence_kecamatan)].name);
+        formData.append('residence_kelurahan', residence_villages.value[findResidenceVillagesIndexById(newParticipant.value.residence_kelurahan)].name);
+        formData.append('residence_kode_pos', newParticipant.value.residence_kode_pos);
+        formData.append('status', 'REJECTED');
+        formData.append('updated_by', user.value);
         participantService.updateParticipant(participant.value.id, formData).then((result) => {
             toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
             participant.value = result;
+            router.push('/participant');
         });
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
@@ -202,6 +208,7 @@ const handleCopy = async () => {
         newParticipant.value.kota = cities.value[findCitiesIndexByName(newParticipant.value.kota.toUpperCase())].id;
         newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan.toUpperCase())].id;
         newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(newParticipant.value.kelurahan.toUpperCase())].id;
+
 
         newParticipant.value.residence_kota = residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota.toUpperCase())].id;
         newParticipant.value.residence_kecamatan = residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan.toUpperCase())].id;
@@ -425,6 +432,8 @@ const generateStatus = (value) => {
         case 'PARTIAL_DONE':
             status = 'Sudah Sesuai (Harap Upload Foto)';
             break;
+      case 'TEMPORARY REJECTED':
+        status = 'Gugur';
         case 'REJECTED':
             status = 'Gugur';
             break;
@@ -545,7 +554,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 </div>
             </template>
 
-            <template v-slot:end v-if="participant.status !== `DONE`">
+            <template v-slot:end v-if="participant.status !== `DONE` && participant.status !== `REJECTED`">
                 <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur"
                     :modal="true" />
                 <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" />
@@ -559,7 +568,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 <p>Jenis Kelamin: {{ participant?.gender }}</p>
                 <p>No Handphone: +{{ participant?.phone }}</p>
             </div>
-            <div class="field col">
+            <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                 <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                 <div class="mb-4">
                     <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" :multiple="true"
@@ -569,9 +578,11 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                       {{ errors.file }}
                     </small>
                 </div>
-                <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image" height="250"
-                    alt="Logo" class="mr-2" />
             </div>
+          <div class="field col" v-if="participant.status === `DONE`">
+            <img  :src="baseUrl + `/v1/` + participant.image" height="250"
+                 alt="Logo" class="mr-2" />
+          </div>
         </div>
         <div class="formgrid grid">
             <div class="field col-3">
@@ -594,7 +605,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 <p>Kelurahan: {{ participant?.kelurahan }}</p>
                 <p>Kode POS: {{ participant?.kode_pos }}</p>
             </div>
-            <div class="field col">
+          <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                 <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                 <div class="mb-4">
                     <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload" :multiple="true"
@@ -604,9 +615,11 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                       {{ errors.file_penerima }}
                     </small>
                 </div>
-                <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
-                    alt="Logo" class="mr-2" />
             </div>
+          <div class="field col" v-if="participant.status === `DONE`">
+            <img :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
+                 alt="Logo" class="mr-2" />
+          </div>
         </div>
 
         <hr />
@@ -647,7 +660,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
                             <!-- <InputText id="age1" type="text" :disabled="!gugur === true" v-model="newParticipant.gender" /> -->
-                            <Dropdown v-bind="jkel" required="true" v-model="gender" :options="genders" :disabled="!gugur === true" aria-describedby="jkel-help" :class="{ 'p-invalid': errors.jkel }"
+                            <Dropdown v-bind="jkel" required="true" v-model="newParticipant.gender" :options="genders" :disabled="!gugur === true" aria-describedby="jkel-help" :class="{ 'p-invalid': errors.jkel }"
                                 optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
                             <small id="nik-help" class="p-error">
                               {{ errors.jkel }}
