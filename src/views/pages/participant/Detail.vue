@@ -305,7 +305,9 @@ const duplicateResidence = () => {
 // -------- validation --------
 
 const schema = yup.object({
-  nik: yup.string().required().max(16,'Masukan 16 Karakter').label('nik')
+  nik: yup.string().required().max(16,'Masukan 16 Karakter').label('nik'),
+  file: yup.mixed().required('File is required'),
+  file_penerima: yup.mixed().required('File is required'),
 });
 
 const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
