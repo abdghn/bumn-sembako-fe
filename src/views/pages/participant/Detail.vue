@@ -69,7 +69,10 @@ const handleBack = () => {
 
 const openDialog = () => {
     displayConfirmationSesuai.value = true;
-    displayConfirmationSubmit.value = true
+};
+
+const openDialogSubmit = () => {
+    displayConfirmationSubmit.value = true;
 };
 
 const findGenderIndexById = (code) => {
@@ -848,7 +851,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                     </div>
                     <div
                         class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                        <Button label="Submit" @click="handleSubmit" class="p-button-info mr-4"
+                        <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true"
                         :disabled="!gugur === true" />
                 </div>
             </div>
@@ -880,13 +883,13 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
     <!-- dialog -->
 
     <!-- dialog Submit -->
-    <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
+    <Dialog header="Confirmation" v-model:visible="displayConfirmationSubmit" :style="{ width: '550px' }" :modal="true">
         <div class="flex align-items-center justify-content-center">
             <h5 class="text-center">Apakah yakin untuk pengajuan ? </h5>
         </div>
         <template #footer>
             <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-            <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
+            <Button label="Yes" icon="pi pi-check" @click="handleSubmits" class="p-button-success" autofocus />
         </template>
     </Dialog>
     <!-- dialog -->
