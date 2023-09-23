@@ -177,15 +177,15 @@ const handleSubmits = () => {
 
 const handleCopy = () => {
     try {
-        newParticipant.value = Object.assign({}, participant.value);
+      newParticipant.value = Object.assign({}, participant.value);
       newParticipant.value.provinsi = provinces.value[findProvincesIndexByName(participant.value.provinsi.toUpperCase())].id;
       newParticipant.value.kota = cities.value[findCitiesIndexByName(participant.value.kota.toUpperCase())].id;
-      newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(participant.value.kecamatan.toUpperCase())].id
-      newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(participant.value.kelurahan.toUpperCase())].id
-      newParticipant.value.residence_provinsi = provinces.value[findProvincesIndexByName(participant.value.residence_provinsi.toUpperCase())].id
-      newParticipant.value.residence_kota = cities.value[findCitiesIndexByName(participant.value.residence_kota.toUpperCase())].id
-      newParticipant.value.residence_kecamatan = districts.value[findDistrictsIndexByName(participant.value.residence_kecamatan.toUpperCase())].id
-      newParticipant.value.residencence_kelurahan = villages.value[findVillagesIndexByName(participant.value.residence_kelurahan)].id
+      newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(participant.value.kecamatan.toUpperCase())].id;
+      newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(participant.value.kelurahan.toUpperCase())].id;
+      newParticipant.value.residence_provinsi = provinces.value[findProvincesIndexByName(participant.value.residence_provinsi.toUpperCase())].id;
+      newParticipant.value.residence_kota = cities.value[findCitiesIndexByName(participant.value.residence_kota.toUpperCase())].id;
+      newParticipant.value.residence_kecamatan = districts.value[findDistrictsIndexByName(participant.value.residence_kecamatan.toUpperCase())].id;
+      newParticipant.value.residencence_kelurahan = villages.value[findVillagesIndexByName(participant.value.residence_kelurahan)].id;
     } catch (e) {
         console.log(e);
     }
@@ -295,8 +295,6 @@ const duplicateResidence = () => {
       newParticipant.value.residence_kecamatan = null
       newParticipant.value.residence_kelurahan = null
       newParticipant.value.residence_kode_pos = null
-
-
 
     }
   } catch (e) {
@@ -417,7 +415,7 @@ const nik = defineComponentBinds('nik');
                       </div>
                       <div class="field">
                           <label for="age1">Jenis Kelamin</label>
-                          <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur === true" optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
+                          <Dropdown v-model="gender" :options="genders" :disabled="!gugur === true" optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
                       </div>
                       <div class="field">
                           <label for="age1">No Handphone</label>
@@ -458,27 +456,27 @@ const nik = defineComponentBinds('nik');
                       <div class="field">
                           <label for="name1">Provinsi</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
-                          <Dropdown class="mr-4" v-model="newParticipant.provinsi" :options="provinces" :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi" />
+                          <Dropdown v-model="newParticipant.provinsi" :options="provinces" :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi" />
                       </div>
                       <div class="field">
                           <label for="name1">Kota</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
-                          <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
+                          <Dropdown v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
                       </div>
                       <div class="field">
                           <label for="name1">Kecamatan</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
-                          <Dropdown class="mr-4" v-model="subdistrict" :disabled="!gugur === true" :options="subdistricts" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
+                          <Dropdown v-model="subdistrict" :disabled="!gugur === true" :options="subdistricts" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
                       </div>
                       <div class="field">
                           <label for="name1">Kelurahan</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
-                          <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
+                          <Dropdown v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
                       </div>
                       <div class="field">
                           <label for="name1">Kode POS</label>
-                          <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kode_pos" />
-  <!--                        <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
+                          <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true" v-model="newParticipant.kode_pos" />
+  <!--                        <Dropdown v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
                       </div>
                   </div>
               </div>
@@ -506,26 +504,26 @@ const nik = defineComponentBinds('nik');
                       <div class="field">
                           <label for="name1">Provinsi</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
-                          <Dropdown class="mr-4" v-model="province" :options="provinces" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Provinsi" />
+                          <Dropdown v-model="province" :options="provinces" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Provinsi" />
                       </div>
                       <div class="field">
                           <label for="name1">Kota</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
-                          <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
+                          <Dropdown v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
                       </div>
                       <div class="field">
                           <label for="name1">Kecamatan</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
-                          <Dropdown class="mr-4" v-model="subdistrict" :options="subdistricts" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
+                          <Dropdown v-model="subdistrict" :options="subdistricts" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
                       </div>
                       <div class="field">
                           <label for="name1">Kelurahan</label>
                           <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
-                          <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
+                          <Dropdown v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
                       </div>
                       <div class="field">
                           <label for="name1">Kode POS</label>
-                          <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kode_pos" />
+                          <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true" v-model="newParticipant.residence_kode_pos" />
                       </div>
                   </div>
                   <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
