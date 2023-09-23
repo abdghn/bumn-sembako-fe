@@ -506,6 +506,11 @@ const getDataDropdown = async () => {
                             {{ slotProps.data.status.toLowerCase() }}
                         </template>
                     </Column>
+                  <Column field="residence_status" header="Petugas" :sortable="false" headerStyle="width:14%; min-width:8rem;">
+                    <template #body="slotProps">
+                      {{ slotProps.data.updated_by}}
+                    </template>
+                  </Column>
                 </DataTable>
 
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
