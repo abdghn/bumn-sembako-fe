@@ -11,6 +11,7 @@ const route = useRoute();
 const router = useRouter();
 const displayConfirmationGugur = ref(false);
 const displayConfirmationSesuai = ref(false);
+const displayConfirmationSubmit = ref(false);
 const participant = ref({});
 const participantService = new ParticipantService();
 const checkboxValue = ref([]);
@@ -68,6 +69,7 @@ const handleBack = () => {
 
 const openDialog = () => {
     displayConfirmationSesuai.value = true;
+    displayConfirmationSubmit.value = true
 };
 
 const findGenderIndexById = (code) => {
@@ -136,6 +138,7 @@ const handleSesuai = () => {
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
     displayConfirmationSesuai.value = false;
+    displayConfirmationSubmit.value = false;
 };
 
 const handleSubmits = () => {
@@ -433,6 +436,7 @@ const generateStatus = (value) => {
 const closeConfirmation = () => {
     displayConfirmationGugur.value = false;
     displayConfirmationSesuai.value = false;
+    displayConfirmationSubmit.value = false;
 };
 
 const duplicateResidence = () => {
@@ -862,10 +866,23 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
         </template>
     </Dialog>
     <!-- dialog -->
+
     <!-- dialog Terima -->
     <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
         <div class="flex align-items-center justify-content-center">
             <h5 class="text-center">Apakah data penerima sudah <b>SESUAI</b> ?</h5>
+        </div>
+        <template #footer>
+            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+            <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
+        </template>
+    </Dialog>
+    <!-- dialog -->
+
+    <!-- dialog Submit -->
+    <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
+        <div class="flex align-items-center justify-content-center">
+            <h5 class="text-center">Apakah yakin untuk pengajuan ? </h5>
         </div>
         <template #footer>
             <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
