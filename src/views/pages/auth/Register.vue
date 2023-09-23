@@ -25,7 +25,6 @@ const city = ref({});
 const organizations = ref(null);
 const organization = ref({});
 
-
 const regionService = new RegionService();
 const organizationService = new OrganizationService();
 

@@ -3,6 +3,8 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import UserService from '@/service/UserService';
+import OrganizationService from '@/service/OrganizationService';
+import RegionService from '@/service/RegionService';
 
 const toast = useToast();
 
@@ -17,12 +19,27 @@ const filters = ref({});
 const submitted = ref(false);
 const userService = new UserService();
 
+
+const provinces = ref(null);
+const province = ref({});
+const provinsi = ref(null);
+
+const cities = ref(null);
+const city = ref({});
+
+const organizations = ref(null);
+const organization = ref({});
+
+const regionService = new RegionService();
+const organizationService = new OrganizationService();
+
 onBeforeMount(() => {
     initFilters();
 });
 onMounted(() => {
     // productService.getProducts().then((data) => (products.value = data));
     userService.getUsers({ page: 1, size: 1000 }).then((result) => (products.value = result));
+    getDataDropdown();
 });
 
 const openNew = () => {
@@ -38,7 +55,7 @@ const hideDialog = () => {
 
 const saveProduct = () => {
     submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.username) {
+    if (product.value.name && product.value.name.trim() && product.value.username ) {
         if (product.value.id) {
             try {
                 const id = product.value.id;
@@ -51,10 +68,11 @@ const saveProduct = () => {
             }
         } else {
             try {
-                userService.addUser(product.value).then((result) => {
-                    toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
-                    products.value.push(result);
-                });
+                console.log(product.value)
+                // userService.addUser(product.value).then((result) => {
+                //     toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+                //     products.value.push(result);
+                // });
             } catch (e) {
                 toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 });
             }
@@ -110,6 +128,76 @@ const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     };
+};
+
+const findProvinceIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findCityIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findStatusIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const getDataDropdown = async () => {
+    try {
+        const params = { page: 1, size: 100 };
+        // productService.getProducts().then((data) => (products.value = data));
+        await regionService.getProvincies({}).then((result) => (provinces.value = result));
+        await organizationService.getOrganization({}).then((result) => (organizations.value = result));
+
+        const dataProvince = ref(window.localStorage.getItem('provinsi'));
+        const dataCity = ref(window.localStorage.getItem('kota'));
+
+        if (dataProvince.value !== null) {
+            dataProvince.value = dataProvince.value.toUpperCase();
+            provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
+            province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
+            await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+            params.provinsi = provinsi.value;
+        }
+
+        if (dataCity.value !== null) {
+            dataCity.value = dataCity.value.toUpperCase();
+            city.value = cities.value[findCityIndexByName(dataCity.value)].name;
+            params.kota = city.value;
+        }
+
+        window.localStorage.removeItem('provinsi');
+        window.localStorage.removeItem('kota');
+        // state.detail = data
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const handleProvinsi = () => {
+    provinsi.value = provinces.value[findStatusIndexById(province.value)].name;
+    regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
 };
 </script>
 
@@ -181,6 +269,18 @@ const initFilters = () => {
                         <label for="name">Name</label>
                         <InputText id="name" v-model.trim="product.name" required="true" autofocus :class="{ 'p-invalid': submitted && !product.name }" />
                         <small class="p-invalid" v-if="submitted && !product.name">Name is required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
+                        <Dropdown v-model="organization" class="w-full md:w-30rem mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
+                    </div>
+                    <div class="field">
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
+                        <Dropdown v-model="province" class="w-full md:w-30rem mb-3" :options="provinces" optionValue="id" optionLabel="name" placeholder="Select Provinsi" @change="handleProvinsi" />
+                    </div>
+                    <div class="field">
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">City</label>
+                        <Dropdown v-model="city" class="w-full md:w-30rem mb-3" :options="cities" optionValue="name" optionLabel="name" placeholder="Select Kota" :disabled="!provinces" />
                     </div>
                     <div class="field">
                         <label for="username">Username</label>
