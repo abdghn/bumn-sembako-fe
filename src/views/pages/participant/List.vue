@@ -219,7 +219,7 @@ const deleteSelectedProducts = () => {
 
 const handleProvinsi = () => {
     provinsi.value = provinces.value[findProvincesIndexById(province.value)].name;
-    regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+
 };
 
 const handleKota = () => {
