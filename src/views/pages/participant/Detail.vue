@@ -249,10 +249,10 @@ const generateStatus = (value) => {
   let status
   switch (value) {
     case "NOT DONE":
-      status =  "-";
+      status =  "Calon Penerima";
       break;
     case "PARTIAL_DONE":
-      status =  "Sudah Sesuai (Belum Upload Foto)";
+      status =  "Sudah Sesuai (Harap Upload Foto)";
       break;
     case "REJECTED":
       status =  "Gugur";

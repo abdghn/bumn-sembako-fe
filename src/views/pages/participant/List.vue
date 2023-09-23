@@ -37,7 +37,6 @@ const klurahan = ref(null);
 const status = ref(null);
 const stat = ref(null);
 
-
 const kelurahans = ref(null);
 const kelurahan = ref(null);
 const statuss = ref([
@@ -314,7 +313,7 @@ const getDataDropdown = async () => {
             dataCity.value = dataCity.value.toUpperCase();
             city.value = cities.value[findTypeIndexByName(dataCity.value)].id;
             await regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
-            params.kota = city.value;
+            params.kota = cities.value[findTypeIndexByName(dataCity.value)].name;
         }
 
         if (dataKecamatan.value !== null) {
