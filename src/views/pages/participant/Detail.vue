@@ -4,6 +4,8 @@ import ParticipantService from '../../../service/ParticipantService';
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import RegionService from "../../../service/RegionService";
+import { useForm } from 'vee-validate';
+import * as yup from 'yup';
 
 const route = useRoute();
 const router = useRouter();
@@ -134,7 +136,7 @@ const handleSesuai = () => {
     displayConfirmationSesuai.value = false;
 };
 
-const handleSubmit = () => {
+const handleSubmits = () => {
     try {
         const formData = new FormData();
         if (file.value !== null) {
@@ -302,6 +304,27 @@ const duplicateResidence = () => {
   }
 };
 
+// -------- validation --------
+
+const schema = yup.object({
+  nik: yup.string().required().max(16,'Masukan 16 Karakter').label('nik')
+});
+
+const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
+  validationSchema: schema,
+});
+
+const nik = defineComponentBinds('nik');
+
+// const onSubmit = handleSubmit((values) => {
+//   console.log('Submitted with', values);
+// });
+
+// const options = ['Enterprise', 'Pro', 'Freelance'].map((o) => ({
+//   name: o,
+//   value: o.toLowerCase(),
+// }));
+
 </script>
 
 <template>
@@ -365,148 +388,152 @@ const duplicateResidence = () => {
         <hr />
 
       <!-- <div v-if="participant.status !== `DONE` && (participant.status !== `REJECTED` || isRejected)"> -->
-        <div class="formgrid grid">
-            <div class="field col">
-                <div class="grid my-4">
-                    <div class="col-12 md:col-3">
-                        <div class="field-checkbox mb-2">
-                            <label for="checkOption1">Penerima Gugur</label>
-                        </div>
-                    </div>
-                    <div class="col-12 md:col-4">
-                        <div class="field-checkbox mb-2">
-                            <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" :disabled="!gugur === true" @click="handleCopy" />
-                        </div>
-                    </div>
-                </div>
-                <div class="p-fluid">
-                    <div class="field">
-                        <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
-                        <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Nama Peserta" v-model.trim="newParticipant.name" />
-                    </div>
-                    <div class="field">
-                        <label for="ktp">Nomor KTP</label>
-                        <InputNumber  id="ktp" :required="true" :disabled="!gugur === true" placeholder="No. KTP" v-model.trim="newParticipant.nik" :max="16" :useGrouping="false" />
-                    </div>
-                    <div class="field">
-                        <label for="age1">Jenis Kelamin</label>
-                        <!-- <InputText id="age1" type="text" :disabled="!gugur === true" v-model="newParticipant.gender" /> -->
-                        <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur === true" optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
-                    </div>
-                    <div class="field">
-                        <label for="age1">No Handphone</label>
-                        <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="08*********" v-model="newParticipant.phone" />
-                    </div>
-                </div>
-            </div>
-            <div class="field col">
-                <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
-                <div class="mb-6">
-                    <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
-                </div>
-                <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
-            </div>
-        </div>
-        <div class="formgrid grid">
-            <div class="field col">
-                <div class="p-fluid">
-                    <h5>Alamat Sesuai KTP</h5>
-                    <div class="field-checkbox mb-6">
-                        <div class="mb-1"></div>
-                    </div>
-                    <div class="field">
-                        <label for="name1">Alamat</label>
-                        <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat" v-model="newParticipant.address" />
-                    </div>
-                    <div class="grid formgrid mb-4">
-                        <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                            <label for="email1" class="mb-2">RT</label>
-                            <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.rt" />
-                        </div>
-                        <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                            <label for="age1">RW</label>
-                            <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.rw" />
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="name1">Provinsi</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
-                        <Dropdown class="mr-4" v-model="newParticipant.provinsi" :options="provinces" :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kota</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
-                        <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kecamatan</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
-                        <Dropdown class="mr-4" v-model="subdistrict" :disabled="!gugur === true" :options="subdistricts" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kelurahan</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
-                        <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kode POS</label>
-                         <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kode_pos" />
-<!--                        <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
-                    </div>
-                </div>
-            </div>
-            <div class="field col">
-                <div class="p-fluid">
-                    <h5>Alamat Domisili</h5>
-                    <div class="field-checkbox mb-4">
-                        <Checkbox id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"  v-model="checkboxValue" @change="duplicateResidence"/>
-                        <label for="checkOption2">Alamat sesuai KTP</label>
-                    </div>
-                    <div class="field">
-                        <label for="name1">Alamat</label>
-                        <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat" v-model="newParticipant.residence_address" />
-                    </div>
-                    <div class="grid formgrid mb-4">
-                        <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                            <label for="email1">RT</label>
-                            <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.residence_rt" />
-                        </div>
-                        <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                            <label for="age1">RW</label>
-                            <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.residence_rw" />
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="name1">Provinsi</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
-                        <Dropdown class="mr-4" v-model="province" :options="provinces" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Provinsi" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kota</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
-                        <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kecamatan</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
-                        <Dropdown class="mr-4" v-model="subdistrict" :options="subdistricts" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kelurahan</label>
-                        <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
-                        <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
-                    </div>
-                    <div class="field">
-                        <label for="name1">Kode POS</label>
-                         <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kode_pos" />
-                    </div>
-                </div>
-                <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                    <Button label="Submit" @click="handleSubmit" class="p-button-info mr-4"  :disabled="!gugur === true" />
-                </div>
-            </div>
-        </div>
+        <fom @submit="onSubmit">
+          <div class="formgrid grid">
+              <div class="field col">
+                  <div class="grid my-4">
+                      <div class="col-12 md:col-3">
+                          <div class="field-checkbox mb-2">
+                              <label for="checkOption1">Penerima Gugur</label>
+                          </div>
+                      </div>
+                      <div class="col-12 md:col-4">
+                          <div class="field-checkbox mb-2">
+                              <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" :disabled="!gugur === true" @click="handleCopy" />
+                          </div>
+                      </div>
+                  </div>
+                  <div class="p-fluid">
+                      <div class="field">
+                          <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
+                          <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Nama Peserta" v-model.trim="newParticipant.name" />
+                      </div>
+                      <div class="field">
+                          <label for="ktp">Nomor KTP</label>
+                          <InputNumber v-bind="nik" id="ktp" :required="true" :disabled="!gugur === true" placeholder="No. KTP" v-model.trim="newParticipant.nik" :useGrouping="false" aria-describedby="nik-help" :class="{ 'p-invalid': errors.nik }" />
+                          <small id="nik-help" class="p-error">
+                            {{ errors.nik }}
+                          </small>
+                      </div>
+                      <div class="field">
+                          <label for="age1">Jenis Kelamin</label>
+                          <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur === true" optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
+                      </div>
+                      <div class="field">
+                          <label for="age1">No Handphone</label>
+                          <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="08*********" v-model="newParticipant.phone" />
+                      </div>
+                  </div>
+              </div>
+              <div class="field col">
+                  <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
+                  <div class="mb-6">
+                      <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
+                  </div>
+                  <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
+                  <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
+              </div>
+          </div>
+          <div class="formgrid grid">
+              <div class="field col">
+                  <div class="p-fluid">
+                      <h5>Alamat Sesuai KTP</h5>
+                      <div class="field-checkbox mb-6">
+                          <div class="mb-1"></div>
+                      </div>
+                      <div class="field">
+                          <label for="name1">Alamat</label>
+                          <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat" v-model="newParticipant.address" />
+                      </div>
+                      <div class="grid formgrid mb-4">
+                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                              <label for="email1" class="mb-2">RT</label>
+                              <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.rt" />
+                          </div>
+                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                              <label for="age1">RW</label>
+                              <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.rw" />
+                          </div>
+                      </div>
+                      <div class="field">
+                          <label for="name1">Provinsi</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
+                          <Dropdown class="mr-4" v-model="newParticipant.provinsi" :options="provinces" :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kota</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
+                          <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kecamatan</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
+                          <Dropdown class="mr-4" v-model="subdistrict" :disabled="!gugur === true" :options="subdistricts" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kelurahan</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
+                          <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kode POS</label>
+                          <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kode_pos" />
+  <!--                        <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
+                      </div>
+                  </div>
+              </div>
+              <div class="field col">
+                  <div class="p-fluid">
+                      <h5>Alamat Domisili</h5>
+                      <div class="field-checkbox mb-4">
+                          <Checkbox id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"  v-model="checkboxValue" @change="duplicateResidence"/>
+                          <label for="checkOption2">Alamat sesuai KTP</label>
+                      </div>
+                      <div class="field">
+                          <label for="name1">Alamat</label>
+                          <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat" v-model="newParticipant.residence_address" />
+                      </div>
+                      <div class="grid formgrid mb-4">
+                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                              <label for="email1">RT</label>
+                              <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.residence_rt" />
+                          </div>
+                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                              <label for="age1">RW</label>
+                              <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.residence_rw" />
+                          </div>
+                      </div>
+                      <div class="field">
+                          <label for="name1">Provinsi</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
+                          <Dropdown class="mr-4" v-model="province" :options="provinces" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Provinsi" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kota</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
+                          <Dropdown class="mr-4" v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kecamatan</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
+                          <Dropdown class="mr-4" v-model="subdistrict" :options="subdistricts" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kelurahan</label>
+                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
+                          <Dropdown class="mr-4" v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
+                      </div>
+                      <div class="field">
+                          <label for="name1">Kode POS</label>
+                          <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kode_pos" />
+                      </div>
+                  </div>
+                  <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                      <Button label="Submit" @click="handleSubmits" class="p-button-info mr-4"  :disabled="!gugur === true" />
+                  </div>
+              </div>
+          </div>
+        </fom>
         <!-- </div> -->
         <!-- dialog gugur -->
         <Dialog header="Confirmation" v-model:visible="displayConfirmationGugur" :style="{ width: '550px' }" :modal="true">
