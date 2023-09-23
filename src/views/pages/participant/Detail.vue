@@ -23,22 +23,24 @@ const newParticipant2 = ref({});
 const isSelected = ref(false);
 const baseUrl = ref(import.meta.env.VITE_BACKEND_URL);
 const provinces = ref(null);
-const province = ref({});
 const cities = ref(null);
+const residence_cities = ref(null)
 const districts = ref(null);
+const residence_districts = ref(null)
 const villages = ref(null);
+const residence_villages = ref(null)
 const isRejected = ref(false);
 const genders = ref([
-    { name: 'Pria', code: 'pria' },
+    { name: 'Pria', code: 'Pria' },
     { name: 'Perempuan', code: 'Perempuan' }
 ]);
 const gender = ref(null);
 const jenisKelamin = ref(null);
-const regionService = new RegionService()
+const regionService = new RegionService();
 
 onMounted(async () => {
     participantService.getParticipant(route.params.id).then((result) => (participant.value = result));
-   await regionService.getProvincies({}).then((result) => (provinces.value = result));
+    await regionService.getProvincies({}).then((result) => (provinces.value = result));
 });
 
 const onUpload = () => {
@@ -175,70 +177,231 @@ const handleSubmits = () => {
     }
 };
 
-const handleCopy = () => {
+const handleCopy = async () => {
     try {
-      newParticipant.value = Object.assign({}, participant.value);
-      newParticipant.value.provinsi = provinces.value[findProvincesIndexByName(participant.value.provinsi.toUpperCase())].id;
-      newParticipant.value.kota = cities.value[findCitiesIndexByName(participant.value.kota.toUpperCase())].id;
-      newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(participant.value.kecamatan.toUpperCase())].id;
-      newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(participant.value.kelurahan.toUpperCase())].id;
-      newParticipant.value.residence_provinsi = provinces.value[findProvincesIndexByName(participant.value.residence_provinsi.toUpperCase())].id;
-      newParticipant.value.residence_kota = cities.value[findCitiesIndexByName(participant.value.residence_kota.toUpperCase())].id;
-      newParticipant.value.residence_kecamatan = districts.value[findDistrictsIndexByName(participant.value.residence_kecamatan.toUpperCase())].id;
-      newParticipant.value.residencence_kelurahan = villages.value[findVillagesIndexByName(participant.value.residence_kelurahan)].id;
+        newParticipant.value = Object.assign({}, participant.value);
+        newParticipant.value.provinsi = provinces.value[findProvincesIndexByName(newParticipant.value.provinsi.toUpperCase())].id;
+        if (participant.value.provinsi) {
+            await regionService.getRegencies({ province_id: newParticipant.value.provinsi }).then((result) => (cities.value = result));
+            await regionService.getDistrict({ regency_id: cities.value[findCitiesIndexByName(newParticipant.value.kota.toUpperCase())].id }).then((result) => (districts.value = result));
+            await regionService.getVillage({ district_id: districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan.toUpperCase())].id }).then((result) => (villages.value = result));
+        }
+
+        newParticipant.value.residence_provinsi = provinces.value[findProvincesIndexByName(newParticipant.value.residence_provinsi.toUpperCase())].id;
+        if (participant.value.residence_provinsi) {
+            await regionService.getRegencies({ province_id: newParticipant.value.residence_provinsi }).then((result) => (residence_cities.value = result));
+            await regionService.getDistrict({ regency_id: residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota.toUpperCase())].id }).then((result) => (residence_districts.value = result));
+            await regionService.getVillage({ district_id: residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan.toUpperCase())].id }).then((result) => (residence_villages.value = result));
+        }
+        newParticipant.value.kota = cities.value[findCitiesIndexByName(newParticipant.value.kota.toUpperCase())].id;
+        newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan.toUpperCase())].id;
+        newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(newParticipant.value.kelurahan.toUpperCase())].id;
+
+        newParticipant.value.residence_kota = residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota.toUpperCase())].id;
+        newParticipant.value.residence_kecamatan = residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan.toUpperCase())].id;
+        newParticipant.value.residence_kelurahan = residence_villages.value[findResidenceVillagesIndexByName(newParticipant.value.residence_kelurahan.toUpperCase())].id;
     } catch (e) {
         console.log(e);
     }
 };
 
-const findProvincesIndexByName = (name) => {
-  let index = -1;
-  for (let i = 0; i < provinces.value.length; i++) {
-    if (provinces.value[i].name === name) {
-      index = i;
-      break;
+const findProvincesIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].id === id) {
+            index = i;
+            break;
+        }
     }
-  }
-  return index;
+    return index;
+};
+
+const findProvincesIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+
+
+const findCitiesIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
 };
 
 
 const findCitiesIndexByName = (name) => {
-  let index = -1;
-  for (let i = 0; i < cities.value.length; i++) {
-    if (cities.value[i].name === name) {
-      index = i;
-      break;
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].name === name) {
+            index = i;
+            break;
+        }
     }
-  }
-  return index;
+    return index;
+};
+
+const findResidenceCitiesIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < residence_cities.value.length; i++) {
+        if (residence_cities.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+
+const findResidenceCitiesIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < residence_cities.value.length; i++) {
+        if (residence_cities.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findResidenceDistrictsIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < residence_districts.value.length; i++) {
+        if (residence_districts.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findResidenceDistrictsIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < residence_districts.value.length; i++) {
+        if (residence_districts.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findDistrictsIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < districts.value.length; i++) {
+        if (districts.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
 };
 
 const findDistrictsIndexByName = (name) => {
-  let index = -1;
-  for (let i = 0; i < districts.value.length; i++) {
-    if (districts.value[i].name === name) {
-      index = i;
-      break;
+    let index = -1;
+    for (let i = 0; i < districts.value.length; i++) {
+        if (districts.value[i].name === name) {
+            index = i;
+            break;
+        }
     }
-  }
-  return index;
+    return index;
+};
+
+const findVillagesIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < villages.value.length; i++) {
+        if (villages.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
 };
 
 const findVillagesIndexByName = (name) => {
-  let index = -1;
-  for (let i = 0; i < villages.value.length; i++) {
-    if (villages.value[i].name === name) {
-      index = i;
-      break;
+    let index = -1;
+    for (let i = 0; i < villages.value.length; i++) {
+        if (villages.value[i].name === name) {
+            index = i;
+            break;
+        }
     }
-  }
-  return index;
+    return index;
+};
+
+const findResidenceVillagesIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < residence_villages.value.length; i++) {
+        if (residence_villages.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findResidenceVillagesIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < residence_villages.value.length; i++) {
+        if (residence_villages.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const handleProvinsi = () => {
+    regionService.getRegencies({ province_id: newParticipant.value.provinsi }).then((result) => (cities.value = result));
+    cities.value = null
+    districts.value = null
+    villages.value = null
+};
+
+const handleResidenceProvinsi = () => {
+    regionService.getRegencies({ province_id: newParticipant.value.residence_provinsi }).then((result) => (residence_cities.value = result));
+    residence_cities.value = null
+    residence_districts.value = null
+    residence_villages.value = null
+};
+
+const handleKota = () => {
+    regionService.getDistrict({ regency_id: newParticipant.value.kota }).then((result) => (districts.value = result));
+};
+
+const handleResidenceKota = () => {
+    regionService.getDistrict({ regency_id: newParticipant.value.residence_kota }).then((result) => (residence_districts.value = result));
+};
+
+const handleKecamatan = () => {
+    regionService.getVillage({ district_id: newParticipant.value.kecamatan }).then((result) => (villages.value = result));
+};
+
+const handleResidenceKecamatan = () => {
+    regionService.getVillage({ district_id: newParticipant.value.residence_kecamatan }).then((result) => (residence_villages.value = result));
 };
 
 const onSelectedFiles = (event) => {
     event.files.forEach((result) => {
         file.value = result;
+    });
+};
+
+const onSelectedFilesPenerima = (event) => {
+    event.files.forEach((result) => {
+        file_penerima.value = result;
     });
 };
 
@@ -248,22 +411,21 @@ const handleGender = () => {
 };
 
 const generateStatus = (value) => {
-  let status
-  switch (value) {
-    case "NOT DONE":
-      status =  "Calon Penerima";
-      break;
-    case "PARTIAL_DONE":
-      status =  "Sudah Sesuai (Harap Upload Foto)";
-      break;
-    case "REJECTED":
-      status =  "Gugur";
-      break;
-    case "DONE":
-      status =  "Sukses Upload Foto";
-      break;
-
-  }
+    let status;
+    switch (value) {
+        case 'NOT DONE':
+            status = 'Calon Penerima';
+            break;
+        case 'PARTIAL_DONE':
+            status = 'Sudah Sesuai (Harap Upload Foto)';
+            break;
+        case 'REJECTED':
+            status = 'Gugur';
+            break;
+        case 'DONE':
+            status = 'Sukses Upload Foto';
+            break;
+    }
 
     return status;
 };
@@ -274,44 +436,48 @@ const closeConfirmation = () => {
 };
 
 const duplicateResidence = () => {
-  isSelected.value = !isSelected.value
-  try {
-    if(isSelected.value) {
-      newParticipant.value.residence_address = newParticipant.value.address
-      newParticipant.value.residence_rt = newParticipant.value.rt
-      newParticipant.value.residence_rw = newParticipant.value.rw
-      newParticipant.value.residence_provinsi = newParticipant.value.provinsi
-      newParticipant.value.residence_kota = newParticipant.value.kota
-      newParticipant.value.residence_kecamatan = newParticipant.value.kecamatan
-      newParticipant.value.residence_kelurahan = newParticipant.value.kelurahan
-      newParticipant.value.residence_kode_pos = newParticipant.value.kode_pos
-
-    } else {
-      newParticipant.value.residence_address = null
-      newParticipant.value.residence_rt = null
-      newParticipant.value.residence_rw = null
-      newParticipant.value.residence_provinsi = null
-      newParticipant.value.residence_kota = null
-      newParticipant.value.residence_kecamatan = null
-      newParticipant.value.residence_kelurahan = null
-      newParticipant.value.residence_kode_pos = null
-
+    isSelected.value = !isSelected.value;
+    try {
+        if (isSelected.value) {
+            newParticipant.value.residence_address = newParticipant.value.address;
+            newParticipant.value.residence_rt = newParticipant.value.rt;
+            newParticipant.value.residence_rw = newParticipant.value.rw;
+            newParticipant.value.residence_provinsi = newParticipant.value.provinsi;
+            newParticipant.value.residence_kota = newParticipant.value.kota;
+            newParticipant.value.residence_kecamatan = newParticipant.value.kecamatan;
+            newParticipant.value.residence_kelurahan = newParticipant.value.kelurahan;
+            newParticipant.value.residence_kode_pos = newParticipant.value.kode_pos;
+            residence_cities.value = cities.value
+            residence_districts.value = districts.value
+            residence_villages.value = villages.value
+        } else {
+            newParticipant.value.residence_address = null;
+            newParticipant.value.residence_rt = null;
+            newParticipant.value.residence_rw = null;
+            newParticipant.value.residence_provinsi = null;
+            newParticipant.value.residence_kota = null;
+            newParticipant.value.residence_kecamatan = null;
+            newParticipant.value.residence_kelurahan = null;
+            newParticipant.value.residence_kode_pos = null;
+            residence_cities.value = null
+            residence_districts.value = null
+            residence_villages.value = null
+        }
+    } catch (e) {
+        console.error(e);
     }
-  } catch (e) {
-    console.error(e);
-  }
 };
 
 // -------- validation --------
 
 const schema = yup.object({
-  nik: yup.string().required().max(16,'Masukan 16 Karakter').label('nik'),
-  file: yup.mixed().required('File is required'),
-  file_penerima: yup.mixed().required('File is required'),
+    nik: yup.string().required().max(16, 'Masukan 16 Karakter').label('nik'),
+    file: yup.mixed().required('File is required'),
+    file_penerima: yup.mixed().required('File is required'),
 });
 
 const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
-  validationSchema: schema,
+    validationSchema: schema,
 });
 
 const nik = defineComponentBinds('nik');
@@ -333,13 +499,15 @@ const nik = defineComponentBinds('nik');
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">
-                    <Button label="Back" class="p-button-rounded p-button-plain p-button-text p-button-text" icon="pi pi-arrow-left" @click="handleBack" />
+                    <Button label="Back" class="p-button-rounded p-button-plain p-button-text p-button-text"
+                        icon="pi pi-arrow-left" @click="handleBack" />
                 </div>
             </template>
 
             <template v-slot:end v-if="participant.status !== `DONE`">
-                <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" :modal="true" />
-                <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog"  :disabled="gugur === true" />
+                <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur"
+                    :modal="true" />
+                <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" />
             </template>
         </Toolbar>
         <div class="formgrid grid">
@@ -353,9 +521,12 @@ const nik = defineComponentBinds('nik');
             <div class="field col">
                 <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                 <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true" @select="onSelectedFiles" />
+                    <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true"
+                        accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
+                        @select="onSelectedFiles" />
                 </div>
-                <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image" height="250" alt="Logo" class="mr-2" />
+                <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image" height="250"
+                    alt="Logo" class="mr-2" />
             </div>
         </div>
         <div class="formgrid grid">
@@ -380,192 +551,228 @@ const nik = defineComponentBinds('nik');
                 <p>Kode POS: {{ participant?.kode_pos }}</p>
             </div>
             <div class="field col">
-                <h5 class="mb-2 text-900">Unggah Foto Menerima Sembako Jelas</h5>
-                <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true" @select="onSelectedFiles" />
+                <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
+                <div class="mb-4">
+                    <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true"
+                        accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
+                        @select="onSelectedFilesPenerima" />
+                </div>
+                <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
+                    alt="Logo" class="mr-2" />
             </div>
         </div>
 
         <hr />
-
-      <!-- <div v-if="participant.status !== `DONE` && (participant.status !== `REJECTED` || isRejected)"> -->
-        <fom @submit="onSubmit">
-          <div class="formgrid grid">
-              <div class="field col">
-                  <div class="grid my-4">
-                      <div class="col-12 md:col-3">
-                          <div class="field-checkbox mb-2">
-                              <label for="checkOption1">Penerima Gugur</label>
-                          </div>
-                      </div>
-                      <div class="col-12 md:col-4">
-                          <div class="field-checkbox mb-2">
-                              <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" :disabled="!gugur === true" @click="handleCopy" />
-                          </div>
-                      </div>
-                  </div>
-                  <div class="p-fluid">
-                      <div class="field">
-                          <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
-                          <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Nama Peserta" v-model.trim="newParticipant.name" />
-                      </div>
-                      <div class="field">
-                          <label for="ktp">Nomor KTP</label>
-                          <InputNumber v-bind="nik" id="ktp" :required="true" :disabled="!gugur === true" placeholder="No. KTP" v-model.trim="newParticipant.nik" :useGrouping="false" aria-describedby="nik-help" :class="{ 'p-invalid': errors.nik }" />
-                          <small id="nik-help" class="p-error">
-                            {{ errors.nik }}
-                          </small>
-                      </div>
-                      <div class="field">
-                          <label for="age1">Jenis Kelamin</label>
-                          <Dropdown v-model="gender" :options="genders" :disabled="!gugur === true" optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
-                      </div>
-                      <div class="field">
-                          <label for="age1">No Handphone</label>
-                          <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="08*********" v-model="newParticipant.phone" />
-                      </div>
-                  </div>
-              </div>
-              <div class="field col">
-                  <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
-                  <div class="mb-6">
-                      <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
-                  </div>
-                  <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                  <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
-              </div>
-          </div>
-          <div class="formgrid grid">
-              <div class="field col">
-                  <div class="p-fluid">
-                      <h5>Alamat Sesuai KTP</h5>
-                      <div class="field-checkbox mb-6">
-                          <div class="mb-1"></div>
-                      </div>
-                      <div class="field">
-                          <label for="name1">Alamat</label>
-                          <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat" v-model="newParticipant.address" />
-                      </div>
-                      <div class="grid formgrid mb-4">
-                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                              <label for="email1" class="mb-2">RT</label>
-                              <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.rt" />
-                          </div>
-                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                              <label for="age1">RW</label>
-                              <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.rw" />
-                          </div>
-                      </div>
-                      <div class="field">
-                          <label for="name1">Provinsi</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
-                          <Dropdown v-model="newParticipant.provinsi" :options="provinces" :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kota</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
-                          <Dropdown v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kecamatan</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
-                          <Dropdown v-model="subdistrict" :disabled="!gugur === true" :options="subdistricts" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kelurahan</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
-                          <Dropdown v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kode POS</label>
-                          <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true" v-model="newParticipant.kode_pos" />
-  <!--                        <Dropdown v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
-                      </div>
-                  </div>
-              </div>
-              <div class="field col">
-                  <div class="p-fluid">
-                      <h5>Alamat Domisili</h5>
-                      <div class="field-checkbox mb-4">
-                          <Checkbox id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"  v-model="checkboxValue" @change="duplicateResidence"/>
-                          <label for="checkOption2">Alamat sesuai KTP</label>
-                      </div>
-                      <div class="field">
-                          <label for="name1">Alamat</label>
-                          <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat" v-model="newParticipant.residence_address" />
-                      </div>
-                      <div class="grid formgrid mb-4">
-                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                              <label for="email1">RT</label>
-                              <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.residence_rt" />
-                          </div>
-                          <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
-                              <label for="age1">RW</label>
-                              <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.residence_rw" />
-                          </div>
-                      </div>
-                      <div class="field">
-                          <label for="name1">Provinsi</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
-                          <Dropdown v-model="province" :options="provinces" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Provinsi" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kota</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
-                          <Dropdown v-model="city" :options="cities" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kota" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kecamatan</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
-                          <Dropdown v-model="subdistrict" :options="subdistricts" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kecamatan" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kelurahan</label>
-                          <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
-                          <Dropdown v-model="ward" :options="wards" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kelurahan" />
-                      </div>
-                      <div class="field">
-                          <label for="name1">Kode POS</label>
-                          <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true" v-model="newParticipant.residence_kode_pos" />
-                      </div>
-                  </div>
-                  <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                      <Button label="Submit" @click="handleSubmits" class="p-button-info mr-4"  :disabled="!gugur === true" />
-                  </div>
-              </div>
-          </div>
-        </fom>
-        <!-- </div> -->
-        <!-- dialog gugur -->
-        <Dialog header="Confirmation" v-model:visible="displayConfirmationGugur" :style="{ width: '550px' }" :modal="true">
-            <div class="flex align-items-center justify-content-center">
-                <h5 class="text-center">Apakah anda yakin mengubah ke status <b>GUGUR?</b></h5>
+        <form @submit="onSubmit">
+            <div class="formgrid grid">
+                <div class="field col">
+                    <div class="grid my-4">
+                        <div class="col-12 md:col-3">
+                            <div class="field-checkbox mb-2">
+                                <label for="checkOption1">Penerima Gugur</label>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field-checkbox mb-2">
+                                <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2"
+                                    :disabled="!gugur === true" @click="handleCopy" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-fluid">
+                        <div class="field">
+                            <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
+                            <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Nama Peserta"
+                                v-model.trim="newParticipant.name" />
+                        </div>
+                        <div class="field">
+                            <label for="ktp">Nomor KTP</label>
+                            <InputNumber v-bind="nik" id="ktp" :required="true" :disabled="!gugur === true"
+                                placeholder="No. KTP" v-model.trim="newParticipant.nik" :useGrouping="false"
+                                aria-describedby="nik-help" :class="{ 'p-invalid': errors.nik }" />
+                            <small id="nik-help" class="p-error">
+                                {{ errors.nik }}
+                            </small>
+                        </div>
+                        <div class="field">
+                            <label for="age1">Jenis Kelamin</label>
+                            <!-- <InputText id="age1" type="text" :disabled="!gugur === true" v-model="newParticipant.gender" /> -->
+                            <Dropdown class="mr-4" v-model="gender" :options="genders" :disabled="!gugur === true"
+                                optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
+                        </div>
+                        <div class="field">
+                            <label for="age1">No Handphone</label>
+                            <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="08*********"
+                                v-model="newParticipant.phone" />
+                        </div>
+                    </div>
+                </div>
+                <div class="field col">
+                    <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
+                    <div class="mb-6">
+                        <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*"
+                            :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
+                    </div>
+                    <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
+                    <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
+                        customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
+                </div>
             </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-                <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" autofocus />
-            </template>
-        </Dialog>
-        <!-- dialog -->
-        <!-- dialog Terima -->
-        <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
-            <div class="flex align-items-center justify-content-center">
-                <h5 class="text-center">Apakah data penerima sudah <b>SESUAI</b> ?</h5>
+            <div class="formgrid grid">
+                <div class="field col">
+                    <div class="p-fluid">
+                        <h5>Alamat Sesuai KTP</h5>
+                        <div class="field-checkbox mb-6">
+                            <div class="mb-1"></div>
+                        </div>
+                        <div class="field">
+                            <label for="name1">Alamat</label>
+                            <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat"
+                                v-model="newParticipant.address" />
+                        </div>
+                        <div class="grid formgrid mb-4">
+                            <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                                <label for="email1" class="mb-2">RT</label>
+                                <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT"
+                                    v-model="newParticipant.rt" />
+                            </div>
+                            <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                                <label for="age1">RW</label>
+                                <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW"
+                                    v-model="newParticipant.rw" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="name1">Provinsi</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.provinsi" :options="provinces"
+                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
+                                @change="handleProvinsi" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kota</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.kota" :options="cities"
+                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
+                                @change="handleKota" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kecamatan</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.kecamatan" :disabled="!gugur === true"
+                                :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan"
+                                @change="handleKecamatan" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kelurahan</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.kelurahan" :options="villages"
+                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kelurahan" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kode POS</label>
+                            <InputText id="name1" type="text" :disabled="!gugur === true"
+                                v-model="newParticipant.kode_pos" />
+                            <!--                        <Dropdown class="mr-4" v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
+                        </div>
+                    </div>
+                </div>
+                <div class="field col">
+                    <div class="p-fluid">
+                        <h5>Alamat Domisili</h5>
+                        <div class="field-checkbox mb-4">
+                            <Checkbox id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"
+                                v-model="checkboxValue" @change="duplicateResidence" />
+                            <label for="checkOption2">Alamat sesuai KTP</label>
+                        </div>
+                        <div class="field">
+                            <label for="name1">Alamat</label>
+                            <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat"
+                                v-model="newParticipant.residence_address" />
+                        </div>
+                        <div class="grid formgrid mb-4">
+                            <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                                <label for="email1">RT</label>
+                                <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT"
+                                    v-model="newParticipant.residence_rt" />
+                            </div>
+                            <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
+                                <label for="age1">RW</label>
+                                <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW"
+                                    v-model="newParticipant.residence_rw" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="name1">Provinsi</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.residence_provinsi" :options="provinces"
+                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
+                                @change="handleResidenceProvinsi" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kota</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.residence_kota" :options="residence_cities"
+                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
+                                @change="handleResidenceKota" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kecamatan</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.residence_kecamatan"
+                                :options="residence_districts" :disabled="!gugur === true" optionValue="id"
+                                optionLabel="name" placeholder="Kecamatan" @change="handleResidenceKecamatan" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kelurahan</label>
+                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
+                            <Dropdown class="mr-4" v-model="newParticipant.residence_kelurahan"
+                                :options="residence_villages" :disabled="!gugur === true" optionValue="id"
+                                optionLabel="name" placeholder="Kelurahan" />
+                        </div>
+                        <div class="field">
+                            <label for="name1">Kode POS</label>
+                            <InputText id="name1" type="text" :disabled="!gugur === true"
+                                v-model="newParticipant.residence_kode_pos" />
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                        <Button label="Submit" @click="handleSubmit" class="p-button-info mr-4"
+                        :disabled="!gugur === true" />
+                </div>
             </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-                <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
-            </template>
-        </Dialog>
-        <!-- dialog -->
-    </div>
-</template>
+        </div>
+    </form>
+    <!-- </div> -->
+    <!-- dialog gugur -->
+    <Dialog header="Confirmation" v-model:visible="displayConfirmationGugur" :style="{ width: '550px' }" :modal="true">
+        <div class="flex align-items-center justify-content-center">
+            <h5 class="text-center">Apakah anda yakin mengubah ke status <b>GUGUR?</b></h5>
+        </div>
+        <template #footer>
+            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+            <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" autofocus />
+        </template>
+    </Dialog>
+    <!-- dialog -->
+    <!-- dialog Terima -->
+    <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
+        <div class="flex align-items-center justify-content-center">
+            <h5 class="text-center">Apakah data penerima sudah <b>SESUAI</b> ?</h5>
+        </div>
+        <template #footer>
+            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+            <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
+        </template>
+    </Dialog>
+    <!-- dialog -->
+</div></template>
 
-<style scoped lang="scss">
-input[type='number']::-webkit-inner-spin-button,
+<style scoped lang="scss">input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     margin: 0;
-}
-</style>
+}</style>
