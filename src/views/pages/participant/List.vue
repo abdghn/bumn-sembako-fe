@@ -271,6 +271,26 @@ const initFilters = () => {
     };
 };
 
+const generateStatus = (value) => {
+  let status
+  switch (value) {
+    case "NOT DONE":
+      status =  "Calon Penerima";
+      break;
+    case "PARTIAL_DONE":
+      status =  "Belum Upload Foto";
+      break;
+    case "REJECTED":
+      status =  "Gugur";
+      break;
+    case "DONE":
+      status =  "Sudah Menerima";
+      break;
+  }
+
+  return status;
+};
+
 // Method
 const getDataDropdown = async () => {
     try {
@@ -503,7 +523,7 @@ const getDataDropdown = async () => {
                     </Column>
                     <Column field="residence_status" header="Status" :sortable="false" headerStyle="width:14%; min-width:8rem;">
                         <template #body="slotProps">
-                            {{ slotProps.data.status.toLowerCase() }}
+                            {{ generateStatus(slotProps.data.status) }}
                         </template>
                     </Column>
                   <Column field="residence_status" header="Petugas" :sortable="false" headerStyle="width:14%; min-width:8rem;">

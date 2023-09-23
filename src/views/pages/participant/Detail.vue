@@ -246,21 +246,22 @@ const handleGender = () => {
 };
 
 const generateStatus = (value) => {
-    let status;
-    switch (value) {
-        case 'NOT DONE':
-            status = '-';
-            break;
-        case 'PARTIAL_DONE':
-            status = 'Sudah Sesuai (Harap Upload Foto)';
-            break;
-        case 'REJECTED':
-            status = 'Gugur';
-            break;
-        case 'DONE':
-            status = 'Sukses Upload Foto';
-            break;
-    }
+  let status
+  switch (value) {
+    case "NOT DONE":
+      status =  "-";
+      break;
+    case "PARTIAL_DONE":
+      status =  "Sudah Sesuai (Belum Upload Foto)";
+      break;
+    case "REJECTED":
+      status =  "Gugur";
+      break;
+    case "DONE":
+      status =  "Sukses Upload Foto";
+      break;
+
+  }
 
     return status;
 };
@@ -363,6 +364,7 @@ const duplicateResidence = () => {
 
         <hr />
 
+      <!-- <div v-if="participant.status !== `DONE` && (participant.status !== `REJECTED` || isRejected)"> -->
         <div class="formgrid grid">
             <div class="field col">
                 <div class="grid my-4">
