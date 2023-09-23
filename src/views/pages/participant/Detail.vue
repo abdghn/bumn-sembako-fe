@@ -470,18 +470,52 @@ const duplicateResidence = () => {
 
 // -------- validation --------
 
+const phoneRegex = /^(^\+62|62|^08)(\d{3,4}-?){2}\d{3,4}$/g;
+
 const schema = yup.object({
-    nik: yup.string().required().max(16, 'Masukan 16 Karakter').label('nik'),
-    file: yup.mixed().required('File is required'),
-    file_penerima: yup.mixed().required('File is required'),
+  name: yup.string().required('Isi nama lengkap sesuai kartu identitas').label('name'),
+  nik: yup.string().required().max(16, 'Masukan 16 Karakter').label('nik'),
+  phone: yup.string().required().matches(phoneRegex, 'Phone number is not valid'),
+  jkel: yup.string().required('Pilih Jenis Kelamin '),
+  address: yup.string().required(),
+  rt: yup.string().required().label('rt'),
+  rw: yup.string().required().label('rw'),
+  provinsi: yup.string().required().label('provinsi'),
+  kota: yup.string().required().label('kota'),
+  kecamatan: yup.string().required().label('kecamatan'),
+  kelurahan: yup.string().required().label('kelurahan'),
+  kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
+  residence_address: yup.string().required(),
+  residence_rt: yup.string().required().label('rt'),
+  residence_rw: yup.string().required().label('rw'),
+  residence_provinsi: yup.string().required().label('provinsi'),
+  residence_kota: yup.string().required().label('kota'),
+  residence_kecamatan: yup.string().required().label('kecamatan'),
+  residence_kelurahan: yup.string().required().label('kelurahan'),
+  residence_kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
+  file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu'),
+  file_penerima: yup.mixed().required('Unggah Foto Menerima Sembako Terlebih Dahulu'),
+  option: yup.bool().oneOf([true], 'Message')
 });
 
 const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
     validationSchema: schema,
 });
 
+const option = defineComponentBinds('option');
+const name = defineComponentBinds('name');
 const nik = defineComponentBinds('nik');
-
+const phone = defineComponentBinds('phone');
+const jkel = defineComponentBinds('gender');
+const address = defineComponentBinds('address');
+const rt = defineComponentBinds('rt');
+const rw = defineComponentBinds('rw');
+const kode_pos = defineComponentBinds('kode_pos');
+const residence_address = defineComponentBinds('residence_address');
+const residence_rt = defineComponentBinds('residence_rt');
+const residence_rw = defineComponentBinds('residence_rw');
+const residence_kode_pos = defineComponentBinds('residence_kode_pos');
+// const filez = defineComponentBinds('file');
 // const onSubmit = handleSubmit((values) => {
 //   console.log('Submitted with', values);
 // });
@@ -521,9 +555,12 @@ const nik = defineComponentBinds('nik');
             <div class="field col">
                 <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                 <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true"
+                    <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" :multiple="true"
                         accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                        @select="onSelectedFiles" />
+                        @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
+                    <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">
+                      {{ errors.file }}
+                    </small>
                 </div>
                 <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image" height="250"
                     alt="Logo" class="mr-2" />
@@ -553,9 +590,12 @@ const nik = defineComponentBinds('nik');
             <div class="field col">
                 <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                 <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" name="demo[]" @uploader="onUpload" :multiple="true"
+                    <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload" :multiple="true"
                         accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                        @select="onSelectedFilesPenerima" />
+                        @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
+                    <small id="file_penerima-help" class="p-error">
+                      {{ errors.file_penerima }}
+                    </small>
                 </div>
                 <img v-if="participant.status === `DONE`" :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
                     alt="Logo" class="mr-2" />
@@ -582,8 +622,11 @@ const nik = defineComponentBinds('nik');
                     <div class="p-fluid">
                         <div class="field">
                             <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
-                            <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Nama Peserta"
-                                v-model.trim="newParticipant.name" />
+                            <InputText v-bind="name" id="name1" type="text" :required="true" :disabled="!gugur === true" placeholder="Nama Peserta"
+                              aria-describedby="name-help" :class="{ 'p-invalid': errors.name }"  v-model.trim="newParticipant.name" />
+                            <small id="name-help" class="p-error">
+                                {{ errors.name }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="ktp">Nomor KTP</label>
@@ -597,25 +640,37 @@ const nik = defineComponentBinds('nik');
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
                             <!-- <InputText id="age1" type="text" :disabled="!gugur === true" v-model="newParticipant.gender" /> -->
-                            <Dropdown v-model="gender" :options="genders" :disabled="!gugur === true"
+                            <Dropdown v-bind="jkel" required="true" v-model="gender" :options="genders" :disabled="!gugur === true" aria-describedby="jkel-help" :class="{ 'p-invalid': errors.jkel }"
                                 optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
+                            <small id="nik-help" class="p-error">
+                              {{ errors.jkel }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="age1">No Handphone</label>
-                            <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="08*********"
-                                v-model="newParticipant.phone" />
+                            <InputText id="age1" v-bind="phone" required="true" type="text" :disabled="!gugur === true" placeholder="08*********"
+                                v-model="newParticipant.phone" aria-describedby="phone-help" :class="{ 'p-invalid': errors.phone }" />
+                            <small id="phone-help" class="p-error">
+                              {{ errors.phone }}
+                            </small>
                         </div>
                     </div>
                 </div>
                 <div class="field col">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                     <div class="mb-6">
-                        <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*"
-                            :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
+                        <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*"
+                            :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
+                        <small id="file-help" class="p-error">
+                          {{ errors.file }}
+                        </small>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                    <FileUpload name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
-                        customUpload :disabled="!gugur === true" @select="onSelectedFiles" />
+                    <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
+                        customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
+                    <small id="file_penerima-help" class="p-error">
+                      {{ errors.file_penerima }}
+                    </small>
                 </div>
             </div>
             <div class="formgrid grid">
@@ -627,52 +682,76 @@ const nik = defineComponentBinds('nik');
                         </div>
                         <div class="field">
                             <label for="name1">Alamat</label>
-                            <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat"
-                                v-model="newParticipant.address" />
+                            <InputText v-bind="address" id="name1" type="text" required="true" :disabled="!gugur === true" placeholder="Alamat"
+                                v-model="newParticipant.address" aria-describedby="address-help" :class="{ 'p-invalid': errors.address }" />
+                            <small id="address-help" class="p-error">
+                              {{ errors.address }}
+                            </small>
                         </div>
                         <div class="grid formgrid mb-4">
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="email1" class="mb-2">RT</label>
-                                <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT"
-                                    v-model="newParticipant.rt" />
+                                <InputText v-bind="rt" id="email1" type="text" required="true" :disabled="!gugur === true" placeholder="RT"
+                                    v-model="newParticipant.rt" aria-describedby="rt-help" :class="{ 'p-invalid': errors.rt }" />
+                                <small id="rt-help" class="p-error">
+                                  {{ errors.rt }}
+                                </small>
                             </div>
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="age1">RW</label>
-                                <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW"
-                                    v-model="newParticipant.rw" />
+                                <InputText v-bind="rw" id="age1" type="text" required="true" :disabled="!gugur === true" placeholder="RW"
+                                    v-model="newParticipant.rw" aria-describedby="rw-help" :class="{ 'p-invalid': errors.rw }"/>
+                                <small id="rw-help" class="p-error">
+                                  {{ errors.rw }}
+                                </small>
                             </div>
                         </div>
                         <div class="field">
                             <label for="name1">Provinsi</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
-                            <Dropdown v-model="newParticipant.provinsi" :options="provinces"
+                            <Dropdown v-bind="provinsi" v-model="newParticipant.provinsi" :options="provinces"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
-                                @change="handleProvinsi" />
+                                @change="handleProvinsi" aria-describedby="provinsi-help" :class="{ 'p-invalid': errors.provinsi }" />
+                                <small id="provinsi-help" class="p-error">
+                                  {{ errors.provinsi }}
+                                </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
-                            <Dropdown v-model="newParticipant.kota" :options="cities"
+                            <Dropdown v-bind="kota" v-model="newParticipant.kota" :options="cities"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
-                                @change="handleKota" />
+                                @change="handleKota" aria-describedby="kota-help" :class="{ 'p-invalid': errors.kota }" />
+                                <small id="kota-help" class="p-error" >
+                                  {{ errors.kota }}
+                                </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kecamatan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
-                            <Dropdown v-model="newParticipant.kecamatan" :disabled="!gugur === true"
+                            <Dropdown v-bind="kecamatan" v-model="newParticipant.kecamatan" :disabled="!gugur === true"
                                 :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan"
-                                @change="handleKecamatan" />
+                                @change="handleKecamatan" aria-describedby="kecamatan-help" :class="{ 'p-invalid': errors.kecamatan }"/>
+                                <small id="kecamatan-help" class="p-error" >
+                                  {{ errors.kecamatan }}
+                                </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kelurahan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
-                            <Dropdown v-model="newParticipant.kelurahan" :options="villages"
-                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kelurahan" />
+                            <Dropdown v-bind="kelurahan" v-model="newParticipant.kelurahan" :options="villages"
+                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kelurahan" aria-describedby="kelurahan-help" :class="{ 'p-invalid': errors.kelurahan }"/>
+                            <small id="kelurahan-help" class="p-error" >
+                              {{ errors.kelurahan }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kode POS</label>
-                            <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
-                                v-model="newParticipant.kode_pos" />
+                            <InputText v-bind="kode_pos" :required="true" id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
+                                v-model="newParticipant.kode_pos" aria-describedby="kode_pos-help" :class="{ 'p-invalid': errors.kode_pos }" />
+                            <small id="kode_pos-help" class="p-error">
+                              {{ errors.kode_pos }}
+                            </small>
                             <!--                        <Dropdown v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
                         </div>
                     </div>
@@ -681,59 +760,86 @@ const nik = defineComponentBinds('nik');
                     <div class="p-fluid">
                         <h5>Alamat Domisili</h5>
                         <div class="field-checkbox mb-4">
-                            <Checkbox id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"
-                                v-model="checkboxValue" @change="duplicateResidence" />
+                            <Checkbox v-bind="option" id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"
+                                v-model="checkboxValue" @change="duplicateResidence" aria-describedby="option-help" :class="{ 'p-invalid': errors.option }" />
                             <label for="checkOption2">Alamat sesuai KTP</label>
+                            <small id="option-help" class="p-error">
+                              {{ errors.option }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Alamat</label>
-                            <InputText id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat"
-                                v-model="newParticipant.residence_address" />
+                            <InputText v-bind="residence_address" id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat"
+                                v-model="newParticipant.residence_address" aria-describedby="residence_address-help" :class="{ 'p-invalid': errors.residence_address }"/>
+                            <small id="residence_address-help" class="p-error">
+                              {{ errors.residence_address }}
+                            </small>
                         </div>
                         <div class="grid formgrid mb-4">
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="email1">RT</label>
-                                <InputText id="email1" type="text" :disabled="!gugur === true" placeholder="RT"
-                                    v-model="newParticipant.residence_rt" />
+                                <InputText v-bind="residence_rt" id="email1" type="text" :disabled="!gugur === true" placeholder="RT"
+                                    v-model="newParticipant.residence_rt" aria-describedby="residence_rt-help" :class="{ 'p-invalid': errors.residence_rt }" />
+                                <small id="residence_rt-help" class="p-error">
+                                  {{ errors.residence_rt }}
+                                </small>
                             </div>
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="age1">RW</label>
-                                <InputText id="age1" type="text" :disabled="!gugur === true" placeholder="RW"
-                                    v-model="newParticipant.residence_rw" />
+                                <InputText v-bind="residence_rw" id="age1" type="text" :disabled="!gugur === true" placeholder="RW"
+                                    v-model="newParticipant.residence_rw" aria-describedby="residence_rw-help" :class="{ 'p-invalid': errors.residence_rw }" />
+                                <small id="residence_rw-help" class="p-error">
+                                  {{ errors.residence_rw }}
+                                </small>
                             </div>
                         </div>
                         <div class="field">
                             <label for="name1">Provinsi</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
-                            <Dropdown v-model="newParticipant.residence_provinsi" :options="provinces"
+                            <Dropdown v-bind="residence_provinsi" v-model="newParticipant.residence_provinsi" :options="provinces"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
-                                @change="handleResidenceProvinsi" />
+                                @change="handleResidenceProvinsi" aria-describedby="residence_provinsi-help" :class="{ 'p-invalid': errors.residence_provinsi }" />
+                              <small id="residence_provinsi-help" class="p-error">
+                                {{ errors.residence_provinsi }}
+                              </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
-                            <Dropdown v-model="newParticipant.residence_kota" :options="residence_cities"
+                            <Dropdown v-bind="residence_kota" v-model="newParticipant.residence_kota" :options="residence_cities"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
-                                @change="handleResidenceKota" />
+                                @change="handleResidenceKota" aria-describedby="residence_kota-help" :class="{ 'p-invalid': errors.residence_kota }" />
+                              <small id="residence_kota-help" class="p-error">
+                                {{ errors.residence_kota }}
+                              </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kecamatan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
-                            <Dropdown v-model="newParticipant.residence_kecamatan"
+                            <Dropdown v-bind="residence_kecamatan" v-model="newParticipant.residence_kecamatan"
                                 :options="residence_districts" :disabled="!gugur === true" optionValue="id"
-                                optionLabel="name" placeholder="Kecamatan" @change="handleResidenceKecamatan" />
+                                optionLabel="name" placeholder="Kecamatan" @change="handleResidenceKecamatan" aria-describedby="residence_kecamatan-help" :class="{ 'p-invalid': errors.residence_kecamatan }" />
+                              <small id="residence_kecamatan-help" class="p-error">
+                                {{ errors.residence_kecamatan }}
+                              </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kelurahan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
-                            <Dropdown v-model="newParticipant.residence_kelurahan"
+                            <Dropdown v-bind="residence_kelurahan" v-model="newParticipant.residence_kelurahan"
                                 :options="residence_villages" :disabled="!gugur === true" optionValue="id"
-                                optionLabel="name" placeholder="Kelurahan" />
+                                optionLabel="name" placeholder="Kelurahan" aria-describedby="residence_kelurahan-help" :class="{ 'p-invalid': errors.residence_kelurahan }" />
+                              <small id="residence_kelurahan-help" class="p-error">
+                                {{ errors.residence_kelurahan }}
+                              </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kode POS</label>
-                            <InputText id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
-                                v-model="newParticipant.residence_kode_pos" />
+                            <InputText v-bind="residence_kode_pos" id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
+                                v-model="newParticipant.residence_kode_pos" aria-describedby="residence_kode_pos-help" :class="{ 'p-invalid': errors.residence_kode_pos }" />
+                              <small id="residence_kode_pos-help" class="p-error">
+                                {{ errors.residence_kode_pos }}
+                              </small>
                         </div>
                     </div>
                     <div
