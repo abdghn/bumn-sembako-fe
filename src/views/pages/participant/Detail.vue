@@ -67,7 +67,7 @@ const handleBack = () => {
     window.localStorage.setItem('provinsi', participant?.value.provinsi);
     window.localStorage.setItem('kota', participant?.value.kota);
     window.localStorage.setItem('kecamatan', participant?.value.kecamatan);
-  window.localStorage.setItem('kelurahan', participant?.value.kelurahan);
+    window.localStorage.setItem('kelurahan', participant?.value.kelurahan);
     router.push('/participant');
 };
 

@@ -25,21 +25,21 @@ const province = ref({});
 const cities = ref(null);
 const city = ref({});
 
-const kecamatans = ref(null);
-const kecamatan = ref({});
+const districts = ref(null);
+const district = ref({});
 
 //  <------ state dropdown ------>
 
-const provinsi = ref(null);
-const kota = ref(null);
-const kcmatan = ref(null);
-const klurahan = ref(null);
+const paramProvince = ref(null);
+const paramCity = ref(null);
+const paramDistrict = ref(null);
+const paramVillage = ref(null);
 const status = ref(null);
-const stat = ref(null);
+const paramStatus = ref(null);
 
-const kelurahans = ref(null);
-const kelurahan = ref(null);
-const statuss = ref([
+const villages = ref(null);
+const village = ref(null);
+const statuses = ref([
     { name: 'Selesai', code: 'DONE' },
     { name: 'Belum unggah foto', code: 'PARTIAL_DONE' },
     { name: 'Gugur', code: 'REJECTED' },
@@ -109,7 +109,7 @@ const findProvincesIndexById = (id) => {
     }
     return index;
 };
-const findCityIndexById = (id) => {
+const findCitiesIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < cities.value.length; i++) {
         if (cities.value[i].id === id) {
@@ -120,10 +120,10 @@ const findCityIndexById = (id) => {
     return index;
 };
 
-const findKecamatanIndexById = (id) => {
+const findDistricsIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < kecamatans.value.length; i++) {
-        if (kecamatans.value[i].id === id) {
+    for (let i = 0; i < districts.value.length; i++) {
+        if (districts.value[i].id === id) {
             index = i;
             break;
         }
@@ -131,10 +131,10 @@ const findKecamatanIndexById = (id) => {
     return index;
 };
 
-const findKelurahanIndexById = (id) => {
+const findVillagesIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < kelurahans.value.length; i++) {
-        if (kelurahans.value[i].id === id) {
+    for (let i = 0; i < villages.value.length; i++) {
+        if (villages.value[i].id === id) {
             index = i;
             break;
         }
@@ -144,8 +144,8 @@ const findKelurahanIndexById = (id) => {
 
 const findStatusIndexById = (code) => {
     let index = -1;
-    for (let i = 0; i < statuss.value.length; i++) {
-        if (statuss.value[i].code === code) {
+    for (let i = 0; i < statuses.value.length; i++) {
+        if (statuses.value[i].code === code) {
             index = i;
             break;
         }
@@ -153,7 +153,7 @@ const findStatusIndexById = (code) => {
     return index;
 };
 
-const findProvinceIndexByName = (name) => {
+const findProvincesIndexByName = (name) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
         if (provinces.value[i].name === name) {
@@ -164,7 +164,7 @@ const findProvinceIndexByName = (name) => {
     return index;
 };
 
-const findTypeIndexByName = (name) => {
+const findCitiesIndexByName = (name) => {
     let index = -1;
     for (let i = 0; i < cities.value.length; i++) {
         if (cities.value[i].name === name) {
@@ -175,10 +175,10 @@ const findTypeIndexByName = (name) => {
     return index;
 };
 
-const findKecamatanIndexByName = (name) => {
+const findDistrictsIndexByName = (name) => {
     let index = -1;
-    for (let i = 0; i < kecamatans.value.length; i++) {
-        if (kecamatans.value[i].name === name) {
+    for (let i = 0; i < districts.value.length; i++) {
+        if (districts.value[i].name === name) {
             index = i;
             break;
         }
@@ -186,10 +186,10 @@ const findKecamatanIndexByName = (name) => {
     return index;
 };
 
-const findKelurahanIndexByName = (name) => {
+const findVillagesIndexByName = (name) => {
     let index = -1;
-    for (let i = 0; i < kelurahans.value.length; i++) {
-        if (kelurahans.value[i].name === name) {
+    for (let i = 0; i < villages.value.length; i++) {
+        if (villages.value[i].name === name) {
             index = i;
             break;
         }
@@ -206,9 +206,6 @@ const createId = () => {
     return id;
 };
 
-// const exportCSV = () => {
-//     dt.value.exportCSV();
-// };
 
 const deleteSelectedProducts = () => {
     products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
@@ -217,35 +214,35 @@ const deleteSelectedProducts = () => {
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
 };
 
-const handleProvinsi = () => {
-    provinsi.value = provinces.value[findProvincesIndexById(province.value)].name;
-
+const handleProvince = async () => {
+    paramProvince.value = provinces.value[findProvincesIndexById(province.value)].name;
+    await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
 };
 
-const handleKota = () => {
-    kota.value = cities.value[findCityIndexById(city.value)].name;
-    regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
+const handleCity = () => {
+    paramCity.value = cities.value[findCitiesIndexById(city.value)].name;
+    regionService.getDistrict({ regency_id: city.value }).then((result) => (districts.value = result));
 };
 
-const handleKecamatan = () => {
-    kcmatan.value = kecamatans.value[findKecamatanIndexById(kecamatan.value)].name;
-    regionService.getVillage({ district_id: kecamatan.value }).then((result) => (kelurahans.value = result));
+const handleDistrict = () => {
+    paramDistrict.value = districts.value[findDistricsIndexById(district.value)].name;
+    regionService.getVillage({ district_id: district.value }).then((result) => (villages.value = result));
 };
 
-const handleKelurahan = () => {
-    klurahan.value = kelurahans.value[findKelurahanIndexById(kelurahan.value)].name;
+const handleVillage = () => {
+    paramVillage.value = villages.value[findVillagesIndexById(village.value)].name;
 };
 
 const handleStatus = () => {
-    status.value = statuss.value[findStatusIndexById(stat.value)].code;
+    status.value = statuses.value[findStatusIndexById(paramStatus.value)].code;
 };
 
 const resetFilter = () => {
-    provinsi.value = null;
-    kota.value = null;
-    kecamatan.value = null;
-    kelurahan.value = null;
-    status.value = null;
+    paramProvince.value = null;
+    paramCity.value = null;
+    paramDistrict.value = null;
+    paramVillage.value = null;
+    paramStatus.value = null;
     participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
 };
 
@@ -255,11 +252,11 @@ const handleFilter = () => {
         size: 100
     };
 
-    if (provinsi.value) params.provinsi = provinsi.value;
-    if (kota.value) params.kota = kota.value;
-    if (kcmatan.value) params.kecamatan = kcmatan.value;
-    if (klurahan.value) params.kelurahan = klurahan.value;
-    if (stat.value) params.status = stat.value;
+    if (paramProvince.value) params.provinsi = paramProvince.value;
+    if (paramCity.value) params.kota = paramCity.value;
+    if (paramDistrict.value) params.kecamatan = paramDistrict.value;
+    if (paramVillage.value) params.kelurahan = paramVillage.value;
+    if (paramStatus.value) params.status = paramStatus.value;
 
     participantService.getParticipants(params).then((result) => (products.value = result));
 };
@@ -298,37 +295,40 @@ const getDataDropdown = async () => {
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
         const dataCity = ref(window.localStorage.getItem('kota'));
-        const dataKecamatan = ref(window.localStorage.getItem('kecamatan'));
-        const dataKelurahan = ref(window.localStorage.getItem('kelurahan'));
+        const dataDistrict = ref(window.localStorage.getItem('kecamatan'));
+        const dataVillage = ref(window.localStorage.getItem('kelurahan'));
 
-        if (dataProvince.value !== null) {
-            provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
-            province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
+        if (dataProvince.value !== null && provinces.value[findProvincesIndexByName(dataProvince.value)]) {
+            paramProvince.value = provinces.value[findProvincesIndexByName(dataProvince.value)].name;
+            province.value = provinces.value[findProvincesIndexByName(dataProvince.value)].id;
             await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
-            params.provinsi = provinsi.value;
+            params.provinsi = paramProvince.value;
         }
-        if (dataCity.value !== null) {
-            city.value = cities.value[findTypeIndexByName(dataCity.value)].id;
-            await regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
-            params.kota = cities.value[findTypeIndexByName(dataCity.value)].name;
-        }
-
-        if (dataKecamatan.value !== null) {
-            kecamatan.value = kecamatans.value[findKecamatanIndexByName(dataKecamatan.value)].id;
-            await regionService.getVillage({ district_id: kecamatan.value }).then((result) => (kelurahans.value = result));
-            params.kcmatan = kecamatan.value;
+        if (dataCity.value !== null && cities.value[findCitiesIndexByName(dataCity.value)]) {
+            city.value = cities.value[findCitiesIndexByName(dataCity.value)].id;
+            await regionService.getDistrict({ regency_id: city.value }).then((result) => (districts.value = result));
+            params.kota = cities.value[findCitiesIndexByName(dataCity.value)].name;
         }
 
-        if (dataKelurahan.value !== null) {
-            kelurahan.value = kelurahans.value[findKelurahanIndexByName(dataKelurahan.value)].id;
-            params.klurahan = kelurahan.value;
+        if (dataDistrict.value !== null && districts.value[findDistrictsIndexByName(dataDistrict.value)]) {
+            district.value = districts.value[findDistrictsIndexByName(dataDistrict.value)].id;
+            await regionService.getVillage({ district_id: district.value }).then((result) => (villages.value = result));
+            params.kecamatan = dataDistrict.value;
+
         }
+
+        if (dataVillage.value !== null && villages.value[findVillagesIndexByName(dataVillage.value)]) {
+                village.value = villages.value[findVillagesIndexByName(dataVillage.value)].id;
+                params.kelurahan = dataVillage.value;
+
+        }
+
 
         participantService.getParticipants(params).then((result) => (products.value = result));
         window.localStorage.removeItem('provinsi');
         window.localStorage.removeItem('kota');
         window.localStorage.removeItem('kecamatan');
-        // state.detail = data
+        window.localStorage.removeItem('kelurahan');
     } catch (error) {
         console.log(error);
     }
@@ -344,11 +344,11 @@ const getDataDropdown = async () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2" tyle="display: block">
-                            <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-                            <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleKota" />
-                            <Dropdown class="mr-4 mb-2" v-model="kecamatan" :options="kecamatans" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleKecamatan" />
-                            <Dropdown class="mr-4 mb-2" v-model="kelurahan" :options="kelurahans" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleKelurahan"/>
-                            <Dropdown class="mr-4 mb-2" v-model="stat" :options="statuss" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
+                            <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvince" />
+                            <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
+                            <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
+                            <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage"/>
+                            <Dropdown class="mr-4 mb-2" v-model="paramStatus" :options="statuses" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
                         </div>
                     </template>
                     
