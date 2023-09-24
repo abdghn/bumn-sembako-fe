@@ -348,20 +348,21 @@ const getDataDropdown = async () => {
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2">
-                            <Dropdown class="ml-3 mr-4" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-                            <Dropdown class="mr-4" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleKota" />
-                            <Dropdown class="mr-4" v-model="kecamatan" :options="kecamatans" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleKecamatan" />
-                            <Dropdown class="mr-4" v-model="kelurahan" :options="kelurahans" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleKelurahan"/>
-                            <Dropdown class="mr-4" v-model="stat" :options="statuss" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
-                            <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
-                            <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
+                        <div class="my-2" tyle="display: block">
+                            <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
+                            <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleKota" />
+                            <Dropdown class="mr-4 mb-2" v-model="kecamatan" :options="kecamatans" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleKecamatan" />
+                            <Dropdown class="mr-4 mb-2" v-model="kelurahan" :options="kelurahans" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleKelurahan"/>
+                            <Dropdown class="mr-4 mb-2" v-model="stat" :options="statuss" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
                         </div>
                     </template>
+                    
 
-                    <!-- <template v-slot:end>
-                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
-                    </template> -->
+                    <template v-slot:end>
+                        <!-- <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" /> -->
+                        <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
+                        <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
+                    </template>
                 </Toolbar>
 
                 <DataTable

@@ -201,7 +201,9 @@ const getDataDropdown = async () => {
                     </template>
 
                     <template v-slot:end>
-                        <Button label="Tampilkan data" class="p-button-info ml-2 inline-block" @click="resetFilter" />
+                        <div>
+                            <Button label="Export PDF" class="p-button-info ml-2 inline-block" @click="resetFilter" />
+                        </div>
                     </template>
                 </Toolbar>
                 <div class="grid p-fluid">
@@ -218,8 +220,8 @@ const getDataDropdown = async () => {
                         <Editor v-model="value" editorStyle="height: 320px" />
                     </div>
                 </div>
-                <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                    <Button label="Tampilkan data" class="p-button-info ml-2" @click="resetFilter" />
+                <div v-if="product" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                    <Button label="Export PDF" class="p-button-info ml-2" @click="resetFilter" />
                 </div>
             </div>
         </div>
