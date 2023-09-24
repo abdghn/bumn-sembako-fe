@@ -127,7 +127,7 @@ const resetFilter = () => {
     participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
 };
 
-const handleFilter = () => {
+const handleSearch = () => {
     try {
         const params = {
             page: 1,
@@ -215,14 +215,14 @@ const getDataDropdown = async () => {
                             <Dropdown class="mr-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                             <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
                             <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
-                            <Button label="Search" class="p-button-secondary mb-2" @click="handleFilter" />
+                            <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
                             <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
                         </div>
                     </template>
 
                     <template v-slot:end>
                         <div>
-                            <Button v-if="exportPDFSign === false" label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExportPDF" />
+                            <Button v-if="exportPDFSign === true" label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExportPDF" />
                         </div>
                     </template>
                 </Toolbar>
@@ -240,7 +240,7 @@ const getDataDropdown = async () => {
                         <Editor v-model="solusiValue" editorStyle="height: 320px" />
                     </div>
                 </div>
-                <div v-if="exportPDFSign.value === true" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
                     <Button label="Export PDF" class="p-button-info ml-2" @click="handleExportPDF" />
                 </div>
             </div>
