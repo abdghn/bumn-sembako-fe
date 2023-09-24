@@ -59,7 +59,6 @@ const saveProduct = () => {
     if (product.value.name && product.value.name.trim() && product.value.username && product.value.provinsi) {
         payload.value.provinsi = provinces.value[findProvinceIndexById(payload.value.provinsi)].name;
         // payload.value.kota = cities.value[findCityIndexById(payload.value.kota)].name;
-        console.log(payload.value.kota);
         if (product.value.id) {
             try {
                 const id = payload.value.id;
@@ -291,7 +290,7 @@ const handleProvinsi = () => {
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
-                        <Dropdown v-model="product.organization" class="w-full mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
+                        <Dropdown v-model="product.organization_id" class="w-full mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
