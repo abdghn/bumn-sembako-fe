@@ -16,6 +16,11 @@ const filters = ref({});
 const submitted = ref(false);
 const calendarValue = ref(null);
 
+const jamValue = ref(null);
+const evaluasiValue = ref(null);
+const solusiValue = ref(null);
+const exportPDFSign = ref(false);
+
 const provinces = ref(null);
 const province = ref({});
 
@@ -132,7 +137,19 @@ const handleFilter = () => {
     if (city.value) params.kota = city.value;
 
     participantService.getParticipants(params).then((result) => (products.value = result));
+    // console.log(provinsi.value, city.value, exportPDFSign.value, products.value);
 };
+
+const handleExportPDF = () => {
+    const payload = {
+        provinsi : province.value,
+        kota : province.value,
+        jam : jamValue.value,
+        evaluasi : evaluasiValue.value,
+        solusi : solusiValue.value
+    }
+    console.log(payload);
+}
 
 const initFilters = () => {
     filters.value = {
@@ -177,7 +194,7 @@ const getDataDropdown = async () => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Menampilkan Data : Provinsi DKI Jakarta, Kota Jakarta Selatan, Kecamatan Kebayoran Baru</h5>
+                <h5>Menampilkan Data : {{ provinsi ? provinsi : '' }}{{ ' ' }}{{ city.length !== 0 ? city : '' }}</h5>
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
@@ -202,11 +219,11 @@ const getDataDropdown = async () => {
 
                     <template v-slot:end>
                         <div>
-                            <Button label="Export PDF" class="p-button-info ml-2 inline-block" @click="resetFilter" />
+                            <Button v-if="exportPDFSign === false" label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExportPDF" />
                         </div>
                     </template>
                 </Toolbar>
-                <div class="grid p-fluid">
+                <div class="grid p-fluid" v-if="exportPDFSign.value === true">
                     <div class="col-12 xl:col-4">
                         <h5>Jam</h5>
                         <Editor v-model="jamValue" editorStyle="height: 320px" />
@@ -220,8 +237,8 @@ const getDataDropdown = async () => {
                         <Editor v-model="solusiValue" editorStyle="height: 320px" />
                     </div>
                 </div>
-                <div v-if="product" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                    <Button label="Export PDF" class="p-button-info ml-2" @click="resetFilter" />
+                <div v-if="exportPDFSign.value === true" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                    <Button label="Export PDF" class="p-button-info ml-2" @click="handleExportPDF" />
                 </div>
             </div>
         </div>
