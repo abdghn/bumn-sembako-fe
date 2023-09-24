@@ -128,16 +128,20 @@ const resetFilter = () => {
 };
 
 const handleFilter = () => {
-    const params = {
-        page: 1,
-        size: 100
-    };
+    try {
+        const params = {
+            page: 1,
+            size: 100
+        };
 
-    if (provinsi.value) params.provinsi = provinsi.value;
-    if (city.value) params.kota = city.value;
+        if (provinsi.value) params.provinsi = provinsi.value;
+        if (city.value) params.kota = city.value;
 
-    participantService.getParticipants(params).then((result) => (products.value = result));
-    // console.log(provinsi.value, city.value, exportPDFSign.value, products.value);
+        participantService.getParticipants(params).then((result) => (products.value = result));
+        // console.log(provinsi.value, city.value, exportPDFSign.value, products.value);
+    } catch (e) {
+        console.log(e);
+    }
 };
 
 const handleExportPDF = () => {
@@ -180,7 +184,6 @@ const getDataDropdown = async () => {
             params.kota = city.value;
         }
 
-        participantService.getParticipants(params).then((result) => (products.value = result));
         window.localStorage.removeItem('provinsi');
         window.localStorage.removeItem('kota');
         // state.detail = data
@@ -223,7 +226,7 @@ const getDataDropdown = async () => {
                         </div>
                     </template>
                 </Toolbar>
-                <div class="grid p-fluid" v-if="exportPDFSign.value === true">
+                <div class="grid p-fluid" >
                     <div class="col-12 xl:col-4">
                         <h5>Jam</h5>
                         <Editor v-model="jamValue" editorStyle="height: 320px" />
