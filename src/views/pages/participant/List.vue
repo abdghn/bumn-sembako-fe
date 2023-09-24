@@ -300,31 +300,26 @@ const getDataDropdown = async () => {
         const dataCity = ref(window.localStorage.getItem('kota'));
         const dataKecamatan = ref(window.localStorage.getItem('kecamatan'));
         const dataKelurahan = ref(window.localStorage.getItem('kelurahan'));
-        // const dataStatus = ref(window.localStorage.getItem('status'));
 
         if (dataProvince.value !== null) {
-            dataProvince.value = dataProvince.value.toUpperCase();
             provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
             province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
             await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
             params.provinsi = provinsi.value;
         }
         if (dataCity.value !== null) {
-            dataCity.value = dataCity.value.toUpperCase();
             city.value = cities.value[findTypeIndexByName(dataCity.value)].id;
             await regionService.getDistrict({ regency_id: city.value }).then((result) => (kecamatans.value = result));
             params.kota = cities.value[findTypeIndexByName(dataCity.value)].name;
         }
 
         if (dataKecamatan.value !== null) {
-            dataKecamatan.value = dataKecamatan.value.toUpperCase();
             kecamatan.value = kecamatans.value[findKecamatanIndexByName(dataKecamatan.value)].id;
             await regionService.getVillage({ district_id: kecamatan.value }).then((result) => (kelurahans.value = result));
             params.kcmatan = kecamatan.value;
         }
 
         if (dataKelurahan.value !== null) {
-            dataKelurahan.value = dataKelurahan.value.toUpperCase();
             kelurahan.value = kelurahans.value[findKelurahanIndexByName(dataKelurahan.value)].id;
             params.klurahan = kelurahan.value;
         }
