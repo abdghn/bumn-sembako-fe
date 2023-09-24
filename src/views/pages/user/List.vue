@@ -55,11 +55,15 @@ const hideDialog = () => {
 
 const saveProduct = () => {
     submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.username ) {
+    const payload = ref(Object.assign({}, product.value));
+    if (product.value.name && product.value.name.trim() && product.value.username && product.value.provinsi) {
+        payload.value.provinsi = provinces.value[findProvinceIndexById(payload.value.provinsi)].name;
+        // payload.value.kota = cities.value[findCityIndexById(payload.value.kota)].name;
+        console.log(payload.value.kota);
         if (product.value.id) {
             try {
-                const id = product.value.id;
-                userService.updateUser(product.value.id, product.value).then((result) => {
+                const id = payload.value.id;
+                userService.updateUser(payload.value.id, payload.value).then((result) => {
                     toast.add({ severity: 'success', summary: 'Successful Update User', detail: 'User Updated', life: 3000 });
                     products.value[findIndexById(id)] = result;
                 });
@@ -68,11 +72,11 @@ const saveProduct = () => {
             }
         } else {
             try {
-                console.log(product.value)
-                // userService.addUser(product.value).then((result) => {
-                //     toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
-                //     products.value.push(result);
-                // });
+                // console.log(payload);
+                userService.addUser(payload.value).then((result) => {
+                    toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+                    products.value.push(result);
+                });
             } catch (e) {
                 toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 });
             }
@@ -152,10 +156,21 @@ const findCityIndexByName = (name) => {
     return index;
 };
 
-const findStatusIndexById = (id) => {
+const findProvinceIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
         if (provinces.value[i].id === id) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
+const findCityIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < cities.value.length; i++) {
+        if (cities.value[i].id === id) {
             index = i;
             break;
         }
@@ -196,9 +211,13 @@ const getDataDropdown = async () => {
 };
 
 const handleProvinsi = () => {
-    provinsi.value = provinces.value[findStatusIndexById(province.value)].name;
-    regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+    // product.value.provinsi = provinces.value[findStatusIndexById(product.value.provinsi)].name;
+    regionService.getRegencies({ province_id: product.value.provinsi }).then((result) => (cities.value = result));
+    // product.value.kota = cities.value[findCityIndexById(product.value.kota)].name;
+    // console.log(product.value.kota);
 };
+
+
 </script>
 
 <template>
@@ -272,15 +291,15 @@ const handleProvinsi = () => {
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
-                        <Dropdown v-model="organization" class="w-full md:w-30rem mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
+                        <Dropdown v-model="product.organization" class="w-full mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
-                        <Dropdown v-model="province" class="w-full md:w-30rem mb-3" :options="provinces" optionValue="id" optionLabel="name" placeholder="Select Provinsi" @change="handleProvinsi" />
+                        <Dropdown v-model="product.provinsi" class="w-full mb-3" :options="provinces" optionValue="id" optionLabel="name" placeholder="Select Provinsi" @change="handleProvinsi" />
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">City</label>
-                        <Dropdown v-model="city" class="w-full md:w-30rem mb-3" :options="cities" optionValue="name" optionLabel="name" placeholder="Select Kota" :disabled="!provinces" />
+                        <Dropdown v-model="product.kota" class="w-full mb-3" :options="cities" optionValue="name" optionLabel="name" placeholder="Select Kota" :disabled="!provinces" />
                     </div>
                     <div class="field">
                         <label for="username">Username</label>

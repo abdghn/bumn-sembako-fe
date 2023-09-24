@@ -209,15 +209,15 @@ const getDataDropdown = async () => {
                 <div class="grid p-fluid">
                     <div class="col-12 xl:col-4">
                         <h5>Jam</h5>
-                        <Editor v-model="value" editorStyle="height: 320px" />
+                        <Editor v-model="jamValue" editorStyle="height: 320px" />
                     </div>
                     <div class="col-12 xl:col-4">
                         <h5>Evaluasi</h5>
-                        <Editor v-model="value" editorStyle="height: 320px" />
+                        <Editor v-model="evaluasiValue" editorStyle="height: 320px" />
                     </div>
                     <div class="col-12 xl:col-4">
                         <h5>Solusi</h5>
-                        <Editor v-model="value" editorStyle="height: 320px" />
+                        <Editor v-model="solusiValue" editorStyle="height: 320px" />
                     </div>
                 </div>
                 <div v-if="product" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
