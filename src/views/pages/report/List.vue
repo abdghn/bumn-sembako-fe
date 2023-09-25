@@ -203,9 +203,9 @@ const getDataDropdown = async () => {
                     <template v-slot:start>
                         <div class="my-2">
                             <span class="mr-4"><b>Total: 12.121</b></span>
-                            <span class="mr-4"><b>Done: 7.000</b></span>
-                            <span class="mr-4"><b>Belum Unggah Foto: 3921</b></span>
-                            <span class="mr-4"><b>Belum Menerima: 1300</b></span>
+                            <span class="mr-4"><b>Sudah Menerima: 7.000</b></span>
+                            <span class="mr-4"><b>Calon Penerima: 3921</b></span>
+                            <span class="mr-4"><b>Gugur: 1300</b></span>
                         </div>
                     </template>
                 </Toolbar>

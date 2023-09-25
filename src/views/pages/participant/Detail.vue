@@ -511,6 +511,10 @@ const schema = yup.object({
   residence_kelurahan: yup.string().required().label('kelurahan'),
   residence_kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
   file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu'),
+//   file : yup
+//     .mixed()
+//     .required("Unggah Foto Dengan KTP Terlebih Dahulu")
+//     .test("is-valid-type", "Not a valid image type", value => isValidFileType(value && value.name.toLowerCase(), "image")),
   file_penerima: yup.mixed().required('Unggah Foto Menerima Sembako Terlebih Dahulu'),
   option: yup.bool().oneOf([true], 'Message')
 });
@@ -572,7 +576,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
             <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                 <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                 <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" :multiple="true"
+                    <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" mode="basic"
                         accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
                         @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
                     <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">
@@ -609,7 +613,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
           <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                 <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                 <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload" :multiple="true"
+                    <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload"
                         accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
                         @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
                     <small id="file_penerima-help" class="p-error">
@@ -680,14 +684,14 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 <div class="field col">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                     <div class="mb-6">
-                        <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*"
+                        <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" accept="image/*" mode="basic"
                             :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
                         <small id="file-help" class="p-error">
                           {{ errors.file }}
                         </small>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                    <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
+                    <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" accept="image/*" :maxFileSize="1000000" mode="basic"
                         customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
                     <small id="file_penerima-help" class="p-error">
                       {{ errors.file_penerima }}
@@ -899,7 +903,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
     <!-- dialog Submit -->
     <Dialog header="Confirmation" v-model:visible="displayConfirmationSubmit" :style="{ width: '550px' }" :modal="true">
         <div class="flex align-items-center justify-content-center">
-            <h5 class="text-center">Apakah yakin untuk pengajuan ? </h5>
+            <h5 class="text-center">Apakah anda ingin input data peserta <b>BARU</b>?</h5>
         </div>
         <template #footer>
             <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />

@@ -320,7 +320,6 @@ const getDataDropdown = async () => {
         if (dataVillage.value !== null && villages.value[findVillagesIndexByName(dataVillage.value)]) {
                 village.value = villages.value[findVillagesIndexByName(dataVillage.value)].id;
                 params.kelurahan = dataVillage.value;
-
         }
 
 
