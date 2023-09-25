@@ -59,14 +59,15 @@ const saveProduct = () => {
     if (product.value.name && product.value.name.trim() && product.value.username && product.value.provinsi) {
         payload.value.provinsi = provinces.value[findProvinceIndexById(payload.value.provinsi)].name;
         // payload.value.kota = cities.value[findCityIndexById(payload.value.kota)].name;
-        console.log(payload.value.kota);
         if (product.value.id) {
             try {
                 const id = payload.value.id;
                 userService.updateUser(payload.value.id, payload.value).then((result) => {
                     toast.add({ severity: 'success', summary: 'Successful Update User', detail: 'User Updated', life: 3000 });
                     products.value[findIndexById(id)] = result;
-                });
+                    productDialog.value = false;
+                    product.value = {};
+                }).catch(() => toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 }));
             } catch (e) {
                 toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 });
             }
@@ -76,13 +77,13 @@ const saveProduct = () => {
                 userService.addUser(payload.value).then((result) => {
                     toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
                     products.value.push(result);
-                });
+                    productDialog.value = false;
+                    product.value = {};
+                }).catch(() => toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 }));
             } catch (e) {
                 toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 });
             }
         }
-        productDialog.value = false;
-        product.value = {};
     }
 };
 
@@ -102,7 +103,7 @@ const deleteProduct = () => {
         userService.deleteUser(id).then(() => {
             products.value = products.value.filter((val) => val.id !== id);
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
-        });
+        }).catch(() => toast.add({ severity: 'error', summary: 'Failed delete user', detail: 'Error when delete user', life: 3000 }));
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed delete user', detail: 'Error when delete user', life: 3000 });
     }
@@ -182,8 +183,8 @@ const getDataDropdown = async () => {
     try {
         const params = { page: 1, size: 100 };
         // productService.getProducts().then((data) => (products.value = data));
-        await regionService.getProvincies({}).then((result) => (provinces.value = result));
-        await organizationService.getOrganization({}).then((result) => (organizations.value = result));
+        await regionService.getProvincies({}).then((result) => (provinces.value = result)).catch(() => toast.add({ severity: 'error', summary: 'Failed get provinces', detail: 'Error when get provinces', life: 3000 }));
+        await organizationService.getOrganization({}).then((result) => (organizations.value = result)).catch(() => toast.add({ severity: 'error', summary: 'Failed get organizations', detail: 'Error when get organizations', life: 3000 }));
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
         const dataCity = ref(window.localStorage.getItem('kota'));
@@ -192,7 +193,7 @@ const getDataDropdown = async () => {
             dataProvince.value = dataProvince.value.toUpperCase();
             provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
             province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
-            await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+            await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result)).catch(() => toast.add({ severity: 'error', summary: 'Failed get cities', detail: 'Error when get cities', life: 3000 }));
             params.provinsi = provinsi.value;
         }
 
@@ -291,7 +292,7 @@ const handleProvinsi = () => {
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
-                        <Dropdown v-model="product.organization" class="w-full mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
+                        <Dropdown v-model="product.organization_id" class="w-full mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
                     </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>

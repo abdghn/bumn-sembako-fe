@@ -234,10 +234,15 @@ const handleVillage = () => {
 };
 
 const handleStatus = () => {
-    status.value = statuses.value[findStatusIndexById(paramStatus.value)].code;
+    paramStatus.value = statuses.value[findStatusIndexById(status.value)].code;
 };
 
 const resetFilter = () => {
+    province.value = null;
+    city.value = null;
+    district.value = null;
+    village.value = null;
+    status.value = null;
     paramProvince.value = null;
     paramCity.value = null;
     paramDistrict.value = null;
@@ -347,7 +352,7 @@ const getDataDropdown = async () => {
                             <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
                             <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
                             <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage"/>
-                            <Dropdown class="mr-4 mb-2" v-model="paramStatus" :options="statuses" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
+                            <Dropdown class="mr-4 mb-2" v-model="status" :options="statuses" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
                         </div>
                     </template>
                     

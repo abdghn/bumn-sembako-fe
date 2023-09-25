@@ -137,6 +137,8 @@ const handleSesuai = () => {
         participantService.updateParticipant(participant.value.id, formData).then((result) => {
             toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
             participant.value = result;
+        }).catch(() => {
+          toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
         });
 
         if (participant.value.status === 'REJECTED') {
@@ -184,6 +186,8 @@ const handleSubmits = () => {
             toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
             participant.value = result;
             router.push('/participant');
+        }).catch(() => {
+          toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
         });
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
@@ -691,8 +695,8 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                         </small>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                    <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" accept="image/*" :maxFileSize="1000000" mode="basic"
-                        customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
+                    <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
+                        customUpload :disabled="!gugur === true" @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
                     <small id="file_penerima-help" class="p-error">
                       {{ errors.file_penerima }}
                     </small>
