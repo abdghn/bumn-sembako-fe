@@ -23,6 +23,7 @@ const handleLogin = () => {
         .then((result) => {
           window.localStorage.setItem("token", result.token)
           window.localStorage.setItem("name", result.user)
+          window.localStorage.setItem("userData", JSON.stringify(result.userData));
           toast.add({ severity: 'success', summary: 'Successful', detail: 'Login Success', life: 3000 })
           router.push('/')
         })

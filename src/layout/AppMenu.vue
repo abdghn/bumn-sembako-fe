@@ -1,22 +1,44 @@
 <script setup>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
 
-const model = ref([
-    {
-        label: 'Dashboard',
-        items: [
+const userData = ref(window.localStorage.getItem("userData"))
+const model = ref([]);
+
+
+onMounted(() => {
+  if(userData.value) {
+    const user = JSON.parse(userData.value)
+    if (user.role === "ADMIN") {
+      model.value = [
+        {
+          label: 'Dashboard',
+          items: [
             { label: 'Home', icon: 'pi pi-fw pi-home', to: '/' },
             { label: 'Penerima Sembako', icon: 'pi pi-fw pi-inbox', to: '/participant' },
             { label: 'Buat Laporan', icon: 'pi pi-fw pi-file', to: '/report' }
-        ]
-    },
-    {
-        label: 'Setting',
-        items: [{ label: 'List User', icon: 'pi pi-fw pi-user', to: '/user' }]
-    }
-]);
+          ]
+        },
+        {
+          label: 'Setting',
+          items: [{ label: 'List User', icon: 'pi pi-fw pi-user', to: '/user' }]
+        }
+      ]
+
+    } else if(user.role === "STAFF-LAPANGAN")
+      model.value = [
+        {
+          label: 'Dashboard',
+          items: [
+            { label: 'Home', icon: 'pi pi-fw pi-home', to: '/' },
+            { label: 'Penerima Sembako', icon: 'pi pi-fw pi-inbox', to: '/participant' },
+          ]
+        }
+      ]
+
+  }
+})
 </script>
 
 <template>
