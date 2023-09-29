@@ -569,66 +569,76 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" />
             </template>
         </Toolbar>
-        <div class="formgrid grid">
-            <div class="field col">
-                <h4>STATUS: {{ generateStatus(participant?.status) }}</h4>
-                <p>Nama: {{ participant?.name }}</p>
-                <p>NIK: {{ participant?.nik }}</p>
-                <p>Jenis Kelamin: {{ participant?.gender }}</p>
-                <p>No Handphone: +{{ participant?.phone }}</p>
-            </div>
-            <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
-                <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
-                <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" mode="basic"
-                        accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                        @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
-                    <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">
-                      {{ errors.file }}
-                    </small>
+        <div class="p-fluid grid">
+            <div class="col-12 md:col-6">
+                <div class="formgrid grid">
+                    <div class="col-12 md:col-12">
+                        <div class="field col">
+                            <h4>STATUS: {{ generateStatus(participant?.status) }}</h4>
+                            <p>Nama: {{ participant?.name }}</p>
+                            <p>NIK: {{ participant?.nik }}</p>
+                            <p>Jenis Kelamin: {{ participant?.gender }}</p>
+                            <p>No Handphone: +{{ participant?.phone }}</p>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field col">
+                            <p>Alamat Sesuai KTP: {{ participant?.address }}</p>
+                            <p>RT: 0{{ participant?.rt }}</p>
+                            <p>RW: 0{{ participant?.rw }}</p>
+                            <p>Provinsi: {{ participant?.provinsi }}</p>
+                            <p>Kota: {{ participant?.kota }}</p>
+                            <p>Kecamatan: {{ participant?.kecamatan }}</p>
+                            <p>Kelurahan: {{ participant?.kelurahan }}</p>
+                            <p>Kode POS: {{ participant?.kode_pos }}</p>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field col">
+                            <p>Alamat Domisili: {{ participant?.address }}</p>
+                            <p>RT: 0{{ participant?.rt }}</p>
+                            <p>RW: 0{{ participant?.rw }}</p>
+                            <p>Provinsi: {{ participant?.provinsi }}</p>
+                            <p>Kota: {{ participant?.kota }}</p>
+                            <p>Kecamatan: {{ participant?.kecamatan }}</p>
+                            <p>Kelurahan: {{ participant?.kelurahan }}</p>
+                            <p>Kode POS: {{ participant?.kode_pos }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-          <div class="field col" v-if="participant.status === `DONE`">
-            <img  :src="baseUrl + `/v1/` + participant.image" height="250"
-                 alt="Logo" class="mr-2" />
-          </div>
-        </div>
-        <div class="formgrid grid">
-            <div class="field col-3">
-                <p>Alamat Sesuai KTP: {{ participant?.address }}</p>
-                <p>RT: 0{{ participant?.rt }}</p>
-                <p>RW: 0{{ participant?.rw }}</p>
-                <p>Provinsi: {{ participant?.provinsi }}</p>
-                <p>Kota: {{ participant?.kota }}</p>
-                <p>Kecamatan: {{ participant?.kecamatan }}</p>
-                <p>Kelurahan: {{ participant?.kelurahan }}</p>
-                <p>Kode POS: {{ participant?.kode_pos }}</p>
-            </div>
-            <div class="field col-3">
-                <p>Alamat Domisili: {{ participant?.address }}</p>
-                <p>RT: 0{{ participant?.rt }}</p>
-                <p>RW: 0{{ participant?.rw }}</p>
-                <p>Provinsi: {{ participant?.provinsi }}</p>
-                <p>Kota: {{ participant?.kota }}</p>
-                <p>Kecamatan: {{ participant?.kecamatan }}</p>
-                <p>Kelurahan: {{ participant?.kelurahan }}</p>
-                <p>Kode POS: {{ participant?.kode_pos }}</p>
-            </div>
-          <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
-                <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                <div class="mb-4">
-                    <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload"
-                        accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                        @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
-                    <small id="file_penerima-help" class="p-error">
-                      {{ errors.file_penerima }}
-                    </small>
+            <div class="col-12 md:col-6">
+                <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
+                    <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
+                    <div class="mb-4">
+                        <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" mode="basic"
+                            accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
+                            @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
+                        <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">
+                        {{ errors.file }}
+                        </small>
+                    </div>
+                </div>
+                <div class="field col" v-if="participant.status === `DONE`">
+                    <img  :src="baseUrl + `/v1/` + participant.image" height="250"
+                        alt="Logo" class="result_img mr-2" />
+                </div>
+                <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
+                    <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
+                    <div class="mb-4">
+                        <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload"
+                            accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
+                            @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
+                                <small id="file_penerima-help" class="p-error">
+                                    {{ errors.file_penerima }}
+                                </small>
+                    </div>
+                </div>
+                <div class="field col" v-if="participant.status === `DONE`">
+                    <img class="result_img mr-2" :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
+                        alt="Logo" />
                 </div>
             </div>
-          <div class="field col" v-if="participant.status === `DONE`">
-            <img :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
-                 alt="Logo" class="mr-2" />
-          </div>
         </div>
 
         <hr />
@@ -917,10 +927,16 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
     <!-- dialog -->
 </div></template>
 
-<style scoped lang="scss">input[type='number']::-webkit-inner-spin-button,
+<style scoped lang="scss">
+input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     margin: 0;
-}</style>
+}
+
+.result_img {
+    width: 100%;
+}
+</style>
