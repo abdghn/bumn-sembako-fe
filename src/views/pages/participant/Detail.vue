@@ -583,7 +583,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                     </div>
                     <div class="col-12 md:col-6">
                         <div class="field col">
-                            <p>Alamat Sesuai KTP: {{ participant?.address }}</p>
+                            <p><b>Alamat Sesuai KTP: </b>{{ participant?.address }}</p>
                             <p>RT: 0{{ participant?.rt }}</p>
                             <p>RW: 0{{ participant?.rw }}</p>
                             <p>Provinsi: {{ participant?.provinsi }}</p>
@@ -595,7 +595,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                     </div>
                     <div class="col-12 md:col-6">
                         <div class="field col">
-                            <p>Alamat Domisili: {{ participant?.address }}</p>
+                            <p><b>Alamat Domisili:</b> {{ participant?.address }}</p>
                             <p>RT: 0{{ participant?.rt }}</p>
                             <p>RW: 0{{ participant?.rw }}</p>
                             <p>Provinsi: {{ participant?.provinsi }}</p>
@@ -938,5 +938,9 @@ input[type='number']::-webkit-outer-spin-button {
 
 .result_img {
     width: 100%;
+}
+
+.labels {
+    font-weight: bold;
 }
 </style>
