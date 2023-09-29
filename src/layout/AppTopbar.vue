@@ -93,10 +93,6 @@ const toggleMenu = (event) => {
             <button @click="toggleMenu" class="p-link layout-topbar-button">
                 <i class="pi pi-user"></i>
             </button>
-            <button class="p-link layout-topbar-button">
-                <i class="pi pi-cog"></i>
-                <span>Settings</span>
-            </button>
         </div>
     </div>
 </template>

@@ -16,6 +16,11 @@ const filters = ref({});
 const submitted = ref(false);
 const calendarValue = ref(null);
 
+const jamValue = ref(null);
+const evaluasiValue = ref(null);
+const solusiValue = ref(null);
+const exportPDFSign = ref(false);
+
 const provinces = ref(null);
 const province = ref({});
 
@@ -122,17 +127,33 @@ const resetFilter = () => {
     participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
 };
 
-const handleFilter = () => {
-    const params = {
-        page: 1,
-        size: 100
-    };
+const handleSearch = () => {
+    try {
+        const params = {
+            page: 1,
+            size: 100
+        };
 
-    if (provinsi.value) params.provinsi = provinsi.value;
-    if (city.value) params.kota = city.value;
+        if (provinsi.value) params.provinsi = provinsi.value;
+        if (city.value) params.kota = city.value;
 
-    participantService.getParticipants(params).then((result) => (products.value = result));
+        participantService.getParticipants(params).then((result) => (products.value = result));
+        // console.log(provinsi.value, city.value, exportPDFSign.value, products.value);
+    } catch (e) {
+        console.log(e);
+    }
 };
+
+const handleExportPDF = () => {
+    const payload = {
+        provinsi : province.value,
+        kota : province.value,
+        jam : jamValue.value,
+        evaluasi : evaluasiValue.value,
+        solusi : solusiValue.value
+    }
+    console.log(payload);
+}
 
 const initFilters = () => {
     filters.value = {
@@ -163,7 +184,6 @@ const getDataDropdown = async () => {
             params.kota = city.value;
         }
 
-        participantService.getParticipants(params).then((result) => (products.value = result));
         window.localStorage.removeItem('provinsi');
         window.localStorage.removeItem('kota');
         // state.detail = data
@@ -177,15 +197,15 @@ const getDataDropdown = async () => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Menampilkan Data : Provinsi DKI Jakarta, Kota Jakarta Selatan, Kecamatan Kebayoran Baru</h5>
+                <h5>Menampilkan Data : {{ provinsi ? provinsi : '' }}{{ ' ' }}{{ city.length !== 0 ? city : '' }}</h5>
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <span class="mr-4"><b>Total: 12.121</b></span>
-                            <span class="mr-4"><b>Done: 7.000</b></span>
-                            <span class="mr-4"><b>Belum Unggah Foto: 3921</b></span>
-                            <span class="mr-4"><b>Belum Menerima: 1300</b></span>
+                            <span class="mr-4"><b>Sudah Menerima: 7.000</b></span>
+                            <span class="mr-4"><b>Calon Penerima: 3921</b></span>
+                            <span class="mr-4"><b>Gugur: 1300</b></span>
                         </div>
                     </template>
                 </Toolbar>
@@ -195,18 +215,18 @@ const getDataDropdown = async () => {
                             <Dropdown class="mr-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                             <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
                             <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
-                            <Button label="Search" class="p-button-secondary mb-2" @click="handleFilter" />
+                            <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
                             <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
                         </div>
                     </template>
 
                     <template v-slot:end>
                         <div>
-                            <Button label="Export PDF" class="p-button-info ml-2 inline-block" @click="resetFilter" />
+                            <Button v-if="exportPDFSign === true" label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExportPDF" />
                         </div>
                     </template>
                 </Toolbar>
-                <div class="grid p-fluid">
+                <div class="grid p-fluid" >
                     <div class="col-12 xl:col-4">
                         <h5>Jam</h5>
                         <Editor v-model="jamValue" editorStyle="height: 320px" />
@@ -220,8 +240,8 @@ const getDataDropdown = async () => {
                         <Editor v-model="solusiValue" editorStyle="height: 320px" />
                     </div>
                 </div>
-                <div v-if="product" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                    <Button label="Export PDF" class="p-button-info ml-2" @click="resetFilter" />
+                <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                    <Button label="Export PDF" class="p-button-info ml-2" @click="handleExportPDF" />
                 </div>
             </div>
         </div>
