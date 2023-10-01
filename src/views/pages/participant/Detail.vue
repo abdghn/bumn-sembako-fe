@@ -4,7 +4,7 @@ import ParticipantService from '../../../service/ParticipantService';
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import RegionService from "../../../service/RegionService";
-import { useForm } from 'vee-validate';
+import { Field, useForm } from 'vee-validate';
 import * as yup from 'yup';
 
 const route = useRoute();
@@ -514,20 +514,24 @@ const schema = yup.object({
   residence_kecamatan: yup.string().required().label('kecamatan'),
   residence_kelurahan: yup.string().required().label('kelurahan'),
   residence_kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
-  file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu'),
+  file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu').test("fileSize", "File Terlalu Besar", (value) => {
+    if (!value.length) return true // attachment is optional
+    return value[0].size <= 2000000
+  }),
 //   file : yup
 //     .mixed()
 //     .required("Unggah Foto Dengan KTP Terlebih Dahulu")
 //     .test("is-valid-type", "Not a valid image type", value => isValidFileType(value && value.name.toLowerCase(), "image")),
   file_penerima: yup.mixed().required('Unggah Foto Menerima Sembako Terlebih Dahulu'),
-  option: yup.bool().oneOf([true], 'Message')
+//   option: yup.bool().oneOf([true], 'Message')
+//   option: yup.bool().required('Accept Ts & Cs is required')
 });
 
 const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
     validationSchema: schema,
 });
 
-const option = defineComponentBinds('option');
+// const option = defineComponentBinds('option');
 const name = defineComponentBinds('name');
 const nik = defineComponentBinds('nik');
 const phone = defineComponentBinds('phone');
@@ -801,6 +805,7 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                         <div class="field-checkbox mb-4">
                             <Checkbox v-bind="option" id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"
                                 v-model="checkboxValue" @change="duplicateResidence" aria-describedby="option-help" :class="{ 'p-invalid': errors.option }" />
+                            <!-- <Field name="acceptTerms" type="checkbox" id="acceptTerms" :value="true" class="form-check-input" :class="{ 'is-invalid': errors.acceptTerms }" /> -->
                             <label for="checkOption2">Alamat sesuai KTP</label>
                             <small id="option-help" class="p-error">
                               {{ errors.option }}
