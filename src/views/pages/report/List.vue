@@ -5,6 +5,8 @@ import { useToast } from 'primevue/usetoast';
 import Editor from 'primevue/editor';
 import ParticipantService from '@/service/ParticipantService';
 import RegionService from '@/service/RegionService';
+import DashboardService from '@/service/DashboardService';
+import ReportService from '@/service/ReportService';
 
 const toast = useToast();
 
@@ -29,14 +31,20 @@ const city = ref({});
 
 const provinsi = ref(null);
 
+const detail = ref(null);
+
 const participantService = new ParticipantService();
 const regionService = new RegionService();
+const dashboardService = new DashboardService();
+const reportService = new ReportService();
+
 
 onBeforeMount(() => {
     initFilters();
 });
 onMounted(async () => {
     getDataDropdown();
+    await getDetail();
 });
 
 const saveProduct = () => {
@@ -144,6 +152,23 @@ const handleSearch = () => {
     }
 };
 
+const handleExport = () => {
+    try {
+        const payload = {
+            provinsi: province.value,
+            kota: "KOTA BOGOR",
+            date: "2023-01-01",
+            jam: jamValue.value,
+            evaluasi: evaluasiValue.value,
+            solusi: solusiValue.value
+        }
+
+        reportService.exportReport(payload).then((result) => (console.log(result)));
+    } catch (e) {
+        console.log(e);
+    }
+};
+
 const handleExportPDF = () => {
     const payload = {
         provinsi : province.value,
@@ -159,6 +184,14 @@ const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     };
+};
+
+const getDetail = async () => {
+  try {
+    await dashboardService.dashboard({}).then((data) => (detail.value = data));
+  } catch (e) {
+    console.log(e)
+  }
 };
 
 const getDataDropdown = async () => {
@@ -202,10 +235,10 @@ const getDataDropdown = async () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <span class="mr-4"><b>Total: 12.121</b></span>
-                            <span class="mr-4"><b>Sudah Menerima: 7.000</b></span>
-                            <span class="mr-4"><b>Calon Penerima: 3921</b></span>
-                            <span class="mr-4"><b>Gugur: 1300</b></span>
+                            <span class="mr-4"><b>Total: {{detail?.tota_penerima}}</b></span>
+                            <span class="mr-4"><b>Sudah Menerima: {{detail?.total_sudah_menerima}}</b></span>
+                            <span class="mr-4"><b>Calon Penerima: {{detail?.total_partial_done}}</b></span>
+                            <span class="mr-4"><b>Gugur: {{detail?.total_belum_menerima}}</b></span>
                         </div>
                     </template>
                 </Toolbar>
@@ -241,7 +274,7 @@ const getDataDropdown = async () => {
                     </div>
                 </div>
                 <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                    <Button label="Export PDF" class="p-button-info ml-2" @click="handleExportPDF" />
+                    <Button label="Export PDF" class="p-button-info ml-2" @click="handleExport" />
                 </div>
             </div>
         </div>
