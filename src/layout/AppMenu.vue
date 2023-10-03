@@ -26,7 +26,7 @@ onMounted(() => {
         }
       ]
 
-    } else if(user.role === "STAFF-LAPANGAN")
+    } else if(user.role === "STAFF-LAPANGAN") {
       model.value = [
         {
           label: 'Dashboard',
@@ -36,7 +36,18 @@ onMounted(() => {
           ]
         }
       ]
-
+    } else if(user.role === 'ADMIN-EO') {
+      model.value = [
+        {
+          label: 'Dashboard',
+          items: [
+            { label: 'Home', icon: 'pi pi-fw pi-home', to: '/' },
+            { label: 'Penerima Sembako', icon: 'pi pi-fw pi-inbox', to: '/participant' },
+            { label: 'Buat Laporan', icon: 'pi pi-fw pi-file', to: '/report' }
+          ]
+        },
+      ]
+    }
   }
 })
 </script>

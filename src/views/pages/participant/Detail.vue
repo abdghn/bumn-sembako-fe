@@ -514,24 +514,20 @@ const schema = yup.object({
   residence_kecamatan: yup.string().required().label('kecamatan'),
   residence_kelurahan: yup.string().required().label('kelurahan'),
   residence_kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
-  file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu').test("fileSize", "File Terlalu Besar", (value) => {
+  file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu').label('file').test("fileSize", "File Terlalu Besar", (value) => {
     if (!value.length) return true // attachment is optional
     return value[0].size <= 2000000
   }),
-//   file : yup
-//     .mixed()
-//     .required("Unggah Foto Dengan KTP Terlebih Dahulu")
-//     .test("is-valid-type", "Not a valid image type", value => isValidFileType(value && value.name.toLowerCase(), "image")),
-  file_penerima: yup.mixed().required('Unggah Foto Menerima Sembako Terlebih Dahulu'),
-//   option: yup.bool().oneOf([true], 'Message')
-//   option: yup.bool().required('Accept Ts & Cs is required')
+  file_penerima: yup.mixed().required('Unggah Foto Menerima Sembako Terlebih Dahulu').label('file_penerima').test("fileSize", "File Terlalu Besar", (value) => {
+    if (!value.length) return true // attachment is optional
+    return value[0].size <= 2000000
+  }),
 });
 
 const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
     validationSchema: schema,
 });
 
-// const option = defineComponentBinds('option');
 const name = defineComponentBinds('name');
 const nik = defineComponentBinds('nik');
 const phone = defineComponentBinds('phone');
@@ -544,6 +540,19 @@ const residence_address = defineComponentBinds('residence_address');
 const residence_rt = defineComponentBinds('residence_rt');
 const residence_rw = defineComponentBinds('residence_rw');
 const residence_kode_pos = defineComponentBinds('residence_kode_pos');
+const provinsi = defineComponentBinds('provinsi');
+const kota = defineComponentBinds('kota');
+const kecamatan = defineComponentBinds('kecamatan');
+const kelurahan = defineComponentBinds('kelurahan');
+
+const residence_provinsi = defineComponentBinds('residence_provinsi');
+const residence_kota = defineComponentBinds('residence_kota');
+const residence_kecamatan = defineComponentBinds('residence_kecamatan');
+const residence_kelurahan = defineComponentBinds('residence_kelurahan');
+
+// const file = defineComponentBinds('file');
+// const file_penerima = defineComponentBinds('file_penerima');
+
 // const filez = defineComponentBinds('file');
 // const onSubmit = handleSubmit((values) => {
 //   console.log('Submitted with', values);
@@ -615,11 +624,11 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                     <div class="mb-4">
-                        <FileUpload v-if="participant.status !== `DONE`" v-bind="filez" name="demo[]" @uploader="onUpload" mode="basic"
+                        <FileUpload v-if="participant.status !== `DONE`" v-bind="file" name="demo[]" @uploader="onUpload" mode="basic"
                             accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                            @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
+                            @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': file ? '' : errors.file }"/>
                         <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">
-                        {{ errors.file }}
+                        {{ file ? '' : errors.file }}
                         </small>
                     </div>
                 </div>
@@ -632,10 +641,10 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                     <div class="mb-4">
                         <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload"
                             accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                            @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
-                                <small id="file_penerima-help" class="p-error">
-                                    {{ errors.file_penerima }}
-                                </small>
+                            @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"/>
+                        <small id="file_penerima-help" class="p-error">
+                            {{ file_penerima ? '' : errors.file_penerima }}
+                        </small>
                     </div>
                 </div>
                 <div class="field col" v-if="participant.status === `DONE`">
@@ -682,11 +691,10 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                         </div>
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
-                            <!-- <InputText id="age1" type="text" :disabled="!gugur === true" v-model="newParticipant.gender" /> -->
-                            <Dropdown v-bind="jkel" required="true" v-model="newParticipant.gender" :options="genders" :disabled="!gugur === true" aria-describedby="jkel-help" :class="{ 'p-invalid': errors.jkel }"
+                            <Dropdown v-bind="jkel" required="true" v-model="newParticipant.gender" :options="genders" :disabled="!gugur === true" aria-describedby="jkel-help" :class="{ 'p-invalid': jkel ? '' : errors.jkel }"
                                 optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
                             <small id="nik-help" class="p-error">
-                              {{ errors.jkel }}
+                              {{ jkel ? '' : errors.jkel }}
                             </small>
                         </div>
                         <div class="field">
@@ -701,18 +709,25 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                 </div>
                 <div class="field col">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
-                    <div class="mb-6">
+                    <!-- <div class="mb-6">
                         <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" accept="image/*" mode="basic"
                             :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
                         <small id="file-help" class="p-error">
                           {{ errors.file }}
                         </small>
+                    </div> -->
+                    <div class="mb-4">
+                        <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*"
+                            customUpload :disabled="!gugur === true" @select="onSelectedFilesPenerima" aria-describedby="file-help" :class="{ 'p-invalid': file ? file : errors.file }"/>
+                        <small id="file-help" class="p-error">
+                        {{ file ? file : errors.file }}
+                        </small>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                     <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
-                        customUpload :disabled="!gugur === true" @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': errors.file_penerima }"/>
+                        customUpload :disabled="!gugur === true" @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"/>
                     <small id="file_penerima-help" class="p-error">
-                      {{ errors.file_penerima }}
+                      {{ file_penerima ? '' : errors.file_penerima }}
                     </small>
                 </div>
             </div>
@@ -751,22 +766,20 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                         </div>
                         <div class="field">
                             <label for="name1">Provinsi</label>
-                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.provinsi" /> -->
                             <Dropdown v-bind="provinsi" v-model="newParticipant.provinsi" :options="provinces"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
-                                @change="handleProvinsi" aria-describedby="provinsi-help" :class="{ 'p-invalid': errors.provinsi }" />
+                                @change="handleProvinsi" aria-describedby="provinsi-help" :class="{ 'p-invalid': provinsi ? '' : errors.provinsi }" />
                                 <small id="provinsi-help" class="p-error">
-                                  {{ errors.provinsi }}
+                                  {{ provinsi ? '' : errors.provinsi }}
                                 </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
-                            <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kota" /> -->
                             <Dropdown v-bind="kota" v-model="newParticipant.kota" :options="cities"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
-                                @change="handleKota" aria-describedby="kota-help" :class="{ 'p-invalid': errors.kota }" />
+                                @change="handleKota" aria-describedby="kota-help" :class="{ 'p-invalid': kota ? '' : errors.kota }" />
                                 <small id="kota-help" class="p-error" >
-                                  {{ errors.kota }}
+                                  {{ kota ? '' : errors.kota }}
                                 </small>
                         </div>
                         <div class="field">
@@ -774,9 +787,9 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
                             <Dropdown v-bind="kecamatan" v-model="newParticipant.kecamatan" :disabled="!gugur === true"
                                 :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan"
-                                @change="handleKecamatan" aria-describedby="kecamatan-help" :class="{ 'p-invalid': errors.kecamatan }"/>
+                                @change="handleKecamatan" aria-describedby="kecamatan-help" :class="{ 'p-invalid': kecamatan ? '' : errors.kecamatan }"/>
                                 <small id="kecamatan-help" class="p-error" >
-                                  {{ errors.kecamatan }}
+                                  {{ kecamatan ? '' : errors.kecamatan }}
                                 </small>
                         </div>
                         <div class="field">
@@ -842,9 +855,9 @@ const residence_kode_pos = defineComponentBinds('residence_kode_pos');
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
                             <Dropdown v-bind="residence_provinsi" v-model="newParticipant.residence_provinsi" :options="provinces"
                                 :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
-                                @change="handleResidenceProvinsi" aria-describedby="residence_provinsi-help" :class="{ 'p-invalid': errors.residence_provinsi }" />
+                                @change="handleResidenceProvinsi" aria-describedby="residence_provinsi-help" :class="{ 'p-invalid': residence_provinsi ? '' : errors.residence_provinsi }" />
                               <small id="residence_provinsi-help" class="p-error">
-                                {{ errors.residence_provinsi }}
+                                {{ residence_provinsi ? '' : errors.residence_provinsi }}
                               </small>
                         </div>
                         <div class="field">

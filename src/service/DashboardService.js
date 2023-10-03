@@ -1,7 +1,7 @@
 import { axiosApp } from '@/utils/axios';
 
 export default class DashboardService {
-    dashboard(body) {
-        return axiosApp.get('/v1/dashboard', body).then((d) => d.data.data);
+    dashboard(params) {
+        return axiosApp.get('/v1/dashboard', { params }).then((d) => d.data.data);
     }
 }

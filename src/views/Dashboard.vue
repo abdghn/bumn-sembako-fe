@@ -12,6 +12,9 @@ const detail = ref(null);
 const productService = new ProductService();
 const dashboardService = new DashboardService();
 
+const userData = ref(window.localStorage.getItem("userData"))
+const user = JSON.parse(userData.value)
+
 // Method
 onMounted(() => {
     productService.getProductsSmall().then((data) => (products.value = data));
@@ -104,8 +107,24 @@ watch(
     <h3 class="text-center">Dashboard Bakti Sosial 2023</h3>
   </div>
   <div className="card">
-      <h3 class="text-left">Total Sembako di kota anda : 0</h3>
+      <h3 class="text-left mb-0">Total Sembako di kota anda : 0</h3>
   </div>
+  <Toolbar v-if="user.role !== 'STAFF-LAPANGAN'" class="mb-2" style="background: transparent; border: none;">
+    <template v-slot:start>
+      <div class="my-2" tyle="display: block">
+        <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvince" />
+        <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
+        <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
+        <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage"/>
+      </div>
+    </template>
+
+    <template v-slot:end>
+      <!-- <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" /> -->
+      <Button label="Search" class="p-button-secondary ml-2" @click="handleFilter" />
+      <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
+    </template>
+  </Toolbar>
     <div class="grid">
       <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0" :style="{ 'height': '100%'}">
