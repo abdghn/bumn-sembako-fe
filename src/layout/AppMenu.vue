@@ -46,10 +46,6 @@ onMounted(() => {
             { label: 'Buat Laporan', icon: 'pi pi-fw pi-file', to: '/report' }
           ]
         },
-        {
-          label: 'Setting',
-          items: [{ label: 'List User', icon: 'pi pi-fw pi-user', to: '/user' }]
-        }
       ]
     }
   }

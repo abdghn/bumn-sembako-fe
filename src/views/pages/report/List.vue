@@ -3,10 +3,10 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import Editor from 'primevue/editor';
-import ParticipantService from '@/service/ParticipantService';
 import RegionService from '@/service/RegionService';
 import DashboardService from '@/service/DashboardService';
 import ReportService from '@/service/ReportService';
+import moment from 'moment';
 
 const toast = useToast();
 
@@ -17,6 +17,7 @@ const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
 const calendarValue = ref(null);
+const isActive = ref(false);
 
 const jamValue = ref(null);
 const evaluasiValue = ref(null);
@@ -33,7 +34,6 @@ const provinsi = ref(null);
 
 const detail = ref(null);
 
-const participantService = new ParticipantService();
 const regionService = new RegionService();
 const dashboardService = new DashboardService();
 const reportService = new ReportService();
@@ -44,28 +44,7 @@ onBeforeMount(() => {
 });
 onMounted(async () => {
     getDataDropdown();
-    await getDetail();
 });
-
-const saveProduct = () => {
-    submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.price) {
-        if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
-        productDialog.value = false;
-        product.value = {};
-    }
-};
 
 const findIndexById = (id) => {
     let index = -1;
@@ -111,15 +90,6 @@ const findCityIndexByName = (name) => {
     return index;
 };
 
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-};
-
 const exportCSV = () => {
     dt.value.exportCSV();
 };
@@ -132,23 +102,25 @@ const handleProvinsi = () => {
 const resetFilter = () => {
     provinsi.value = null;
     city.value = null;
-    participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
+    dashboardService.dashboard({ }).then((result) => (products.value = result));
 };
 
-const handleSearch = () => {
+const handleSearch = async () => {
     try {
-        const params = {
-            page: 1,
-            size: 100
-        };
+        const params = {};
+        // const dates = calendarValue.value;
 
         if (provinsi.value) params.provinsi = provinsi.value;
         if (city.value) params.kota = city.value;
+        // if (calendarValue.value) params.date = moment(dates).format('YYYY-MM-DD');
 
-        participantService.getParticipants(params).then((result) => (products.value = result));
-        // console.log(provinsi.value, city.value, exportPDFSign.value, products.value);
+        await dashboardService.dashboard(params).then((result) => (detail.value = result));
+        console.log(detail.value)
+        if (detail.value !== null) {
+            isActive.value = true;
+        }
     } catch (e) {
-        console.log(e);
+        toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Menampilkan Data', life: 3000 });
     }
 };
 
@@ -156,8 +128,8 @@ const handleExport = () => {
     try {
         const payload = {
             provinsi: province.value,
-            kota: "KOTA BOGOR",
-            date: "2023-01-01",
+            kota: city.value,
+            date: moment(calendarValue.value).format('YYYY-MM-DD'),
             jam: jamValue.value,
             evaluasi: evaluasiValue.value,
             solusi: solusiValue.value
@@ -184,14 +156,6 @@ const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     };
-};
-
-const getDetail = async () => {
-  try {
-    await dashboardService.dashboard({}).then((data) => (detail.value = data));
-  } catch (e) {
-    console.log(e)
-  }
 };
 
 const getDataDropdown = async () => {
@@ -230,15 +194,15 @@ const getDataDropdown = async () => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Menampilkan Data : {{ provinsi ? provinsi : '' }}{{ ' ' }}{{ city.length !== 0 ? city : '' }}</h5>
+                <h5>Menampilkan Data : {{ provinsi ?? '' }}{{ ' ' }}{{ city.length !== 0 ? city : '' }} </h5>
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <span class="mr-4"><b>Total: {{detail?.tota_penerima}}</b></span>
-                            <span class="mr-4"><b>Sudah Menerima: {{detail?.total_sudah_menerima}}</b></span>
-                            <span class="mr-4"><b>Calon Penerima: {{detail?.total_partial_done}}</b></span>
-                            <span class="mr-4"><b>Gugur: {{detail?.total_belum_menerima}}</b></span>
+                            <span class="mr-4"><b>Total: {{detail?.tota_penerima ?? '0'}}</b></span>
+                            <span class="mr-4"><b>Sudah Menerima: {{detail?.total_sudah_menerima ?? '0'}}</b></span>
+                            <span class="mr-4"><b>Calon Penerima: {{detail?.total_partial_done ?? '0'}}</b></span>
+                            <span class="mr-4"><b>Gugur: {{detail?.total_belum_menerima ?? '0'}}</b></span>
                         </div>
                     </template>
                 </Toolbar>
@@ -254,12 +218,12 @@ const getDataDropdown = async () => {
                     </template>
 
                     <template v-slot:end>
-                        <div>
-                            <Button v-if="exportPDFSign === true" label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExportPDF" />
+                        <div v-if="isActive === true">
+                            <Button label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExport" />
                         </div>
                     </template>
                 </Toolbar>
-                <div class="grid p-fluid" >
+                <div v-if="isActive === true" class="grid p-fluid" >
                     <div class="col-12 xl:col-4">
                         <h5>Jam</h5>
                         <Editor v-model="jamValue" editorStyle="height: 320px" />
@@ -273,7 +237,7 @@ const getDataDropdown = async () => {
                         <Editor v-model="solusiValue" editorStyle="height: 320px" />
                     </div>
                 </div>
-                <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                <div v-if="isActive === true" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
                     <Button label="Export PDF" class="p-button-info ml-2" @click="handleExport" />
                 </div>
             </div>
