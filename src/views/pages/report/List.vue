@@ -44,7 +44,7 @@ onBeforeMount(() => {
 });
 onMounted(async () => {
     getDataDropdown();
-    await getDetail();
+    // await getDetail();
 });
 
 const findIndexById = (id) => {
@@ -142,33 +142,33 @@ const handleExport = () => {
     }
 };
 
-const handleExport = () => {
-    try {
-        const payload = {
-            provinsi: province.value,
-            kota: "KOTA BOGOR",
-            date: "2023-01-01",
-            jam: jamValue.value,
-            evaluasi: evaluasiValue.value,
-            solusi: solusiValue.value
-        }
+// const handleExport = () => {
+//     try {
+//         const payload = {
+//             provinsi: province.value,
+//             kota: "KOTA BOGOR",
+//             date: "2023-01-01",
+//             jam: jamValue.value,
+//             evaluasi: evaluasiValue.value,
+//             solusi: solusiValue.value
+//         }
 
-        reportService.exportReport(payload).then((result) => (console.log(result)));
-    } catch (e) {
-        console.log(e);
-    }
-};
+//         reportService.exportReport(payload).then((result) => (console.log(result)));
+//     } catch (e) {
+//         console.log(e);
+//     }
+// };
 
-const handleExportPDF = () => {
-    const payload = {
-        provinsi : province.value,
-        kota : province.value,
-        jam : jamValue.value,
-        evaluasi : evaluasiValue.value,
-        solusi : solusiValue.value
-    }
-    console.log(payload);
-}
+// const handleExportPDF = () => {
+//     const payload = {
+//         provinsi : province.value,
+//         kota : province.value,
+//         jam : jamValue.value,
+//         evaluasi : evaluasiValue.value,
+//         solusi : solusiValue.value
+//     }
+//     console.log(payload);
+// }
 
 const initFilters = () => {
     filters.value = {
@@ -176,13 +176,13 @@ const initFilters = () => {
     };
 };
 
-const getDetail = async () => {
-  try {
-    await dashboardService.dashboard({}).then((data) => (detail.value = data));
-  } catch (e) {
-    console.log(e)
-  }
-};
+// const getDetail = async () => {
+//   try {
+//     await dashboardService.dashboard({}).then((data) => (detail.value = data));
+//   } catch (e) {
+//     console.log(e)
+//   }
+// };
 
 const getDataDropdown = async () => {
     try {
