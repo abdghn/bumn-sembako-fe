@@ -785,10 +785,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                             :disabled="!gugur === true"
                             @select="onSelectedFilesPenerima"
                             aria-describedby="file-help"
-                            :class="{ 'p-invalid': file ? file : errors.file }"
+                            :class="{ 'p-invalid': file ? '' : errors.file }"
                         />
                         <small id="file-help" class="p-error">
-                            {{ file ? file : errors.file }}
+                            {{ !file ? '' : errors.file }}
                         </small>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
@@ -804,10 +804,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         :disabled="!gugur === true"
                         @select="onSelectedFilesPenerima"
                         aria-describedby="file_penerima-help"
-                        :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"
+                        :class="{ 'p-invalid': file_penerima ? 'tes' : errors.file_penerima }"
                     />
                     <small id="file_penerima-help" class="p-error">
-                        {{ file_penerima ? '' : errors.file_penerima }}
+                        {{ !file_penerima ? '' : errors.file_penerima }}
                     </small>
                 </div>
             </div>
