@@ -25,10 +25,10 @@ const solusiValue = ref(null);
 const exportPDFSign = ref(false);
 
 const provinces = ref(null);
-const province = ref({});
+const province = ref(null);
 
 const cities = ref(null);
-const city = ref({});
+const city = ref(null);
 
 const provinsi = ref(null);
 
@@ -220,7 +220,7 @@ const getDataDropdown = async () => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Menampilkan Data : {{ provinsi ?? '' }}{{ ' ' }}{{ city.length !== 0 ? city : '' }} </h5>
+                <h5>Menampilkan Data : {{ provinsi ?? '' }}{{ ' ' }}{{  city ?? '' }} </h5>
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>

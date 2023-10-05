@@ -362,14 +362,14 @@ watch(
         </div>
       </div>
       <div class="col-12 lg:col-6 xl:col-3">
-        
+
       </div>
       <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0" :style="{ 'height': '100%'}">
           <div class="flex justify-content-center mb-3">
             <div class="text-center">
               <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.total_data_gugur }}</h3> </div>
+              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.total_data_gugur ?? 0 }}</h3> </div>
             </div>
           </div>
         </div>

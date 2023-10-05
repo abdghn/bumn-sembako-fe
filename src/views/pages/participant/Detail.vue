@@ -627,9 +627,9 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         <FileUpload v-if="participant.status !== `DONE`" v-bind="file" name="demo[]" @uploader="onUpload" mode="basic"
                             accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
                             @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': file ? '' : errors.file }"/>
-                        <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">
-                        {{ file ? '' : errors.file }}
-                        </small>
+<!--                        <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">-->
+<!--                        {{ file ? '' : errors.file }}-->
+<!--                        </small>-->
                     </div>
                 </div>
                 <div class="field col" v-if="participant.status === `DONE`">
