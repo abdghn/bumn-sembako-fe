@@ -19,7 +19,6 @@ const filters = ref({});
 const submitted = ref(false);
 const userService = new UserService();
 
-
 const provinces = ref(null);
 const province = ref({});
 const provinsi = ref(null);
@@ -62,24 +61,32 @@ const saveProduct = () => {
         if (product.value.id) {
             try {
                 const id = payload.value.id;
-                userService.updateUser(payload.value.id, payload.value).then((result) => {
-                    toast.add({ severity: 'success', summary: 'Successful Update User', detail: 'User Updated', life: 3000 });
-                    products.value[findIndexById(id)] = result;
-                    productDialog.value = false;
-                    product.value = {};
-                }).catch(() => toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 }));
+                userService
+                    .updateUser(payload.value.id, payload.value)
+                    .then((result) => {
+                        toast.add({ severity: 'success', summary: 'Successful Update User', detail: 'User Updated', life: 3000 });
+                        products.value[findIndexById(id)] = result;
+                        productDialog.value = false;
+                        product.value = {};
+                      submitted.value = false;
+                    })
+                    .catch(() => toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 }));
             } catch (e) {
                 toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 });
             }
         } else {
             try {
                 // console.log(payload);
-                userService.addUser(payload.value).then((result) => {
-                    toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
-                    products.value.push(result);
-                    productDialog.value = false;
-                    product.value = {};
-                }).catch(() => toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 }));
+                userService
+                    .addUser(payload.value)
+                    .then((result) => {
+                        toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+                        products.value.push(result);
+                        productDialog.value = false;
+                        product.value = {};
+                      submitted.value = false;
+                    })
+                    .catch(() => toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 }));
             } catch (e) {
                 toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 });
             }
@@ -87,8 +94,24 @@ const saveProduct = () => {
     }
 };
 
+const findProvincesIndexByName = (name) => {
+    let index = -1;
+    for (let i = 0; i < provinces.value.length; i++) {
+        if (provinces.value[i].name === name) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+};
+
 const editProduct = (editProduct) => {
     product.value = { ...editProduct };
+    if (product.value.provinsi !== '' && product.value.provinsi) {
+      console.log(product.value.provinsi)
+        regionService.getRegencies({ province_id: provinces.value[findProvinceIndexByName(product.value.provinsi)].id }).then((result) => (cities.value = result));
+        product.value.provinsi = provinces.value[findProvinceIndexByName(product.value.provinsi)].id;
+    }
     productDialog.value = true;
 };
 
@@ -100,10 +123,13 @@ const confirmDeleteProduct = (editProduct) => {
 const deleteProduct = () => {
     try {
         const id = product.value.id;
-        userService.deleteUser(id).then(() => {
-            products.value = products.value.filter((val) => val.id !== id);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
-        }).catch(() => toast.add({ severity: 'error', summary: 'Failed delete user', detail: 'Error when delete user', life: 3000 }));
+        userService
+            .deleteUser(id)
+            .then(() => {
+                products.value = products.value.filter((val) => val.id !== id);
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
+            })
+            .catch(() => toast.add({ severity: 'error', summary: 'Failed delete user', detail: 'Error when delete user', life: 3000 }));
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed delete user', detail: 'Error when delete user', life: 3000 });
     }
@@ -168,37 +194,33 @@ const findProvinceIndexById = (id) => {
     return index;
 };
 
-const findCityIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < cities.value.length; i++) {
-        if (cities.value[i].id === id) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
 const getDataDropdown = async () => {
     try {
         const params = { page: 1, size: 100 };
         // productService.getProducts().then((data) => (products.value = data));
-        await regionService.getProvincies({}).then((result) => (provinces.value = result)).catch(() => toast.add({ severity: 'error', summary: 'Failed get provinces', detail: 'Error when get provinces', life: 3000 }));
-        await organizationService.getOrganization({}).then((result) => (organizations.value = result)).catch(() => toast.add({ severity: 'error', summary: 'Failed get organizations', detail: 'Error when get organizations', life: 3000 }));
+        await regionService
+            .getProvincies({})
+            .then((result) => (provinces.value = result))
+            .catch(() => toast.add({ severity: 'error', summary: 'Failed get provinces', detail: 'Error when get provinces', life: 3000 }));
+        await organizationService
+            .getOrganization({})
+            .then((result) => (organizations.value = result))
+            .catch(() => toast.add({ severity: 'error', summary: 'Failed get organizations', detail: 'Error when get organizations', life: 3000 }));
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
         const dataCity = ref(window.localStorage.getItem('kota'));
 
         if (dataProvince.value !== null) {
-            dataProvince.value = dataProvince.value.toUpperCase();
             provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
             province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
-            await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result)).catch(() => toast.add({ severity: 'error', summary: 'Failed get cities', detail: 'Error when get cities', life: 3000 }));
+            await regionService
+                .getRegencies({ province_id: province.value })
+                .then((result) => (cities.value = result))
+                .catch(() => toast.add({ severity: 'error', summary: 'Failed get cities', detail: 'Error when get cities', life: 3000 }));
             params.provinsi = provinsi.value;
         }
 
         if (dataCity.value !== null) {
-            dataCity.value = dataCity.value.toUpperCase();
             city.value = cities.value[findCityIndexByName(dataCity.value)].name;
             params.kota = city.value;
         }
@@ -212,13 +234,8 @@ const getDataDropdown = async () => {
 };
 
 const handleProvinsi = () => {
-    // product.value.provinsi = provinces.value[findStatusIndexById(product.value.provinsi)].name;
-    regionService.getRegencies({ province_id: product.value.provinsi }).then((result) => (cities.value = result));
-    // product.value.kota = cities.value[findCityIndexById(product.value.kota)].name;
-    // console.log(product.value.kota);
+    regionService.getRegencies({ province_id: provinces.value[findProvinceIndexById(product.value.provinsi)].id }).then((result) => (cities.value = result));
 };
-
-
 </script>
 
 <template>
@@ -308,7 +325,7 @@ const handleProvinsi = () => {
                         <small class="p-invalid" v-if="submitted && !product.username">Username is required.</small>
                     </div>
                     <div class="field">
-                        <label for="password">Password</label>
+                        <label for="New Password">New Password</label>
                         <InputText type="password" id="password" v-model.trim="product.password" required="true" autofocus :class="{ 'p-invalid': submitted && !product.password }" />
                         <small class="p-invalid" v-if="submitted && !product.password">Password is required.</small>
                     </div>

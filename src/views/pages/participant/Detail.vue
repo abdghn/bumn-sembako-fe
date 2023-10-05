@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import ParticipantService from '../../../service/ParticipantService';
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import RegionService from "../../../service/RegionService";
+import RegionService from '../../../service/RegionService';
 import { Field, useForm } from 'vee-validate';
 import * as yup from 'yup';
 
@@ -25,11 +25,11 @@ const isSelected = ref(false);
 const baseUrl = ref(import.meta.env.VITE_BACKEND_URL);
 const provinces = ref(null);
 const cities = ref(null);
-const residence_cities = ref(null)
+const residence_cities = ref(null);
 const districts = ref(null);
-const residence_districts = ref(null)
+const residence_districts = ref(null);
 const villages = ref(null);
-const residence_villages = ref(null)
+const residence_villages = ref(null);
 const isRejected = ref(false);
 const genders = ref([
     { name: 'Pria', code: 'Pria' },
@@ -39,10 +39,13 @@ const gender = ref(null);
 const jenisKelamin = ref(null);
 const regionService = new RegionService();
 const user = ref(window.localStorage.getItem('name'));
-const status = ref(null)
+const status = ref(null);
 
 onMounted(async () => {
-    await participantService.getParticipant(route.params.id).then((result) => (participant.value = result)).then(() => status.value = participant.value.status);
+    await participantService
+        .getParticipant(route.params.id)
+        .then((result) => (participant.value = result))
+        .then(() => (status.value = participant.value.status));
     await regionService.getProvincies({}).then((result) => (provinces.value = result));
 });
 
@@ -53,7 +56,7 @@ const onUpload = () => {
 const handleGugur = () => {
     if (!gugur.value) {
         gugur.value = !gugur.value;
-        status.value = participant.value.status
+        status.value = participant.value.status;
         participant.value.status = 'TEMPORARY REJECTED';
         isRejected.value = gugur.value;
         displayConfirmationGugur.value = true;
@@ -113,33 +116,36 @@ const handleSesuai = () => {
             formData.append('file_penerima', file_penerima.value);
         }
         formData.append('name', participant.value.name);
-        formData.append('nik',  participant.value.nik);
-        formData.append('gender',  participant.value.gender);
+        formData.append('nik', participant.value.nik);
+        formData.append('gender', participant.value.gender);
         formData.append('phone', participant.value.phone);
         formData.append('address', participant.value.address);
         formData.append('rt', participant.value.rt);
-        formData.append('rw',  participant.value.rw);
+        formData.append('rw', participant.value.rw);
         formData.append('provinsi', participant.value.provinsi);
-        formData.append('kota',  participant.value.kota);
-        formData.append('kecamatan',  participant.value.kecamatan);
+        formData.append('kota', participant.value.kota);
+        formData.append('kecamatan', participant.value.kecamatan);
         formData.append('kelurahan', participant.value.kelurahan);
         formData.append('kode_pos', participant.value.kode_pos);
-        formData.append('residence_address',  participant.value.residence_address);
+        formData.append('residence_address', participant.value.residence_address);
         formData.append('residence_rt', participant.value.residence_rt);
         formData.append('residence_rw', participant.value.residence_rw);
-        formData.append('residence_provinsi',  participant.value.residence_provinsi);
-        formData.append('residence_kota',  participant.value.residence_kota);
+        formData.append('residence_provinsi', participant.value.residence_provinsi);
+        formData.append('residence_kota', participant.value.residence_kota);
         formData.append('residence_kecamatan', participant.value.residence_kecamatan);
-        formData.append('residence_kelurahan',  participant.value.residence_kelurahan);
-        formData.append('residence_kode_pos',  participant.value.residence_kode_pos);
+        formData.append('residence_kelurahan', participant.value.residence_kelurahan);
+        formData.append('residence_kode_pos', participant.value.residence_kode_pos);
         formData.append('status', participant.value.status);
-      formData.append('updated_by', user.value);
-        participantService.updateParticipant(participant.value.id, formData).then((result) => {
-            toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
-            participant.value = result;
-        }).catch(() => {
-          toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
-        });
+        formData.append('updated_by', user.value);
+        participantService
+            .updateParticipant(participant.value.id, formData)
+            .then((result) => {
+                toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
+                participant.value = result;
+            })
+            .catch(() => {
+                toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
+            });
 
         if (participant.value.status === 'REJECTED') {
             router.push('/participant');
@@ -165,8 +171,8 @@ const handleSubmits = () => {
         formData.append('gender', newParticipant.value.gender);
         formData.append('phone', newParticipant.value.phone);
         formData.append('address', newParticipant.value.address);
-        formData.append('rt', newParticipant.value.rt );
-        formData.append('rw', newParticipant.value.rw );
+        formData.append('rt', newParticipant.value.rt);
+        formData.append('rw', newParticipant.value.rw);
         formData.append('provinsi', provinces.value[findProvincesIndexById(newParticipant.value.provinsi)].name);
         formData.append('kota', cities.value[findCitiesIndexById(newParticipant.value.kota)].name);
         formData.append('kecamatan', districts.value[findDistrictsIndexById(newParticipant.value.kecamatan)].name);
@@ -177,18 +183,21 @@ const handleSubmits = () => {
         formData.append('residence_rw', newParticipant.value.residence_rw);
         formData.append('residence_provinsi', provinces.value[findProvincesIndexById(newParticipant.value.residence_provinsi)].name);
         formData.append('residence_kota', residence_cities.value[findResidenceCitiesIndexById(newParticipant.value.residence_kota)].name);
-        formData.append('residence_kecamatan',  residence_districts.value[findResidenceDistrictsIndexById(newParticipant.value.residence_kecamatan)].name);
+        formData.append('residence_kecamatan', residence_districts.value[findResidenceDistrictsIndexById(newParticipant.value.residence_kecamatan)].name);
         formData.append('residence_kelurahan', residence_villages.value[findResidenceVillagesIndexById(newParticipant.value.residence_kelurahan)].name);
         formData.append('residence_kode_pos', newParticipant.value.residence_kode_pos);
         formData.append('status', 'REJECTED');
         formData.append('updated_by', user.value);
-        participantService.updateParticipant(participant.value.id, formData).then((result) => {
-            toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
-            participant.value = result;
-            router.push('/participant');
-        }).catch(() => {
-          toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
-        });
+        participantService
+            .updateParticipant(participant.value.id, formData)
+            .then((result) => {
+                toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
+                participant.value = result;
+                router.push('/participant');
+            })
+            .catch(() => {
+                toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
+            });
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
@@ -197,27 +206,26 @@ const handleSubmits = () => {
 const handleCopy = async () => {
     try {
         newParticipant.value = Object.assign({}, participant.value);
-        newParticipant.value.provinsi = provinces.value[findProvincesIndexByName(newParticipant.value.provinsi.toUpperCase())].id;
-        if (participant.value.provinsi) {
+        newParticipant.value.provinsi = provinces.value[findProvincesIndexByName(newParticipant.value.provinsi)].id;
+        if (newParticipant.value.provinsi) {
             await regionService.getRegencies({ province_id: newParticipant.value.provinsi }).then((result) => (cities.value = result));
-            await regionService.getDistrict({ regency_id: cities.value[findCitiesIndexByName(newParticipant.value.kota.toUpperCase())].id }).then((result) => (districts.value = result));
-            await regionService.getVillage({ district_id: districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan.toUpperCase())].id }).then((result) => (villages.value = result));
+            await regionService.getDistrict({ regency_id: cities.value[findCitiesIndexByName(newParticipant.value.kota)].id }).then((result) => (districts.value = result));
+            await regionService.getVillage({ district_id: districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan)].id }).then((result) => (villages.value = result));
         }
 
-        newParticipant.value.residence_provinsi = provinces.value[findProvincesIndexByName(newParticipant.value.residence_provinsi.toUpperCase())].id;
-        if (participant.value.residence_provinsi) {
+        newParticipant.value.residence_provinsi = provinces.value[findProvincesIndexByName(newParticipant.value.residence_provinsi)].id;
+        if (newParticipant.value.residence_provinsi) {
             await regionService.getRegencies({ province_id: newParticipant.value.residence_provinsi }).then((result) => (residence_cities.value = result));
-            await regionService.getDistrict({ regency_id: residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota.toUpperCase())].id }).then((result) => (residence_districts.value = result));
-            await regionService.getVillage({ district_id: residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan.toUpperCase())].id }).then((result) => (residence_villages.value = result));
+            await regionService.getDistrict({ regency_id: residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota)].id }).then((result) => (residence_districts.value = result));
+            await regionService.getVillage({ district_id: residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan)].id }).then((result) => (residence_villages.value = result));
         }
-        newParticipant.value.kota = cities.value[findCitiesIndexByName(newParticipant.value.kota.toUpperCase())].id;
-        newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan.toUpperCase())].id;
-        newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(newParticipant.value.kelurahan.toUpperCase())].id;
+        newParticipant.value.kota = cities.value[findCitiesIndexByName(newParticipant.value.kota)].id;
+        newParticipant.value.kecamatan = districts.value[findDistrictsIndexByName(newParticipant.value.kecamatan)].id;
+        newParticipant.value.kelurahan = villages.value[findVillagesIndexByName(newParticipant.value.kelurahan)].id;
 
-
-        newParticipant.value.residence_kota = residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota.toUpperCase())].id;
-        newParticipant.value.residence_kecamatan = residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan.toUpperCase())].id;
-        newParticipant.value.residence_kelurahan = residence_villages.value[findResidenceVillagesIndexByName(newParticipant.value.residence_kelurahan.toUpperCase())].id;
+        newParticipant.value.residence_kota = residence_cities.value[findResidenceCitiesIndexByName(newParticipant.value.residence_kota)].id;
+        newParticipant.value.residence_kecamatan = residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan)].id;
+        newParticipant.value.residence_kelurahan = residence_villages.value[findResidenceVillagesIndexByName(newParticipant.value.residence_kelurahan)].id;
     } catch (e) {
         console.log(e);
     }
@@ -245,8 +253,6 @@ const findProvincesIndexByName = (name) => {
     return index;
 };
 
-
-
 const findCitiesIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < cities.value.length; i++) {
@@ -257,7 +263,6 @@ const findCitiesIndexById = (id) => {
     }
     return index;
 };
-
 
 const findCitiesIndexByName = (name) => {
     let index = -1;
@@ -280,7 +285,6 @@ const findResidenceCitiesIndexById = (id) => {
     }
     return index;
 };
-
 
 const findResidenceCitiesIndexByName = (name) => {
     let index = -1;
@@ -383,16 +387,16 @@ const findResidenceVillagesIndexByName = (name) => {
 
 const handleProvinsi = () => {
     regionService.getRegencies({ province_id: newParticipant.value.provinsi }).then((result) => (cities.value = result));
-    cities.value = null
-    districts.value = null
-    villages.value = null
+    cities.value = null;
+    districts.value = null;
+    villages.value = null;
 };
 
 const handleResidenceProvinsi = () => {
     regionService.getRegencies({ province_id: newParticipant.value.residence_provinsi }).then((result) => (residence_cities.value = result));
-    residence_cities.value = null
-    residence_districts.value = null
-    residence_villages.value = null
+    residence_cities.value = null;
+    residence_districts.value = null;
+    residence_villages.value = null;
 };
 
 const handleKota = () => {
@@ -437,13 +441,16 @@ const generateStatus = (value) => {
         case 'PARTIAL_DONE':
             status = 'Sudah Sesuai (Harap Upload Foto)';
             break;
-      case 'TEMPORARY REJECTED':
-        status = 'Gugur';
+        case 'TEMPORARY REJECTED':
+            status = 'Gugur';
+            break;
         case 'REJECTED':
             status = 'Gugur';
             break;
         case 'DONE':
             status = 'Sukses Upload Foto';
+            break;
+        default:
             break;
     }
 
@@ -468,9 +475,9 @@ const duplicateResidence = () => {
             newParticipant.value.residence_kecamatan = newParticipant.value.kecamatan;
             newParticipant.value.residence_kelurahan = newParticipant.value.kelurahan;
             newParticipant.value.residence_kode_pos = newParticipant.value.kode_pos;
-            residence_cities.value = cities.value
-            residence_districts.value = districts.value
-            residence_villages.value = villages.value
+            residence_cities.value = cities.value;
+            residence_districts.value = districts.value;
+            residence_villages.value = villages.value;
         } else {
             newParticipant.value.residence_address = null;
             newParticipant.value.residence_rt = null;
@@ -480,9 +487,9 @@ const duplicateResidence = () => {
             newParticipant.value.residence_kecamatan = null;
             newParticipant.value.residence_kelurahan = null;
             newParticipant.value.residence_kode_pos = null;
-            residence_cities.value = null
-            residence_districts.value = null
-            residence_villages.value = null
+            residence_cities.value = null;
+            residence_districts.value = null;
+            residence_villages.value = null;
         }
     } catch (e) {
         console.error(e);
@@ -494,38 +501,46 @@ const duplicateResidence = () => {
 const phoneRegex = /^(^\+62|62|^08)(\d{3,4}-?){2}\d{3,4}$/g;
 
 const schema = yup.object({
-  name: yup.string().required('Isi nama lengkap sesuai kartu identitas').label('name'),
-  nik: yup.string().required().max(16, 'Masukan 16 Karakter').label('nik'),
-  phone: yup.string().required().matches(phoneRegex, 'Phone number is not valid'),
-  jkel: yup.string().required('Pilih Jenis Kelamin '),
-  address: yup.string().required(),
-  rt: yup.string().required().label('rt'),
-  rw: yup.string().required().label('rw'),
-  provinsi: yup.string().required().label('provinsi'),
-  kota: yup.string().required().label('kota'),
-  kecamatan: yup.string().required().label('kecamatan'),
-  kelurahan: yup.string().required().label('kelurahan'),
-  kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
-  residence_address: yup.string().required(),
-  residence_rt: yup.string().required().label('rt'),
-  residence_rw: yup.string().required().label('rw'),
-  residence_provinsi: yup.string().required().label('provinsi'),
-  residence_kota: yup.string().required().label('kota'),
-  residence_kecamatan: yup.string().required().label('kecamatan'),
-  residence_kelurahan: yup.string().required().label('kelurahan'),
-  residence_kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
-  file: yup.mixed().required('Unggah Foto Dengan KTP Terlebih Dahulu').label('file').test("fileSize", "File Terlalu Besar", (value) => {
-    if (!value.length) return true // attachment is optional
-    return value[0].size <= 2000000
-  }),
-  file_penerima: yup.mixed().required('Unggah Foto Menerima Sembako Terlebih Dahulu').label('file_penerima').test("fileSize", "File Terlalu Besar", (value) => {
-    if (!value.length) return true // attachment is optional
-    return value[0].size <= 2000000
-  }),
+    name: yup.string().required('Isi nama lengkap sesuai kartu identitas').label('name'),
+    nik: yup.string().required().max(16, 'Masukan 16 Karakter').label('nik'),
+    phone: yup.string().required().matches(phoneRegex, 'Phone number is not valid'),
+    jkel: yup.string().required('Pilih Jenis Kelamin '),
+    address: yup.string().required(),
+    rt: yup.string().required().label('rt'),
+    rw: yup.string().required().label('rw'),
+    provinsi: yup.string().required().label('provinsi'),
+    kota: yup.string().required().label('kota'),
+    kecamatan: yup.string().required().label('kecamatan'),
+    kelurahan: yup.string().required().label('kelurahan'),
+    kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
+    residence_address: yup.string().required(),
+    residence_rt: yup.string().required().label('rt'),
+    residence_rw: yup.string().required().label('rw'),
+    residence_provinsi: yup.string().required().label('provinsi'),
+    residence_kota: yup.string().required().label('kota'),
+    residence_kecamatan: yup.string().required().label('kecamatan'),
+    residence_kelurahan: yup.string().required().label('kelurahan'),
+    residence_kode_pos: yup.string().required().max(5, 'Masukan 5 Karakter').label('kode pos'),
+    file: yup
+        .mixed()
+        .required('Unggah Foto Dengan KTP Terlebih Dahulu')
+        .label('file')
+        .test('fileSize', 'File Terlalu Besar', (value) => {
+            if (!value.length) return true; // attachment is optional
+            return value[0].size <= 2000000;
+        }),
+    file_penerima: yup
+        .mixed()
+        .required('Unggah Foto Menerima Sembako Terlebih Dahulu')
+        .label('file_penerima')
+        .test('fileSize', 'File Terlalu Besar', (value) => {
+            if (!value.length) return true; // attachment is optional
+            return value[0].size <= 2000000;
+        })
 });
 
 const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
-    validationSchema: schema,
+    validationSchema: schema
 });
 
 const name = defineComponentBinds('name');
@@ -562,7 +577,6 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
 //   name: o,
 //   value: o.toLowerCase(),
 // }));
-
 </script>
 
 <template>
@@ -571,14 +585,12 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">
-                    <Button label="Back" class="p-button-rounded p-button-plain p-button-text p-button-text"
-                        icon="pi pi-arrow-left" @click="handleBack" />
+                    <Button label="Back" class="p-button-rounded p-button-plain p-button-text p-button-text" icon="pi pi-arrow-left" @click="handleBack" />
                 </div>
             </template>
 
             <template v-slot:end v-if="participant.status !== `DONE` && participant.status !== `REJECTED`">
-                <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur"
-                    :modal="true" />
+                <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" :modal="true" />
                 <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" />
             </template>
         </Toolbar>
@@ -624,32 +636,51 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                 <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                     <div class="mb-4">
-                        <FileUpload v-if="participant.status !== `DONE`" v-bind="file" name="demo[]" @uploader="onUpload" mode="basic"
-                            accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                            @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': file ? '' : errors.file }"/>
-<!--                        <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">-->
-<!--                        {{ file ? '' : errors.file }}-->
-<!--                        </small>-->
+                        <FileUpload
+                            v-if="participant.status !== `DONE`"
+                            v-bind="file"
+                            name="demo[]"
+                            @uploader="onUpload"
+                            mode="basic"
+                            accept="image/*"
+                            :maxFileSize="1000000"
+                            customUpload
+                            :disabled="gugur === true"
+                            @select="onSelectedFiles"
+                            aria-describedby="file-help"
+                            :class="{ 'p-invalid': file ? '' : errors.file }"
+                        />
+                        <!--                        <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">-->
+                        <!--                        {{ file ? '' : errors.file }}-->
+                        <!--                        </small>-->
                     </div>
                 </div>
                 <div class="field col" v-if="participant.status === `DONE`">
-                    <img  :src="baseUrl + `/v1/` + participant.image" height="250"
-                        alt="Logo" class="result_img mr-2" />
+                    <img :src="baseUrl + `/v1/` + participant.image" height="250" alt="Logo" class="result_img mr-2" />
                 </div>
                 <div class="field col" v-if="participant.status === `PARTIAL_DONE`">
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                     <div class="mb-4">
-                        <FileUpload v-if="participant.status !== `DONE`" v-bind="file_penerima" name="demo[]" @uploader="onUpload"
-                            accept="image/*" :maxFileSize="1000000" customUpload :disabled="gugur === true"
-                            @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"/>
+                        <FileUpload
+                            v-if="participant.status !== `DONE`"
+                            v-bind="file_penerima"
+                            name="demo[]"
+                            @uploader="onUpload"
+                            accept="image/*"
+                            :maxFileSize="1000000"
+                            customUpload
+                            :disabled="gugur === true"
+                            @select="onSelectedFilesPenerima"
+                            aria-describedby="file_penerima-help"
+                            :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"
+                        />
                         <small id="file_penerima-help" class="p-error">
                             {{ file_penerima ? '' : errors.file_penerima }}
                         </small>
                     </div>
                 </div>
                 <div class="field col" v-if="participant.status === `DONE`">
-                    <img class="result_img mr-2" :src="baseUrl + `/v1/` + participant.image_penerima" height="250"
-                        alt="Logo" />
+                    <img class="result_img mr-2" :src="baseUrl + `/v1/` + participant.image_penerima" height="250" alt="Logo" />
                 </div>
             </div>
         </div>
@@ -666,43 +697,69 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         </div>
                         <div class="col-12 md:col-4">
                             <div class="field-checkbox mb-2">
-                                <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2"
-                                    :disabled="!gugur === true" @click="handleCopy" />
+                                <Button label="SALIN DATA DARI ATAS" class="p-button-info ml-2 py-1 px-2" :disabled="!gugur === true" @click="handleCopy" />
                             </div>
                         </div>
                     </div>
                     <div class="p-fluid">
                         <div class="field">
                             <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
-                            <InputText v-bind="name" id="name1" type="text" :required="true" :disabled="!gugur === true" placeholder="Nama Peserta"
-                              aria-describedby="name-help" :class="{ 'p-invalid': errors.name }"  v-model.trim="newParticipant.name" />
+                            <InputText
+                                v-bind="name"
+                                id="name1"
+                                type="text"
+                                :required="true"
+                                :disabled="!gugur === true"
+                                placeholder="Nama Peserta"
+                                aria-describedby="name-help"
+                                :class="{ 'p-invalid': errors.name }"
+                                v-model.trim="newParticipant.name"
+                            />
                             <small id="name-help" class="p-error">
                                 {{ errors.name }}
                             </small>
                         </div>
                         <div class="field">
                             <label for="ktp">Nomor KTP</label>
-                            <InputNumber v-bind="nik" id="ktp" :required="true" :disabled="!gugur === true"
-                                placeholder="No. KTP" v-model.trim="newParticipant.nik" :useGrouping="false"
-                                aria-describedby="nik-help" :class="{ 'p-invalid': errors.nik }" />
+                            <InputNumber
+                                v-bind="nik"
+                                id="ktp"
+                                :required="true"
+                                :disabled="!gugur === true"
+                                placeholder="No. KTP"
+                                v-model.trim="newParticipant.nik"
+                                :useGrouping="false"
+                                aria-describedby="nik-help"
+                                :class="{ 'p-invalid': errors.nik }"
+                            />
                             <small id="nik-help" class="p-error">
                                 {{ errors.nik }}
                             </small>
                         </div>
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
-                            <Dropdown v-bind="jkel" required="true" v-model="newParticipant.gender" :options="genders" :disabled="!gugur === true" aria-describedby="jkel-help" :class="{ 'p-invalid': jkel ? '' : errors.jkel }"
-                                optionValue="code" optionLabel="name" placeholder="Jenis Kelamin" @change="handleGender" />
+                            <Dropdown
+                                v-bind="jkel"
+                                required="true"
+                                v-model="newParticipant.gender"
+                                :options="genders"
+                                :disabled="!gugur === true"
+                                aria-describedby="jkel-help"
+                                :class="{ 'p-invalid': jkel ? '' : errors.jkel }"
+                                optionValue="code"
+                                optionLabel="name"
+                                placeholder="Jenis Kelamin"
+                                @change="handleGender"
+                            />
                             <small id="nik-help" class="p-error">
-                              {{ jkel ? '' : errors.jkel }}
+                                {{ jkel ? '' : errors.jkel }}
                             </small>
                         </div>
                         <div class="field">
                             <label for="age1">No Handphone</label>
-                            <InputText id="age1" v-bind="phone" required="true" type="text" :disabled="!gugur === true" placeholder="08*********"
-                                v-model="newParticipant.phone" aria-describedby="phone-help" :class="{ 'p-invalid': errors.phone }" />
+                            <InputText id="age1" v-bind="phone" required="true" type="text" :disabled="!gugur === true" placeholder="08*********" v-model="newParticipant.phone" aria-describedby="phone-help" :class="{ 'p-invalid': errors.phone }" />
                             <small id="phone-help" class="p-error">
-                              {{ errors.phone }}
+                                {{ errors.phone }}
                             </small>
                         </div>
                     </div>
@@ -717,17 +774,40 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         </small>
                     </div> -->
                     <div class="mb-4">
-                        <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*"
-                            customUpload :disabled="!gugur === true" @select="onSelectedFilesPenerima" aria-describedby="file-help" :class="{ 'p-invalid': file ? file : errors.file }"/>
+                        <FileUpload
+                            v-bind="file"
+                            required="true"
+                            name="demo[]"
+                            @uploader="onUpload"
+                            :multiple="true"
+                            accept="image/*"
+                            customUpload
+                            :disabled="!gugur === true"
+                            @select="onSelectedFilesPenerima"
+                            aria-describedby="file-help"
+                            :class="{ 'p-invalid': file ? file : errors.file }"
+                        />
                         <small id="file-help" class="p-error">
-                        {{ file ? file : errors.file }}
+                            {{ file ? file : errors.file }}
                         </small>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
-                    <FileUpload v-bind="file_penerima" required="true" name="demo[]" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000"
-                        customUpload :disabled="!gugur === true" @select="onSelectedFilesPenerima" aria-describedby="file_penerima-help" :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"/>
+                    <FileUpload
+                        v-bind="file_penerima"
+                        required="true"
+                        name="demo[]"
+                        @uploader="onUpload"
+                        :multiple="true"
+                        accept="image/*"
+                        :maxFileSize="1000000"
+                        customUpload
+                        :disabled="!gugur === true"
+                        @select="onSelectedFilesPenerima"
+                        aria-describedby="file_penerima-help"
+                        :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"
+                    />
                     <small id="file_penerima-help" class="p-error">
-                      {{ file_penerima ? '' : errors.file_penerima }}
+                        {{ file_penerima ? '' : errors.file_penerima }}
                     </small>
                 </div>
             </div>
@@ -740,73 +820,125 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         </div>
                         <div class="field">
                             <label for="name1">Alamat</label>
-                            <InputText v-bind="address" id="name1" type="text" required="true" :disabled="!gugur === true" placeholder="Alamat"
-                                v-model="newParticipant.address" aria-describedby="address-help" :class="{ 'p-invalid': errors.address }" />
+                            <InputText
+                                v-bind="address"
+                                id="name1"
+                                type="text"
+                                required="true"
+                                :disabled="!gugur === true"
+                                placeholder="Alamat"
+                                v-model="newParticipant.address"
+                                aria-describedby="address-help"
+                                :class="{ 'p-invalid': errors.address }"
+                            />
                             <small id="address-help" class="p-error">
-                              {{ errors.address }}
+                                {{ errors.address }}
                             </small>
                         </div>
                         <div class="grid formgrid mb-4">
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="email1" class="mb-2">RT</label>
-                                <InputText v-bind="rt" id="email1" type="text" required="true" :disabled="!gugur === true" placeholder="RT"
-                                    v-model="newParticipant.rt" aria-describedby="rt-help" :class="{ 'p-invalid': errors.rt }" />
+                                <InputText v-bind="rt" id="email1" type="text" required="true" :disabled="!gugur === true" placeholder="RT" v-model="newParticipant.rt" aria-describedby="rt-help" :class="{ 'p-invalid': errors.rt }" />
                                 <small id="rt-help" class="p-error">
-                                  {{ errors.rt }}
+                                    {{ errors.rt }}
                                 </small>
                             </div>
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="age1">RW</label>
-                                <InputText v-bind="rw" id="age1" type="text" required="true" :disabled="!gugur === true" placeholder="RW"
-                                    v-model="newParticipant.rw" aria-describedby="rw-help" :class="{ 'p-invalid': errors.rw }"/>
+                                <InputText v-bind="rw" id="age1" type="text" required="true" :disabled="!gugur === true" placeholder="RW" v-model="newParticipant.rw" aria-describedby="rw-help" :class="{ 'p-invalid': errors.rw }" />
                                 <small id="rw-help" class="p-error">
-                                  {{ errors.rw }}
+                                    {{ errors.rw }}
                                 </small>
                             </div>
                         </div>
                         <div class="field">
                             <label for="name1">Provinsi</label>
-                            <Dropdown v-bind="provinsi" v-model="newParticipant.provinsi" :options="provinces"
-                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
-                                @change="handleProvinsi" aria-describedby="provinsi-help" :class="{ 'p-invalid': provinsi ? '' : errors.provinsi }" />
-                                <small id="provinsi-help" class="p-error">
-                                  {{ provinsi ? '' : errors.provinsi }}
-                                </small>
+                            <Dropdown
+                                v-bind="newParticipant.provinsi"
+                                v-model="newParticipant.provinsi"
+                                :options="provinces"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Provinsi"
+                                @change="handleProvinsi"
+                                aria-describedby="provinsi-help"
+                                :class="{ 'p-invalid': newParticipant.provinsi ? '' : errors.provinsi }"
+                            />
+                            <small id="provinsi-help" class="p-error">
+                                {{ newParticipant.provinsi ? '' : errors.provinsi }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
-                            <Dropdown v-bind="kota" v-model="newParticipant.kota" :options="cities"
-                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
-                                @change="handleKota" aria-describedby="kota-help" :class="{ 'p-invalid': kota ? '' : errors.kota }" />
-                                <small id="kota-help" class="p-error" >
-                                  {{ kota ? '' : errors.kota }}
-                                </small>
+                            <Dropdown
+                                v-bind="kota"
+                                v-model="newParticipant.kota"
+                                :options="cities"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Kota"
+                                @change="handleKota"
+                                aria-describedby="kota-help"
+                                :class="{ 'p-invalid': kota ? '' : errors.kota }"
+                            />
+                            <small id="kota-help" class="p-error">
+                                {{ kota ? '' : errors.kota }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kecamatan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kecamatan" /> -->
-                            <Dropdown v-bind="kecamatan" v-model="newParticipant.kecamatan" :disabled="!gugur === true"
-                                :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan"
-                                @change="handleKecamatan" aria-describedby="kecamatan-help" :class="{ 'p-invalid': kecamatan ? '' : errors.kecamatan }"/>
-                                <small id="kecamatan-help" class="p-error" >
-                                  {{ kecamatan ? '' : errors.kecamatan }}
-                                </small>
+                            <Dropdown
+                                v-bind="kecamatan"
+                                v-model="newParticipant.kecamatan"
+                                :disabled="!gugur === true"
+                                :options="districts"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Kecamatan"
+                                @change="handleKecamatan"
+                                aria-describedby="kecamatan-help"
+                                :class="{ 'p-invalid': kecamatan ? '' : errors.kecamatan }"
+                            />
+                            <small id="kecamatan-help" class="p-error">
+                                {{ kecamatan ? '' : errors.kecamatan }}
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kelurahan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.kelurahan" /> -->
-                            <Dropdown v-bind="kelurahan" v-model="newParticipant.kelurahan" :options="villages"
-                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kelurahan" aria-describedby="kelurahan-help" :class="{ 'p-invalid': errors.kelurahan }"/>
-                            <small id="kelurahan-help" class="p-error" >
-                              {{ errors.kelurahan }}
+                            <Dropdown
+                                v-bind="kelurahan"
+                                v-model="newParticipant.kelurahan"
+                                :options="villages"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Kelurahan"
+                                aria-describedby="kelurahan-help"
+                                :class="{ 'p-invalid': errors.kelurahan }"
+                            />
+                            <small id="kelurahan-help" class="p-error">
+                                {{ errors.kelurahan }}
                             </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kode POS</label>
-                            <InputText v-bind="kode_pos" :required="true" id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
-                                v-model="newParticipant.kode_pos" aria-describedby="kode_pos-help" :class="{ 'p-invalid': errors.kode_pos }" />
+                            <InputText
+                                v-bind="kode_pos"
+                                :required="true"
+                                id="name1"
+                                type="text"
+                                placeholder="Kode Pos"
+                                :disabled="!gugur === true"
+                                v-model="newParticipant.kode_pos"
+                                aria-describedby="kode_pos-help"
+                                :class="{ 'p-invalid': errors.kode_pos }"
+                            />
                             <small id="kode_pos-help" class="p-error">
-                              {{ errors.kode_pos }}
+                                {{ errors.kode_pos }}
                             </small>
                             <!--                        <Dropdown v-model="poscode" :options="poscodes" :disabled="!gugur === true" optionValue="name" optionLabel="name" placeholder="Kode POS" />-->
                         </div>
@@ -816,134 +948,209 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     <div class="p-fluid">
                         <h5>Alamat Domisili</h5>
                         <div class="field-checkbox mb-4">
-                            <Checkbox v-bind="option" id="checkOption2" name="option" :disabled="!gugur === true" :value="newParticipant2"
-                                v-model="checkboxValue" @change="duplicateResidence" aria-describedby="option-help" :class="{ 'p-invalid': errors.option }" />
+                            <Checkbox
+                                v-bind="option"
+                                id="checkOption2"
+                                name="option"
+                                :disabled="!gugur === true"
+                                :value="newParticipant2"
+                                v-model="checkboxValue"
+                                @change="duplicateResidence"
+                                aria-describedby="option-help"
+                                :class="{ 'p-invalid': errors.option }"
+                            />
                             <!-- <Field name="acceptTerms" type="checkbox" id="acceptTerms" :value="true" class="form-check-input" :class="{ 'is-invalid': errors.acceptTerms }" /> -->
                             <label for="checkOption2">Alamat sesuai KTP</label>
                             <small id="option-help" class="p-error">
-                              {{ errors.option }}
+                                {{ errors.option }}
                             </small>
                         </div>
                         <div class="field">
                             <label for="name1">Alamat</label>
-                            <InputText v-bind="residence_address" id="name1" type="text" :disabled="!gugur === true" placeholder="Alamat"
-                                v-model="newParticipant.residence_address" aria-describedby="residence_address-help" :class="{ 'p-invalid': errors.residence_address }"/>
+                            <InputText
+                                v-bind="residence_address"
+                                id="name1"
+                                type="text"
+                                :disabled="!gugur === true"
+                                placeholder="Alamat"
+                                v-model="newParticipant.residence_address"
+                                aria-describedby="residence_address-help"
+                                :class="{ 'p-invalid': errors.residence_address }"
+                            />
                             <small id="residence_address-help" class="p-error">
-                              {{ errors.residence_address }}
+                                {{ errors.residence_address }}
                             </small>
                         </div>
                         <div class="grid formgrid mb-4">
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="email1">RT</label>
-                                <InputText v-bind="residence_rt" id="email1" type="text" :disabled="!gugur === true" placeholder="RT"
-                                    v-model="newParticipant.residence_rt" aria-describedby="residence_rt-help" :class="{ 'p-invalid': errors.residence_rt }" />
+                                <InputText
+                                    v-bind="residence_rt"
+                                    id="email1"
+                                    type="text"
+                                    :disabled="!gugur === true"
+                                    placeholder="RT"
+                                    v-model="newParticipant.residence_rt"
+                                    aria-describedby="residence_rt-help"
+                                    :class="{ 'p-invalid': errors.residence_rt }"
+                                />
                                 <small id="residence_rt-help" class="p-error">
-                                  {{ errors.residence_rt }}
+                                    {{ errors.residence_rt }}
                                 </small>
                             </div>
                             <div class="col-12 mb-2 lg:col-4 lg:mb-0 field">
                                 <label for="age1">RW</label>
-                                <InputText v-bind="residence_rw" id="age1" type="text" :disabled="!gugur === true" placeholder="RW"
-                                    v-model="newParticipant.residence_rw" aria-describedby="residence_rw-help" :class="{ 'p-invalid': errors.residence_rw }" />
+                                <InputText
+                                    v-bind="residence_rw"
+                                    id="age1"
+                                    type="text"
+                                    :disabled="!gugur === true"
+                                    placeholder="RW"
+                                    v-model="newParticipant.residence_rw"
+                                    aria-describedby="residence_rw-help"
+                                    :class="{ 'p-invalid': errors.residence_rw }"
+                                />
                                 <small id="residence_rw-help" class="p-error">
-                                  {{ errors.residence_rw }}
+                                    {{ errors.residence_rw }}
                                 </small>
                             </div>
                         </div>
                         <div class="field">
                             <label for="name1">Provinsi</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_provinsi" /> -->
-                            <Dropdown v-bind="residence_provinsi" v-model="newParticipant.residence_provinsi" :options="provinces"
-                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Provinsi"
-                                @change="handleResidenceProvinsi" aria-describedby="residence_provinsi-help" :class="{ 'p-invalid': residence_provinsi ? '' : errors.residence_provinsi }" />
-                              <small id="residence_provinsi-help" class="p-error">
+                            <Dropdown
+                                v-bind="residence_provinsi"
+                                v-model="newParticipant.residence_provinsi"
+                                :options="provinces"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Provinsi"
+                                @change="handleResidenceProvinsi"
+                                aria-describedby="residence_provinsi-help"
+                                :class="{ 'p-invalid': residence_provinsi ? '' : errors.residence_provinsi }"
+                            />
+                            <small id="residence_provinsi-help" class="p-error">
                                 {{ residence_provinsi ? '' : errors.residence_provinsi }}
-                              </small>
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kota</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kota" /> -->
-                            <Dropdown v-bind="residence_kota" v-model="newParticipant.residence_kota" :options="residence_cities"
-                                :disabled="!gugur === true" optionValue="id" optionLabel="name" placeholder="Kota"
-                                @change="handleResidenceKota" aria-describedby="residence_kota-help" :class="{ 'p-invalid': errors.residence_kota }" />
-                              <small id="residence_kota-help" class="p-error">
+                            <Dropdown
+                                v-bind="residence_kota"
+                                v-model="newParticipant.residence_kota"
+                                :options="residence_cities"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Kota"
+                                @change="handleResidenceKota"
+                                aria-describedby="residence_kota-help"
+                                :class="{ 'p-invalid': errors.residence_kota }"
+                            />
+                            <small id="residence_kota-help" class="p-error">
                                 {{ errors.residence_kota }}
-                              </small>
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kecamatan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kecamatan" /> -->
-                            <Dropdown v-bind="residence_kecamatan" v-model="newParticipant.residence_kecamatan"
-                                :options="residence_districts" :disabled="!gugur === true" optionValue="id"
-                                optionLabel="name" placeholder="Kecamatan" @change="handleResidenceKecamatan" aria-describedby="residence_kecamatan-help" :class="{ 'p-invalid': errors.residence_kecamatan }" />
-                              <small id="residence_kecamatan-help" class="p-error">
+                            <Dropdown
+                                v-bind="residence_kecamatan"
+                                v-model="newParticipant.residence_kecamatan"
+                                :options="residence_districts"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Kecamatan"
+                                @change="handleResidenceKecamatan"
+                                aria-describedby="residence_kecamatan-help"
+                                :class="{ 'p-invalid': errors.residence_kecamatan }"
+                            />
+                            <small id="residence_kecamatan-help" class="p-error">
                                 {{ errors.residence_kecamatan }}
-                              </small>
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kelurahan</label>
                             <!-- <InputText id="name1" type="text" :disabled="!gugur === true" v-model="newParticipant.residence_kelurahan" /> -->
-                            <Dropdown v-bind="residence_kelurahan" v-model="newParticipant.residence_kelurahan"
-                                :options="residence_villages" :disabled="!gugur === true" optionValue="id"
-                                optionLabel="name" placeholder="Kelurahan" aria-describedby="residence_kelurahan-help" :class="{ 'p-invalid': errors.residence_kelurahan }" />
-                              <small id="residence_kelurahan-help" class="p-error">
+                            <Dropdown
+                                v-bind="residence_kelurahan"
+                                v-model="newParticipant.residence_kelurahan"
+                                :options="residence_villages"
+                                :disabled="!gugur === true"
+                                optionValue="id"
+                                optionLabel="name"
+                                placeholder="Kelurahan"
+                                aria-describedby="residence_kelurahan-help"
+                                :class="{ 'p-invalid': errors.residence_kelurahan }"
+                            />
+                            <small id="residence_kelurahan-help" class="p-error">
                                 {{ errors.residence_kelurahan }}
-                              </small>
+                            </small>
                         </div>
                         <div class="field">
                             <label for="name1">Kode POS</label>
-                            <InputText v-bind="residence_kode_pos" id="name1" type="text" placeholder="Kode Pos" :disabled="!gugur === true"
-                                v-model="newParticipant.residence_kode_pos" aria-describedby="residence_kode_pos-help" :class="{ 'p-invalid': errors.residence_kode_pos }" />
-                              <small id="residence_kode_pos-help" class="p-error">
+                            <InputText
+                                v-bind="residence_kode_pos"
+                                id="name1"
+                                type="text"
+                                placeholder="Kode Pos"
+                                :disabled="!gugur === true"
+                                v-model="newParticipant.residence_kode_pos"
+                                aria-describedby="residence_kode_pos-help"
+                                :class="{ 'p-invalid': errors.residence_kode_pos }"
+                            />
+                            <small id="residence_kode_pos-help" class="p-error">
                                 {{ errors.residence_kode_pos }}
-                              </small>
+                            </small>
                         </div>
                     </div>
-                    <div
-                        class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                        <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true"
-                        :disabled="!gugur === true" />
+                    <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                        <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" />
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
-    <!-- </div> -->
-    <!-- dialog gugur -->
-    <Dialog header="Confirmation" v-model:visible="displayConfirmationGugur" :style="{ width: '550px' }" :modal="true">
-        <div class="flex align-items-center justify-content-center">
-            <h5 class="text-center">Apakah anda yakin mengubah ke status <b>GUGUR?</b></h5>
-        </div>
-        <template #footer>
-            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-            <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" autofocus />
-        </template>
-    </Dialog>
-    <!-- dialog -->
+        </form>
+        <!-- </div> -->
+        <!-- dialog gugur -->
+        <Dialog header="Confirmation" v-model:visible="displayConfirmationGugur" :style="{ width: '550px' }" :modal="true">
+            <div class="flex align-items-center justify-content-center">
+                <h5 class="text-center">Apakah anda yakin mengubah ke status <b>GUGUR?</b></h5>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+                <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" autofocus />
+            </template>
+        </Dialog>
+        <!-- dialog -->
 
-    <!-- dialog Terima -->
-    <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
-        <div class="flex align-items-center justify-content-center">
-            <h5 class="text-center">Apakah data penerima sudah <b>SESUAI</b> ?</h5>
-        </div>
-        <template #footer>
-            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-            <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
-        </template>
-    </Dialog>
-    <!-- dialog -->
+        <!-- dialog Terima -->
+        <Dialog header="Confirmation" v-model:visible="displayConfirmationSesuai" :style="{ width: '550px' }" :modal="true">
+            <div class="flex align-items-center justify-content-center">
+                <h5 class="text-center">Apakah data penerima sudah <b>SESUAI</b> ?</h5>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+                <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
+            </template>
+        </Dialog>
+        <!-- dialog -->
 
-    <!-- dialog Submit -->
-    <Dialog header="Confirmation" v-model:visible="displayConfirmationSubmit" :style="{ width: '550px' }" :modal="true">
-        <div class="flex align-items-center justify-content-center">
-            <h5 class="text-center">Apakah anda ingin input data peserta <b>BARU</b>?</h5>
-        </div>
-        <template #footer>
-            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-            <Button label="Yes" icon="pi pi-check" @click="handleSubmits" class="p-button-success" autofocus />
-        </template>
-    </Dialog>
-    <!-- dialog -->
-</div></template>
+        <!-- dialog Submit -->
+        <Dialog header="Confirmation" v-model:visible="displayConfirmationSubmit" :style="{ width: '550px' }" :modal="true">
+            <div class="flex align-items-center justify-content-center">
+                <h5 class="text-center">Apakah anda ingin input data peserta <b>BARU</b>?</h5>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
+                <Button label="Yes" icon="pi pi-check" @click="handleSubmits" class="p-button-success" autofocus />
+            </template>
+        </Dialog>
+        <!-- dialog -->
+    </div>
+</template>
 
 <style scoped lang="scss">
 input[type='number']::-webkit-inner-spin-button,
