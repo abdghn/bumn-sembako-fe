@@ -128,13 +128,13 @@ const handleSearch = async () => {
 const handleExport = () => {
     try {
         const payload = {
-            provinsi: province.value,
-            kota: city.value,
+            provinsi: provinces.value[findStatusIndexById(province.value)].name,
+            kota: cities.value[findCityIndexByName(city.value)].name,
             date: moment(calendarValue.value).format('YYYY-MM-DD'),
             jam: jamValue.value,
             evaluasi: evaluasiValue.value,
             solusi: solusiValue.value
-        }
+        };
 
         reportService.exportReport(payload).then((result) => (console.log(result)));
     } catch (e) {
