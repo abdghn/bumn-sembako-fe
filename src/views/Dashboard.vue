@@ -40,9 +40,10 @@ onMounted(() => {
     productService.getProductsSmall().then((data) => (products.value = data));
     // getDetail();
     getDataDropdown();
+    window.localStorage.setItem('provinsi', user?.provinsi);
 });
 
-const findProvinceIndexByName = (name) => {
+const findProvincesIndexByName = (name) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
         if (provinces.value[i].name === name) {
@@ -191,12 +192,18 @@ const getDataDropdown = async () => {
         const dataDistrict = ref(window.localStorage.getItem('kecamatan'));
         const dataVillage = ref(window.localStorage.getItem('kelurahan'));
 
-        if (dataProvince.value !== null) {
-            dataProvince.value = dataProvince.value.toUpperCase();
-            provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
-            province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
+        // if (dataProvince.value !== null) {
+        //     dataProvince.value = dataProvince.value.toUpperCase();
+        //     provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
+        //     province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
+        //     await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
+        //     params.provinsi = provinsi.value;
+        // }
+        if (dataProvince.value !== null && provinces.value[findProvincesIndexByName(dataProvince.value)]) {
+            paramProvince.value = provinces.value[findProvincesIndexByName(dataProvince.value)].name;
+            province.value = provinces.value[findProvincesIndexByName(dataProvince.value)].id;
             await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
-            params.provinsi = provinsi.value;
+            params.provinsi = paramProvince.value;
         }
 
         if (dataCity.value !== null) {
