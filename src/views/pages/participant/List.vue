@@ -19,13 +19,13 @@ const filters = ref({});
 const submitted = ref(false);
 
 //  <------ state dropdown ------>
-const provinces = ref(null);
+const provinces = ref([]);
 const province = ref({});
 
-const cities = ref(null);
+const cities = ref([]);
 const city = ref({});
 
-const districts = ref(null);
+const districts = ref([]);
 const district = ref({});
 
 //  <------ state dropdown ------>
@@ -37,7 +37,7 @@ const paramVillage = ref(null);
 const status = ref(null);
 const paramStatus = ref(null);
 
-const villages = ref(null);
+const villages = ref([]);
 const village = ref(null);
 const statuses = ref([
     { name: 'Selesai', code: 'DONE' },
@@ -206,7 +206,6 @@ const createId = () => {
     return id;
 };
 
-
 const deleteSelectedProducts = () => {
     products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
     deleteProductsDialog.value = false;
@@ -273,23 +272,23 @@ const initFilters = () => {
 };
 
 const generateStatus = (value) => {
-  let status
-  switch (value) {
-    case "NOT DONE":
-      status =  "Calon Penerima";
-      break;
-    case "PARTIAL_DONE":
-      status =  "Belum Upload Foto";
-      break;
-    case "REJECTED":
-      status =  "Gugur";
-      break;
-    case "DONE":
-      status =  "Sudah Menerima";
-      break;
-  }
+    let status;
+    switch (value) {
+        case 'NOT DONE':
+            status = 'Calon Penerima';
+            break;
+        case 'PARTIAL_DONE':
+            status = 'Belum Upload Foto';
+            break;
+        case 'REJECTED':
+            status = 'Gugur';
+            break;
+        case 'DONE':
+            status = 'Sudah Menerima';
+            break;
+    }
 
-  return status;
+    return status;
 };
 
 // Method
@@ -319,16 +318,14 @@ const getDataDropdown = async () => {
             district.value = districts.value[findDistrictsIndexByName(dataDistrict.value)].id;
             await regionService.getVillage({ district_id: district.value }).then((result) => (villages.value = result));
             params.kecamatan = dataDistrict.value;
-
         }
 
-        if (dataVillage.value !== null && villages.value[findVillagesIndexByName(dataVillage.value)]) {
-                village.value = villages.value[findVillagesIndexByName(dataVillage.value)].id;
-                params.kelurahan = dataVillage.value;
+        if (dataVillage.value !== null) {
+            if (villages.value[findVillagesIndexByName(dataVillage.value)]) village.value = villages.value[findVillagesIndexByName(dataVillage.value)].id;
+            params.kelurahan = dataVillage.value;
         }
 
-
-        participantService.getParticipants(params).then((result) => (products.value = result));
+        await participantService.getParticipants(params).then((result) => (products.value = result));
         window.localStorage.removeItem('provinsi');
         window.localStorage.removeItem('kota');
         window.localStorage.removeItem('kecamatan');
@@ -336,8 +333,7 @@ const getDataDropdown = async () => {
     } catch (error) {
         console.log(error);
     }
-}
-
+};
 </script>
 
 <template>
@@ -351,11 +347,10 @@ const getDataDropdown = async () => {
                             <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvince" />
                             <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
                             <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
-                            <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage"/>
-                            <Dropdown class="mr-4 mb-2" v-model="status" :options="statuses" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus"/>
+                            <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage" />
+                            <Dropdown class="mr-4 mb-2" v-model="status" :options="statuses" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus" />
                         </div>
                     </template>
-                    
 
                     <template v-slot:end>
                         <!-- <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" /> -->
@@ -427,7 +422,7 @@ const getDataDropdown = async () => {
                     <Column field="address" header="Alamat Sesuai KTP" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat Sesuai KTP</span>
-                            <text-clamp :text="slotProps.data.address" :max-lines='2' />
+                            <text-clamp :text="slotProps.data.address" :max-lines="2" />
                         </template>
                     </Column>
                     <Column field="rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
@@ -475,7 +470,7 @@ const getDataDropdown = async () => {
                     <Column field="residence_address" header="Alamat Domisili" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat Domisili</span>
-                            <text-clamp :text="slotProps.data.residence_address" :max-lines='2' />
+                            <text-clamp :text="slotProps.data.residence_address" :max-lines="2" />
                         </template>
                     </Column>
                     <Column field="residence_rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
@@ -525,11 +520,11 @@ const getDataDropdown = async () => {
                             {{ generateStatus(slotProps.data.status) }}
                         </template>
                     </Column>
-                  <Column field="residence_status" header="Petugas" :sortable="false" headerStyle="width:14%; min-width:8rem;">
-                    <template #body="slotProps">
-                      {{ slotProps.data.updated_by}}
-                    </template>
-                  </Column>
+                    <Column field="residence_status" header="Petugas" :sortable="false" headerStyle="width:14%; min-width:8rem;">
+                        <template #body="slotProps">
+                            {{ slotProps.data.updated_by }}
+                        </template>
+                    </Column>
                 </DataTable>
 
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
