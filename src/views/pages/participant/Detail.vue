@@ -4,7 +4,7 @@ import ParticipantService from '../../../service/ParticipantService';
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import RegionService from '../../../service/RegionService';
-import { Field, useForm } from 'vee-validate';
+import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 
 const route = useRoute();
@@ -13,6 +13,7 @@ const displayConfirmationGugur = ref(false);
 const displayConfirmationSesuai = ref(false);
 const displayConfirmationSubmit = ref(false);
 const participant = ref({});
+const submitted = ref(false);
 const participantService = new ParticipantService();
 const checkboxValue = ref([]);
 const toast = useToast();
@@ -23,16 +24,16 @@ const newParticipant = ref({});
 const newParticipant2 = ref({});
 const isSelected = ref(false);
 const baseUrl = ref(import.meta.env.VITE_BACKEND_URL);
-const provinces = ref(null);
-const cities = ref(null);
-const residence_cities = ref(null);
-const districts = ref(null);
-const residence_districts = ref(null);
-const villages = ref(null);
-const residence_villages = ref(null);
+const provinces = ref([]);
+const cities = ref([]);
+const residence_cities = ref([]);
+const districts = ref([]);
+const residence_districts = ref([]);
+const villages = ref([]);
+const residence_villages = ref([]);
 const isRejected = ref(false);
 const genders = ref([
-    { name: 'Pria', code: 'Pria' },
+    { name: 'Laki-Laki', code: 'Laki-Laki' },
     { name: 'Perempuan', code: 'Perempuan' }
 ]);
 const gender = ref(null);
@@ -82,17 +83,6 @@ const openDialogSubmit = () => {
     displayConfirmationSubmit.value = true;
 };
 
-const findGenderIndexByCode = (code) => {
-    let index = -1;
-    for (let i = 0; i < genders.value.length; i++) {
-        if (genders.value[i].code === code) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
 const handleSesuai = () => {
     if (file.value === null) {
         if (gugur.value) {
@@ -115,6 +105,7 @@ const handleSesuai = () => {
         if (file_penerima.value !== null) {
             formData.append('file_penerima', file_penerima.value);
         }
+
         formData.append('name', participant.value.name);
         formData.append('nik', participant.value.nik);
         formData.append('gender', participant.value.gender);
@@ -137,6 +128,7 @@ const handleSesuai = () => {
         formData.append('residence_kode_pos', participant.value.residence_kode_pos);
         formData.append('status', participant.value.status);
         formData.append('updated_by', user.value);
+
         participantService
             .updateParticipant(participant.value.id, formData)
             .then((result) => {
@@ -157,7 +149,10 @@ const handleSesuai = () => {
     displayConfirmationSubmit.value = false;
 };
 
-const handleSubmits = () => {
+const handleSubmits = async () => {
+    const loading = ref(true);
+    submitted.value = true;
+
     try {
         const formData = new FormData();
         if (file.value !== null) {
@@ -188,12 +183,16 @@ const handleSubmits = () => {
         formData.append('residence_kode_pos', newParticipant.value.residence_kode_pos);
         formData.append('status', 'REJECTED');
         formData.append('updated_by', user.value);
+
         participantService
             .updateParticipant(participant.value.id, formData)
-            .then((result) => {
+            .then(() => {
                 toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
-                participant.value = result;
-                router.push('/participant');
+                loading.value = false;
+
+                if (!loading.value) {
+                    setTimeout(() => router.push('/participant'), 2000);
+                }
             })
             .catch(() => {
                 toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
@@ -539,12 +538,12 @@ const schema = yup.object({
         })
 });
 
-const { defineComponentBinds, handleSubmit, resetForm, errors } = useForm({
+const { defineComponentBinds, errors } = useForm({
     validationSchema: schema
 });
 
 const name = defineComponentBinds('name');
-const nik = defineComponentBinds('nik');
+const nik = defineComponentBinds('newParticipant.nik');
 const phone = defineComponentBinds('phone');
 const jkel = defineComponentBinds('gender');
 const address = defineComponentBinds('address');
@@ -581,7 +580,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
 
 <template>
     <Toast />
-    <div className="card">
+    <div class="card">
         <Toolbar class="mb-4">
             <template v-slot:start>
                 <div class="my-2">
@@ -620,14 +619,14 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     </div>
                     <div class="col-12 md:col-6">
                         <div class="field col">
-                            <p><b>Alamat Domisili:</b> {{ participant?.address }}</p>
-                            <p>RT: 0{{ participant?.rt }}</p>
-                            <p>RW: 0{{ participant?.rw }}</p>
-                            <p>Provinsi: {{ participant?.provinsi }}</p>
-                            <p>Kota: {{ participant?.kota }}</p>
-                            <p>Kecamatan: {{ participant?.kecamatan }}</p>
-                            <p>Kelurahan: {{ participant?.kelurahan }}</p>
-                            <p>Kode POS: {{ participant?.kode_pos }}</p>
+                            <p><b>Alamat Domisili:</b> {{ participant?.residence_address }}</p>
+                            <p>RT: 0{{ participant?.residence_rt }}</p>
+                            <p>RW: 0{{ participant?.residence_rw }}</p>
+                            <p>Provinsi: {{ participant?.residence_provinsi }}</p>
+                            <p>Kota: {{ participant?.residence_kota }}</p>
+                            <p>Kecamatan: {{ participant?.residence_kecamatan }}</p>
+                            <p>Kelurahan: {{ participant?.residence_kelurahan }}</p>
+                            <p>Kode POS: {{ participant?.residence_kode_pos }}</p>
                         </div>
                     </div>
                 </div>
@@ -641,7 +640,6 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                             v-bind="file"
                             name="demo[]"
                             @uploader="onUpload"
-                            mode="basic"
                             accept="image/*"
                             :maxFileSize="1000000"
                             customUpload
@@ -650,9 +648,9 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                             aria-describedby="file-help"
                             :class="{ 'p-invalid': file ? '' : errors.file }"
                         />
-                        <!--                        <small v-if="participant.status !== `DONE`" id="file-help" class="p-error">-->
-                        <!--                        {{ file ? '' : errors.file }}-->
-                        <!--                        </small>-->
+                        <small id="file_penerima-help" class="p-error">
+                            {{ file ? '' : errors.file }}
+                        </small>
                     </div>
                 </div>
                 <div class="field col" v-if="participant.status === `DONE`">
@@ -712,7 +710,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 :disabled="!gugur === true"
                                 placeholder="Nama Peserta"
                                 aria-describedby="name-help"
-                                :class="{ 'p-invalid': errors.name }"
+                                :class="{ 'p-invalid': submitted && !newParticipant.name ? errors.name : !newParticipant.name ? errors.name : '' }"
                                 v-model.trim="newParticipant.name"
                             />
                             <small id="name-help" class="p-error">
@@ -730,10 +728,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 v-model.trim="newParticipant.nik"
                                 :useGrouping="false"
                                 aria-describedby="nik-help"
-                                :class="{ 'p-invalid': errors.nik }"
+                                :class="{ 'p-invalid': submitted && !newParticipant.nik ? errors.nik : '' }"
                             />
                             <small id="nik-help" class="p-error">
-                                {{ errors.nik }}
+                                {{ errors.nik  }}
                             </small>
                         </div>
                         <div class="field">
@@ -779,17 +777,18 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                             required="true"
                             name="demo[]"
                             @uploader="onUpload"
-                            :multiple="true"
                             accept="image/*"
                             customUpload
                             :disabled="!gugur === true"
-                            @select="onSelectedFilesPenerima"
+                            @select="onSelectedFiles"
                             aria-describedby="file-help"
                             :class="{ 'p-invalid': file ? '' : errors.file }"
                         />
-                        <small id="file-help" class="p-error">
-                            {{ !file ? '' : errors.file }}
-                        </small>
+                        <div v-if="gugur === true">
+                            <small id="file-help" class="p-error">
+                                {{ file ? '' : errors.file }}
+                            </small>
+                        </div>
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                     <FileUpload
@@ -804,11 +803,13 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         :disabled="!gugur === true"
                         @select="onSelectedFilesPenerima"
                         aria-describedby="file_penerima-help"
-                        :class="{ 'p-invalid': file_penerima ? 'tes' : errors.file_penerima }"
+                        :class="{ 'p-invalid': file_penerima ? '' : errors.file_penerima }"
                     />
-                    <small id="file_penerima-help" class="p-error">
-                        {{ !file_penerima ? '' : errors.file_penerima }}
-                    </small>
+                    <div v-if="gugur === true">
+                        <small id="file_penerima-help" class="p-error">
+                            {{ file_penerima ? '' : errors.file_penerima }}
+                        </small>
+                    </div>
                 </div>
             </div>
             <div class="formgrid grid">
@@ -854,7 +855,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         <div class="field">
                             <label for="name1">Provinsi</label>
                             <Dropdown
-                                v-bind="newParticipant.provinsi"
+                                v-bind="provinsi"
                                 v-model="newParticipant.provinsi"
                                 :options="provinces"
                                 :disabled="!gugur === true"
@@ -949,7 +950,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         <h5>Alamat Domisili</h5>
                         <div class="field-checkbox mb-4">
                             <Checkbox
-                                v-bind="option"
+                                v-bind="newParticipant2"
                                 id="checkOption2"
                                 name="option"
                                 :disabled="!gugur === true"
