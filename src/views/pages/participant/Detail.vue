@@ -499,11 +499,11 @@ const duplicateResidence = () => {
 
 const phoneRegex = /^(^\+62|62|^08)(\d{3,4}-?){2}\d{3,4}$/g;
 
-const schema = yup.object({
+const schema = yup.object().shape({
     name: yup.string().required('Isi nama lengkap sesuai kartu identitas').label('name'),
     nik: yup.string().required().max(16, 'Masukan 16 Karakter').label('nik'),
     phone: yup.string().required().matches(phoneRegex, 'Phone number is not valid'),
-    jkel: yup.string().required('Pilih Jenis Kelamin '),
+    jkel: yup.string().required('Pilih Jenis Kelamin ').label('jenis kelamin'),
     address: yup.string().required(),
     rt: yup.string().required().label('rt'),
     rw: yup.string().required().label('rw'),
@@ -538,14 +538,32 @@ const schema = yup.object({
         })
 });
 
-const { defineComponentBinds, errors } = useForm({
+const { defineComponentBinds, errors, handleSubmit, defineInputBinds } = useForm({
     validationSchema: schema
 });
 
+// function required(value) {
+//     return value ? true : 'This field is required';
+// }
+
+// const { defineComponentBinds, defineInputBinds, handleSubmit, errors } = useForm({
+//   validationSchema: {
+//     tests: required,
+//   },
+// });
+
+// Define fields
+const tests = defineInputBinds('tests');
+
+const onSubmit = handleSubmit(values => {
+  // Submit to API
+  console.log(values);
+});
+
 const name = defineComponentBinds('name');
-const nik = defineComponentBinds('newParticipant.nik');
+const nik = defineComponentBinds('nik');
 const phone = defineComponentBinds('phone');
-const jkel = defineComponentBinds('gender');
+const jkel = defineComponentBinds('jkel');
 const address = defineComponentBinds('address');
 const rt = defineComponentBinds('rt');
 const rw = defineComponentBinds('rw');
@@ -576,6 +594,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
 //   name: o,
 //   value: o.toLowerCase(),
 // }));
+
+
+// TODO: Rapihin Field dan Button
+
 </script>
 
 <template>
@@ -590,7 +612,11 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
 
             <template v-slot:end v-if="participant.status !== `DONE` && participant.status !== `REJECTED`">
                 <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" :modal="true" />
-                <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" />
+                <!-- <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" /> -->
+                <Button label="Sesuai" class="p-button-info ml-2" :disabled="gugur === true" />
+                <div>
+                    {{ console.log(gugur) }}
+                </div>
             </template>
         </Toolbar>
         <div class="p-fluid grid">
@@ -702,7 +728,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     <div class="p-fluid">
                         <div class="field">
                             <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
-                            <InputText
+                            <!-- <InputText
                                 v-bind="name"
                                 id="name1"
                                 type="text"
@@ -715,30 +741,45 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                             />
                             <small id="name-help" class="p-error">
                                 {{ errors.name }}
+                            </small> -->
+                            <!-- <input v-bind="tests" /> -->
+                            <InputText
+                                v-bind="name"
+                                id="name1"
+                                type="text"
+                                :required="true"
+                                :disabled="!gugur === true"
+                                placeholder="Nama Peserta"
+                                aria-describedby="name-help"
+                                :class="{ 'p-invalid': submitted && !newParticipant.name ? errors.name : !newParticipant.name ? errors.name : '' }"
+                                v-model.trim="newParticipant.name"
+                            />
+                            <small id="name-help" class="p-error">
+                                {{ newParticipant.name ? '' : errors.name }}
                             </small>
                         </div>
                         <div class="field">
-                            <label for="ktp">Nomor KTP</label>
+                            <label for="ages">Nomor KTP</label>
                             <InputNumber
                                 v-bind="nik"
-                                id="ktp"
+                                id="name1"
+                                type="number"
                                 :required="true"
                                 :disabled="!gugur === true"
                                 placeholder="No. KTP"
                                 v-model.trim="newParticipant.nik"
                                 :useGrouping="false"
                                 aria-describedby="nik-help"
-                                :class="{ 'p-invalid': submitted && !newParticipant.nik ? errors.nik : '' }"
+                                :class="{ 'p-invalid': submitted && !newParticipant.nik ? errors.nik : !newParticipant.nik ? errors.nik : '' }"
                             />
                             <small id="nik-help" class="p-error">
-                                {{ errors.nik  }}
+                                {{ errors.nik }}
                             </small>
                         </div>
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
-                            <Dropdown
+                            <!-- <Dropdown
                                 v-bind="jkel"
-                                required="true"
                                 v-model="newParticipant.gender"
                                 :options="genders"
                                 :disabled="!gugur === true"
@@ -748,9 +789,21 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 optionLabel="name"
                                 placeholder="Jenis Kelamin"
                                 @change="handleGender"
+                            /> -->
+                            <Dropdown
+                                v-bind="jkel"
+                                v-model="newParticipant.jkel"
+                                :options="genders"
+                                :disabled="!gugur === true"
+                                optionValue="code"
+                                optionLabel="name"
+                                placeholder="Jenis Kelamin"
+                                @change="handleGender"
+                                aria-describedby="jkel-help"
+                                :class="{ 'p-invalid': newParticipant.jkel ? '' : errors.jkel }"
                             />
-                            <small id="nik-help" class="p-error">
-                                {{ jkel ? '' : errors.jkel }}
+                            <small id="jkel-help" class="p-error">
+                                {{ errors.jkel }}
                             </small>
                         </div>
                         <div class="field">
@@ -786,7 +839,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         />
                         <div v-if="gugur === true">
                             <small id="file-help" class="p-error">
-                                {{ file ? '' : errors.file }}
+                                {{ errors.file }}
                             </small>
                         </div>
                     </div>
@@ -807,7 +860,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     />
                     <div v-if="gugur === true">
                         <small id="file_penerima-help" class="p-error">
-                            {{ file_penerima ? '' : errors.file_penerima }}
+                            {{ errors.file_penerima }}
                         </small>
                     </div>
                 </div>
@@ -882,10 +935,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 placeholder="Kota"
                                 @change="handleKota"
                                 aria-describedby="kota-help"
-                                :class="{ 'p-invalid': kota ? '' : errors.kota }"
+                                :class="{ 'p-invalid': newParticipant.kota ? '' : errors.kota }"
                             />
                             <small id="kota-help" class="p-error">
-                                {{ kota ? '' : errors.kota }}
+                                {{ errors.kota }}
                             </small>
                         </div>
                         <div class="field">
@@ -901,10 +954,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 placeholder="Kecamatan"
                                 @change="handleKecamatan"
                                 aria-describedby="kecamatan-help"
-                                :class="{ 'p-invalid': kecamatan ? '' : errors.kecamatan }"
+                                :class="{ 'p-invalid': newParticipant.kecamatan ? '' : errors.kecamatan }"
                             />
                             <small id="kecamatan-help" class="p-error">
-                                {{ kecamatan ? '' : errors.kecamatan }}
+                                {{ errors.kecamatan }}
                             </small>
                         </div>
                         <div class="field">
@@ -1029,10 +1082,10 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 placeholder="Provinsi"
                                 @change="handleResidenceProvinsi"
                                 aria-describedby="residence_provinsi-help"
-                                :class="{ 'p-invalid': residence_provinsi ? '' : errors.residence_provinsi }"
+                                :class="{ 'p-invalid': newParticipant.residence_provinsi ? '' : errors.residence_provinsi }"
                             />
                             <small id="residence_provinsi-help" class="p-error">
-                                {{ residence_provinsi ? '' : errors.residence_provinsi }}
+                                {{ errors.residence_provinsi }}
                             </small>
                         </div>
                         <div class="field">
@@ -1101,15 +1154,16 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 :disabled="!gugur === true"
                                 v-model="newParticipant.residence_kode_pos"
                                 aria-describedby="residence_kode_pos-help"
-                                :class="{ 'p-invalid': errors.residence_kode_pos }"
+                                :class="{ 'p-invalid': newParticipant.residence_kode_pos ? '' : errors.residence_kode_pos }"
                             />
                             <small id="residence_kode_pos-help" class="p-error">
-                                {{ errors.residence_kode_pos }}
+                                {{ newParticipant.residence_kode_pos ? '' : errors.residence_kode_pos }}
                             </small>
                         </div>
                     </div>
                     <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                        <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" />
+                        <!-- <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" /> -->
+                        <button class="submit mr-4">Submit</button>
                     </div>
                 </div>
             </div>
@@ -1122,7 +1176,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-                <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" autofocus />
+                <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-success" />
             </template>
         </Dialog>
         <!-- dialog -->
@@ -1169,4 +1223,16 @@ input[type='number']::-webkit-outer-spin-button {
 .labels {
     font-weight: bold;
 }
+
+.submit {
+    padding: 1rem 1.45rem;
+    color: white;
+    background-color: #3B82F6;
+    border-radius: 6px;
+    outline: none;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 </style>
