@@ -7,6 +7,7 @@ import RegionService from '@/service/RegionService';
 import DashboardService from '@/service/DashboardService';
 import ReportService from '@/service/ReportService';
 import moment from 'moment';
+import { useRouter } from 'vue-router';
 
 const toast = useToast();
 
@@ -28,6 +29,8 @@ const city = ref(null);
 const provinsi = ref(null);
 
 const detail = ref(null);
+
+const router = useRouter();
 
 const regionService = new RegionService();
 const dashboardService = new DashboardService();
@@ -112,17 +115,30 @@ const handleExport = () => {
             evaluasi: evaluasiValue.value,
             solusi: solusiValue.value
         };
-
-        reportService.exportReport(payload).then((result) => {
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
+        setTimeout(() => {
+            reportService.exportReport(payload).then((result) => {
             const link = document.createElement('a');
             link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
             const name = result.split('/');
             link.target = '_blank';
             link.download = name[1];
             link.click();
+            router.go(0);
         });
+        }, 1000);
+
+        // reportService.exportReport(payload).then((result) => {
+        //     const link = document.createElement('a');
+        //     link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
+        //     const name = result.split('/');
+        //     link.target = '_blank';
+        //     link.download = name[1];
+        //     link.click();
+        // });
     } catch (e) {
         console.log(e);
+        toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
     }
 };
 
