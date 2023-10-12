@@ -324,10 +324,11 @@ const handleProvinsi = () => {
                             {{ slotProps.data.username }}
                         </template>
                     </Column>
-                    <Column headerStyle="min-width:10rem;">
+                    <Column header="Export" headerStyle="min-width:14rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" />
-                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteProduct(slotProps.data)" />
+                            <Button label="export data error" class="p-button-secondary mr-2" @click="editProduct(slotProps.data)" />
+                            <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" /> -->
+                            <!-- <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteProduct(slotProps.data)" /> -->
                         </template>
                     </Column>
                 </DataTable>
