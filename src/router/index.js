@@ -14,7 +14,16 @@ const router = createRouter({
                     component: () => import('@/views/Dashboard.vue'),
                     meta: {
                         requiredAuthorization: true,
-                        apps: 'all',
+                        apps: 'all'
+                    }
+                },
+                {
+                    path: '/import',
+                    name: 'import',
+                    component: () => import('@/views/pages/import/List.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all'
                     }
                 },
                 {
@@ -23,7 +32,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/participant/List.vue'),
                     meta: {
                         requiredAuthorization: true,
-                        apps: 'all',
+                        apps: 'all'
                     }
                 },
                 {
@@ -32,7 +41,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/participant/Detail.vue'),
                     meta: {
                         requiredAuthorization: true,
-                        apps: 'all',
+                        apps: 'all'
                     }
                 },
                 {
@@ -41,7 +50,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/user/List.vue'),
                     meta: {
                         requiredAuthorization: true,
-                        apps: 'all',
+                        apps: 'all'
                     }
                 },
                 {
@@ -50,7 +59,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/report/List.vue'),
                     meta: {
                         requiredAuthorization: true,
-                        apps: 'all',
+                        apps: 'all'
                     }
                 },
                 {
