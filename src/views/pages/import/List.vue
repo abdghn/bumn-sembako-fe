@@ -5,6 +5,8 @@ import { useToast } from 'primevue/usetoast';
 import UserService from '@/service/UserService';
 import OrganizationService from '@/service/OrganizationService';
 import RegionService from '@/service/RegionService';
+import ParticipantService from '../../../service/ParticipantService';
+import moment from 'moment';
 
 const toast = useToast();
 
@@ -18,6 +20,8 @@ const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
 const userService = new UserService();
+const file = ref(null);
+const uploadBulkDialog = ref(false);
 
 const provinces = ref(null);
 const province = ref({});
@@ -31,25 +35,38 @@ const organization = ref({});
 
 const regionService = new RegionService();
 const organizationService = new OrganizationService();
+const participantService = new ParticipantService();
 
 onBeforeMount(() => {
     initFilters();
 });
 onMounted(() => {
     // productService.getProducts().then((data) => (products.value = data));
-    userService.getUsers({ page: 1, size: 1000 }).then((result) => (products.value = result));
-    getDataDropdown();
+    participantService.getLogs({ page: 1, size: 1000 }).then((result) => (products.value = result));
 });
 
-const openNew = () => {
-    product.value = {};
-    submitted.value = false;
-    productDialog.value = true;
+const handleUploadBulkDialog = () => {
+    uploadBulkDialog.value = true;
 };
 
 const hideDialog = () => {
     productDialog.value = false;
+    uploadBulkDialog.value = false;
     submitted.value = false;
+};
+
+const downloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = import.meta.env.VITE_BACKEND_URL + '/template/template-penerima.xlsx';
+    link.setAttribute('download', 'template.xlsx');
+    link.click();
+};
+
+const exportData = (path) => {
+    const link = document.createElement('a');
+    link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + path;
+    link.setAttribute('download', 'result.xlsx');
+    link.click();
 };
 
 const saveProduct = () => {
@@ -68,7 +85,7 @@ const saveProduct = () => {
                         products.value[findIndexById(id)] = result;
                         productDialog.value = false;
                         product.value = {};
-                      submitted.value = false;
+                        submitted.value = false;
                     })
                     .catch(() => toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 }));
             } catch (e) {
@@ -84,7 +101,7 @@ const saveProduct = () => {
                         products.value.push(result);
                         productDialog.value = false;
                         product.value = {};
-                      submitted.value = false;
+                        submitted.value = false;
                     })
                     .catch(() => toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 }));
             } catch (e) {
@@ -108,7 +125,7 @@ const findProvincesIndexByName = (name) => {
 const editProduct = (editProduct) => {
     product.value = { ...editProduct };
     if (product.value.provinsi !== '' && product.value.provinsi) {
-      console.log(product.value.provinsi)
+        console.log(product.value.provinsi);
         regionService.getRegencies({ province_id: provinces.value[findProvinceIndexByName(product.value.provinsi)].id }).then((result) => (cities.value = result));
         product.value.provinsi = provinces.value[findProvinceIndexByName(product.value.provinsi)].id;
     }
@@ -194,6 +211,33 @@ const findProvinceIndexById = (id) => {
     return index;
 };
 
+const onSelectedFiles = (event) => {
+    event.files.forEach((result) => {
+        file.value = result;
+    });
+};
+
+const saveParticipants = () => {
+    try {
+        const formData = new FormData();
+        if (file.value !== null) {
+            formData.append('file', file.value);
+        }
+        participantService
+            .importParticipant(formData)
+            .then((result) => {
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Upload Bulk Success', life: 3000 });
+              products.value.unshift(result);
+              uploadBulkDialog.value = false;
+            })
+            .catch(() => {
+                toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error when upload bulk MRC', life: 3000 });
+            });
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error when upload bulk MRC', life: 3000 });
+    }
+};
+
 const getDataDropdown = async () => {
     try {
         const params = { page: 1, size: 100 };
@@ -250,12 +294,12 @@ const handleProvinsi = () => {
                         </div>
                     </template>
 
-                    <template v-slot:end> 
+                    <template v-slot:end>
                         <div class="my-2">
-                            <Button label="DOWNLOAD TEMPLATE" class="p-button-secondary mr-2" @click="openNew" />
+                            <Button label="DOWNLOAD TEMPLATE" class="p-button-secondary mr-2" @click="downloadTemplate" />
                         </div>
                         <div class="my-2">
-                            <Button label="IMPORT DATA" class="p-button-secondary mr-2" @click="openNew" />
+                            <Button label="IMPORT DATA" class="p-button-secondary mr-2" @click="handleUploadBulkDialog" />
                         </div>
                     </template>
                 </Toolbar>
@@ -270,63 +314,61 @@ const handleProvinsi = () => {
                     :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} logs"
                 >
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Import Data</h5>
-                            <span class="block mt-2 md:mt-0 p-input-icon-left">
-                                <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" placeholder="Search..." />
-                            </span>
+                            <!--                            <span class="block mt-2 md:mt-0 p-input-icon-left">-->
+                            <!--                                <i class="pi pi-search" />-->
+                            <!--                                <InputText v-model="filters['global'].value" placeholder="Search..." />-->
+                            <!--                            </span>-->
                         </div>
                     </template>
-
-                    <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No</span>
-                            {{ slotProps.index + 1 }}
-                        </template>
-                    </Column>
                     <Column field="name" header="Name" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">File Name</span>
-                            {{ slotProps.data.name }}
+                            {{ slotProps.data.file_name }}
                         </template>
                     </Column>
                     <Column field="username" header="Status" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Status</span>
-                            {{ slotProps.data.username }}
+                            {{ slotProps.data.status }}
                         </template>
                     </Column>
                     <Column field="username" header="Created At" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Created At</span>
-                            {{ slotProps.data.username }}
+                            {{ moment(slotProps.data.created_at).format('DD-MM-YYYY, h:mm') }}
                         </template>
                     </Column>
                     <Column field="username" header="Total Rows" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Total Rows</span>
-                            {{ slotProps.data.username }}
+                            {{ slotProps.data.total_rows }}
                         </template>
                     </Column>
                     <Column field="username" header="Success Rows" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Success Rows</span>
-                            {{ slotProps.data.username }}
+                            {{ slotProps.data.success_rows }}
                         </template>
                     </Column>
                     <Column field="username" header="Data Error" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Data Error</span>
-                            {{ slotProps.data.username }}
+                            <div style="color: red">
+                                {{ slotProps.data.failed_rows }}
+                            </div>
                         </template>
                     </Column>
                     <Column header="Export" headerStyle="min-width:14rem;">
                         <template #body="slotProps">
-                            <Button label="export data error" class="p-button-secondary mr-2" @click="editProduct(slotProps.data)" />
+                            <div v-if="slotProps.data.status !== 'Success All'">
+                                <Button label="export data error" class="p-button-secondary mr-2" @click="exportData(slotProps.data.path)" />
+                            </div>
+
                             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" /> -->
                             <!-- <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteProduct(slotProps.data)" /> -->
                         </template>
@@ -399,6 +441,22 @@ const handleProvinsi = () => {
             </div>
         </div>
     </div>
+
+    <Dialog v-model:visible="uploadBulkDialog" :style="{ width: '450px' }" header="Upload Bulk" :modal="true" class="p-fluid">
+        <div class="field">
+            <label for="file">File</label>
+            <FileUpload mode="basic" :multiple="false" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :maxFileSize="10000000" customUpload @select="onSelectedFiles" />
+        </div>
+<!--        <div class="field">-->
+<!--            <label for="template" class="mt-2">Template</label>-->
+<!--            <br />-->
+<!--            <Button icon="pi pi-file-excel" class="p-button-rounded p-button-plain p-button-text mr-2 mb-2" size="large" @click="downloadTemplate" />-->
+<!--        </div>-->
+        <template #footer>
+            <Button label="Cancel" class="p-button-danger" @click="hideDialog" />
+            <Button label="Save" class="p-button-info" @click="saveParticipants" />
+        </template>
+    </Dialog>
 </template>
 
 <style scoped lang="scss"></style>

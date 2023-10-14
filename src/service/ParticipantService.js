@@ -21,4 +21,12 @@ export default class ParticipantService {
     report(body) {
         return axiosApp.post('/v1/', body).then((d) => d.data.data);
     }
+
+    importParticipant(body) {
+        return axiosApp.post('/v1/participant/import', body).then((d) => d.data.data);
+    }
+
+    getLogs(params) {
+        return axiosApp.get('/v1/participant/import', { params }).then((d) => d.data.data);
+    }
 }
