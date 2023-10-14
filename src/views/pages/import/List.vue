@@ -3,7 +3,6 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import UserService from '@/service/UserService';
-import OrganizationService from '@/service/OrganizationService';
 import RegionService from '@/service/RegionService';
 import ParticipantService from '../../../service/ParticipantService';
 import moment from 'moment';
@@ -22,19 +21,15 @@ const submitted = ref(false);
 const userService = new UserService();
 const file = ref(null);
 const uploadBulkDialog = ref(false);
+const isLoading = ref(false);
 
 const provinces = ref(null);
-const province = ref({});
-const provinsi = ref(null);
 
 const cities = ref(null);
-const city = ref({});
 
 const organizations = ref(null);
-const organization = ref({});
 
 const regionService = new RegionService();
-const organizationService = new OrganizationService();
 const participantService = new ParticipantService();
 
 onBeforeMount(() => {
@@ -111,31 +106,6 @@ const saveProduct = () => {
     }
 };
 
-const findProvincesIndexByName = (name) => {
-    let index = -1;
-    for (let i = 0; i < provinces.value.length; i++) {
-        if (provinces.value[i].name === name) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
-const editProduct = (editProduct) => {
-    product.value = { ...editProduct };
-    if (product.value.provinsi !== '' && product.value.provinsi) {
-        console.log(product.value.provinsi);
-        regionService.getRegencies({ province_id: provinces.value[findProvinceIndexByName(product.value.provinsi)].id }).then((result) => (cities.value = result));
-        product.value.provinsi = provinces.value[findProvinceIndexByName(product.value.provinsi)].id;
-    }
-    productDialog.value = true;
-};
-
-const confirmDeleteProduct = (editProduct) => {
-    product.value = editProduct;
-    deleteProductDialog.value = true;
-};
 
 const deleteProduct = () => {
     try {
@@ -178,28 +148,6 @@ const initFilters = () => {
     };
 };
 
-const findProvinceIndexByName = (name) => {
-    let index = -1;
-    for (let i = 0; i < provinces.value.length; i++) {
-        if (provinces.value[i].name === name) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
-const findCityIndexByName = (name) => {
-    let index = -1;
-    for (let i = 0; i < cities.value.length; i++) {
-        if (cities.value[i].name === name) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
 const findProvinceIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
@@ -223,57 +171,24 @@ const saveParticipants = () => {
         if (file.value !== null) {
             formData.append('file', file.value);
         }
-        participantService
-            .importParticipant(formData)
+        if (file.value.size > 4000) {
+            isLoading.value = true;
+            participantService.importParticipant(formData)
             .then((result) => {
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Upload Bulk Success', life: 3000 });
-              products.value.unshift(result);
-              uploadBulkDialog.value = false;
+                products.value.unshift(result);
+                isLoading.value = false;
+                uploadBulkDialog.value = false;
             })
             .catch(() => {
-                toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error when upload bulk MRC', life: 3000 });
+                toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
             });
+        } else {
+            toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
+        }
+        
     } catch (e) {
-        toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error when upload bulk MRC', life: 3000 });
-    }
-};
-
-const getDataDropdown = async () => {
-    try {
-        const params = { page: 1, size: 100 };
-        // productService.getProducts().then((data) => (products.value = data));
-        await regionService
-            .getProvincies({})
-            .then((result) => (provinces.value = result))
-            .catch(() => toast.add({ severity: 'error', summary: 'Failed get provinces', detail: 'Error when get provinces', life: 3000 }));
-        await organizationService
-            .getOrganization({})
-            .then((result) => (organizations.value = result))
-            .catch(() => toast.add({ severity: 'error', summary: 'Failed get organizations', detail: 'Error when get organizations', life: 3000 }));
-
-        const dataProvince = ref(window.localStorage.getItem('provinsi'));
-        const dataCity = ref(window.localStorage.getItem('kota'));
-
-        if (dataProvince.value !== null) {
-            provinsi.value = provinces.value[findProvinceIndexByName(dataProvince.value)].name;
-            province.value = provinces.value[findProvinceIndexByName(dataProvince.value)].id;
-            await regionService
-                .getRegencies({ province_id: province.value })
-                .then((result) => (cities.value = result))
-                .catch(() => toast.add({ severity: 'error', summary: 'Failed get cities', detail: 'Error when get cities', life: 3000 }));
-            params.provinsi = provinsi.value;
-        }
-
-        if (dataCity.value !== null) {
-            city.value = cities.value[findCityIndexByName(dataCity.value)].name;
-            params.kota = city.value;
-        }
-
-        window.localStorage.removeItem('provinsi');
-        window.localStorage.removeItem('kota');
-        // state.detail = data
-    } catch (error) {
-        console.log(error);
+        toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
     }
 };
 
@@ -290,7 +205,6 @@ const handleProvinsi = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <!-- <Button label="New" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" /> -->
                         </div>
                     </template>
 
@@ -319,10 +233,6 @@ const handleProvinsi = () => {
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Import Data</h5>
-                            <!--                            <span class="block mt-2 md:mt-0 p-input-icon-left">-->
-                            <!--                                <i class="pi pi-search" />-->
-                            <!--                                <InputText v-model="filters['global'].value" placeholder="Search..." />-->
-                            <!--                            </span>-->
                         </div>
                     </template>
                     <Column field="name" header="Name" :sortable="false" headerStyle="width:14%; min-width:10rem;">
@@ -442,17 +352,19 @@ const handleProvinsi = () => {
         </div>
     </div>
 
-    <Dialog v-model:visible="uploadBulkDialog" :style="{ width: '450px' }" header="Upload Bulk" :modal="true" class="p-fluid">
-        <div class="field">
+    <Dialog v-model:visible="uploadBulkDialog" :style="{ width: '450px' }" header="Upload Data" :modal="true" class="p-fluid">
+        <div v-if="isLoading" style="display: flex">
+            <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" aria-label="Custom ProgressSpinner" />
+        </div>
+        <div v-else class="field">
             <label for="file">File</label>
             <FileUpload mode="basic" :multiple="false" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :maxFileSize="10000000" customUpload @select="onSelectedFiles" />
         </div>
-<!--        <div class="field">-->
-<!--            <label for="template" class="mt-2">Template</label>-->
-<!--            <br />-->
-<!--            <Button icon="pi pi-file-excel" class="p-button-rounded p-button-plain p-button-text mr-2 mb-2" size="large" @click="downloadTemplate" />-->
-<!--        </div>-->
-        <template #footer>
+        <template v-if="isLoading" #footer>
+            <Button label="Cancel" class="p-button-danger" @click="hideDialog" disabled/>
+            <Button label="Save" class="p-button-info" @click="saveParticipants" disabled/>
+        </template>
+        <template v-else #footer>
             <Button label="Cancel" class="p-button-danger" @click="hideDialog" />
             <Button label="Save" class="p-button-info" @click="saveParticipants" />
         </template>

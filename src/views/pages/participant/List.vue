@@ -343,7 +343,7 @@ const getDataDropdown = async () => {
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2" tyle="display: block">
+                        <div class="my-2" style="display: block">
                             <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvince" />
                             <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
                             <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
