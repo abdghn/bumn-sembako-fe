@@ -294,7 +294,7 @@ const generateStatus = (value) => {
 // Method
 const getDataDropdown = async () => {
     try {
-        const params = { page: 1, size: 100 };
+        const params = { page: 1, size: 3000 };
         await regionService.getProvincies({}).then((result) => (provinces.value = result));
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
