@@ -37,6 +37,8 @@ const paramVillage = ref(null);
 const status = ref(null);
 const paramStatus = ref(null);
 
+const defaultSize = ref(5000);
+
 const villages = ref([]);
 const village = ref(null);
 const statuses = ref([
@@ -247,13 +249,13 @@ const resetFilter = () => {
     paramDistrict.value = null;
     paramVillage.value = null;
     paramStatus.value = null;
-    participantService.getParticipants({ page: 1, size: 100 }).then((result) => (products.value = result));
+    participantService.getParticipants({ page: 1, size: defaultSize.value }).then((result) => (products.value = result));
 };
 
 const handleFilter = () => {
     const params = {
         page: 1,
-        size: 100
+        size: defaultSize.value
     };
 
     if (paramProvince.value) params.provinsi = paramProvince.value;
@@ -294,7 +296,7 @@ const generateStatus = (value) => {
 // Method
 const getDataDropdown = async () => {
     try {
-        const params = { page: 1, size: 3000 };
+        const params = { page: 1, size: defaultSize.value };
         await regionService.getProvincies({}).then((result) => (provinces.value = result));
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
