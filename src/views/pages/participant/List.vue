@@ -37,7 +37,7 @@ const paramVillage = ref(null);
 const status = ref(null);
 const paramStatus = ref(null);
 
-const defaultSize = ref(5000);
+const defaultSize = ref(50000);
 
 const villages = ref([]);
 const village = ref(null);
