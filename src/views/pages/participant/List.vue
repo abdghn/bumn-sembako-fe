@@ -17,6 +17,10 @@ const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
+const rows = ref(10);
+const totalRecords = ref(100);
+const indexPage = ref(0);
+const loadingPage = ref(false);
 
 //  <------ state dropdown ------>
 const provinces = ref([]);
@@ -36,8 +40,7 @@ const paramDistrict = ref(null);
 const paramVillage = ref(null);
 const status = ref(null);
 const paramStatus = ref(null);
-
-const defaultSize = ref(50000);
+const paramSearch = ref(null);
 
 const villages = ref([]);
 const village = ref(null);
@@ -55,7 +58,7 @@ onBeforeMount(() => {
     initFilters();
 });
 onMounted(async () => {
-    getDataDropdown();
+    await getDataDropdown();
 });
 
 const hideDialog = () => {
@@ -238,7 +241,17 @@ const handleStatus = () => {
     paramStatus.value = statuses.value[findStatusIndexById(status.value)].code;
 };
 
+const handleKeyup = () => {
+    if (paramSearch.value.length > 3 || paramSearch.value.length === 0) {
+        handleFilter();
+    }
+};
+
 const resetFilter = () => {
+    loadingPage.value = true;
+    products.value = [];
+    indexPage.value = 0;
+    rows.value = 10;
     province.value = null;
     city.value = null;
     district.value = null;
@@ -249,13 +262,24 @@ const resetFilter = () => {
     paramDistrict.value = null;
     paramVillage.value = null;
     paramStatus.value = null;
-    participantService.getParticipants({ page: 1, size: defaultSize.value }).then((result) => (products.value = result));
+    paramSearch.value = null;
+    loadingPage.value = true;
+    products.value = [];
+    participantService.getParticipants({ page: indexPage.value / rows.value + 1, size: rows.value }).then((result) => {
+        products.value = result.data;
+        totalRecords.value = result.total;
+    });
+    loadingPage.value = false;
 };
 
 const handleFilter = () => {
+    indexPage.value = 0;
+    rows.value = 10;
+    loadingPage.value = true;
+    products.value = [];
     const params = {
-        page: 1,
-        size: defaultSize.value
+        page: indexPage.value / rows.value + 1,
+        size: rows.value
     };
 
     if (paramProvince.value) params.provinsi = paramProvince.value;
@@ -263,8 +287,14 @@ const handleFilter = () => {
     if (paramDistrict.value) params.kecamatan = paramDistrict.value;
     if (paramVillage.value) params.kelurahan = paramVillage.value;
     if (paramStatus.value) params.status = paramStatus.value;
+    if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
 
-    participantService.getParticipants(params).then((result) => (products.value = result));
+    participantService.getParticipants(params).then((result) => {
+        products.value = result.data;
+        totalRecords.value = result.total;
+    });
+
+    loadingPage.value = false;
 };
 
 const initFilters = () => {
@@ -295,8 +325,10 @@ const generateStatus = (value) => {
 
 // Method
 const getDataDropdown = async () => {
+    loadingPage.value = true;
+    products.value = [];
     try {
-        const params = { page: 1, size: defaultSize.value };
+        const params = { page: indexPage.value / rows.value + 1, size: rows.value };
         await regionService.getProvincies({}).then((result) => (provinces.value = result));
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
@@ -327,7 +359,10 @@ const getDataDropdown = async () => {
             params.kelurahan = dataVillage.value;
         }
 
-        await participantService.getParticipants(params).then((result) => (products.value = result));
+        await participantService.getParticipants(params).then((result) => {
+            products.value = result.data;
+            totalRecords.value = result.total;
+        });
         window.localStorage.removeItem('provinsi');
         window.localStorage.removeItem('kota');
         window.localStorage.removeItem('kecamatan');
@@ -335,6 +370,7 @@ const getDataDropdown = async () => {
     } catch (error) {
         console.log(error);
     }
+    loadingPage.value = false;
 };
 </script>
 
@@ -361,266 +397,271 @@ const getDataDropdown = async () => {
                     </template>
                 </Toolbar>
 
-                <DataTable
-                    ref="dt"
-                    :value="products"
-                    v-model:selection="selectedProducts"
-                    dataKey="id"
-                    :paginator="true"
-                    :rows="10"
-                    :filters="filters"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                    responsiveLayout="scroll"
-                >
-                    <template #header>
-                        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">List Penerima Sembako</h5>
-                            <span class="block mt-2 md:mt-0 p-input-icon-left">
-                                <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" placeholder="Search..." />
-                            </span>
-                        </div>
-                    </template>
-                    <Column header="Action" headerStyle="min-width:6rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Action</span>
-                            <router-link :to="`participant/${slotProps.data.id}`">
-                                <Button label="Detail" class="p-button-info mr-2" />
-                            </router-link>
-                        </template>
-                    </Column>
-                    <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:4rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No</span>
-                            {{ slotProps.index + 1 }}
-                        </template>
-                    </Column>
-                    <Column field="name" header="Nama Penerima" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Nama Penerima</span>
-                            {{ slotProps.data.name }}
-                        </template>
-                    </Column>
-                    <Column field="nik" header="NIK" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">NIK</span>
-                            {{ slotProps.data.nik }}
-                        </template>
-                    </Column>
-                    <Column field="gender" header="Jenis Kelamin" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Jenis Kelamin</span>
-                            {{ slotProps.data.gender }}
-                        </template>
-                    </Column>
-                    <Column field="phone" header="No Handphone" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No Handphone</span>
-                            {{ slotProps.data.phone }}
-                        </template>
-                    </Column>
-                    <Column field="address" header="Alamat Sesuai KTP" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Alamat Sesuai KTP</span>
-                            <text-clamp :text="slotProps.data.address" :max-lines="2" />
-                        </template>
-                    </Column>
-                    <Column field="rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">RT</span>
-                            {{ slotProps.data.rt }}
-                        </template>
-                    </Column>
-                    <Column field="rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:4rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">RW</span>
-                            {{ slotProps.data.rw }}
-                        </template>
-                    </Column>
-                    <Column field="provinsi" header="Provinsi" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Provinsi</span>
-                            {{ slotProps.data.provinsi }}
-                        </template>
-                    </Column>
-                    <Column field="kota" header="Kota" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kota</span>
-                            {{ slotProps.data.kota }}
-                        </template>
-                    </Column>
-                    <Column field="kecamatan" header="Kecamatan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kecamatan</span>
-                            {{ slotProps.data.kecamatan }}
-                        </template>
-                    </Column>
-                    <Column field="kelurahan" header="Kelurahan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kelurahan</span>
-                            {{ slotProps.data.kelurahan }}
-                        </template>
-                    </Column>
-                    <Column field="kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:8rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kode POS</span>
-                            {{ slotProps.data.kode_pos }}
-                        </template>
-                    </Column>
-                    <Column field="residence_address" header="Alamat Domisili" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Alamat Domisili</span>
-                            <text-clamp :text="slotProps.data.residence_address" :max-lines="2" />
-                        </template>
-                    </Column>
-                    <Column field="residence_rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">RT</span>
-                            {{ slotProps.data.residence_rt }}
-                        </template>
-                    </Column>
-                    <Column field="residence_rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:4rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">RW</span>
-                            {{ slotProps.data.residence_rw }}
-                        </template>
-                    </Column>
-                    <Column field="residence_provinsi" header="Provinsi" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Provinsi</span>
-                            {{ slotProps.data.residence_provinsi }}
-                        </template>
-                    </Column>
-                    <Column field="residence_kota" header="Kota" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kota</span>
-                            {{ slotProps.data.residence_kota }}
-                        </template>
-                    </Column>
-                    <Column field="residence_kecamatan" header="Kecamatan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kecamatan</span>
-                            {{ slotProps.data.residence_kecamatan }}
-                        </template>
-                    </Column>
-                    <Column field="residence_kelurahan" header="Kelurahan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kelurahan</span>
-                            {{ slotProps.data.residence_kelurahan }}
-                        </template>
-                    </Column>
-                    <Column field="residence_kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:8rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Kode POS</span>
-                            {{ slotProps.data.residence_kode_pos }}
-                        </template>
-                    </Column>
-                    <Column field="residence_status" header="Status" :sortable="false" headerStyle="width:14%; min-width:8rem;">
-                        <template #body="slotProps">
-                            {{ generateStatus(slotProps.data.status) }}
-                        </template>
-                    </Column>
-                    <Column field="residence_status" header="Petugas" :sortable="false" headerStyle="width:14%; min-width:8rem;">
-                        <template #body="slotProps">
-                            {{ slotProps.data.updated_by }}
-                        </template>
-                    </Column>
-                </DataTable>
+                <div className="card flex justify-content-center" v-if="loadingPage">
+                    <ProgressSpinner />
+                </div>
 
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
-                    <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" />
-                    <div class="field">
-                        <label for="name">Name</label>
-                        <InputText id="name" v-model.trim="product.name" required="true" autofocus :class="{ 'p-invalid': submitted && !product.name }" />
-                        <small class="p-invalid" v-if="submitted && !product.name">Name is required.</small>
-                    </div>
-                    <div class="field">
-                        <label for="description">Description</label>
-                        <Textarea id="description" v-model="product.description" required="true" rows="3" cols="20" />
-                    </div>
-
-                    <div class="field">
-                        <label for="inventoryStatus" class="mb-3">Inventory Status</label>
-                        <Dropdown id="inventoryStatus" v-model="product.inventoryStatus" :options="provinces" optionLabel="label" placeholder="Select a Status">
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value && slotProps.value.value">
-                                    <span :class="'product-badge status-' + slotProps.value.value">{{ slotProps.value.label }}</span>
-                                </div>
-                                <div v-else-if="slotProps.value && !slotProps.value.value">
-                                    <span :class="'product-badge status-' + slotProps.value.toLowerCase()">{{ slotProps.value }}</span>
-                                </div>
-                                <span v-else>
-                                    {{ slotProps.placeholder }}
+                <div v-if="!loadingPage">
+                    <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :filters="filters" responsiveLayout="scroll">
+                        <template #header>
+                            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                <h5 class="m-0">List Penerima Sembako</h5>
+                                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                    <i class="pi pi-search" />
+                                    <InputText v-model="paramSearch" placeholder="Search..." @keyup="handleKeyup" />
                                 </span>
+                            </div>
+                        </template>
+                        <Column header="Action" headerStyle="min-width:6rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Action</span>
+                                <router-link :to="`participant/${slotProps.data.id}`">
+                                    <Button label="Detail" class="p-button-info mr-2" />
+                                </router-link>
                             </template>
-                        </Dropdown>
-                    </div>
+                        </Column>
+                        <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:4rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">No</span>
+                                {{ slotProps.index + 1 + indexPage }}
+                            </template>
+                        </Column>
+                        <Column field="name" header="Nama Penerima" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Nama Penerima</span>
+                                {{ slotProps.data.name }}
+                            </template>
+                        </Column>
+                        <Column field="nik" header="NIK" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">NIK</span>
+                                {{ slotProps.data.nik }}
+                            </template>
+                        </Column>
+                        <Column field="gender" header="Jenis Kelamin" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Jenis Kelamin</span>
+                                {{ slotProps.data.gender }}
+                            </template>
+                        </Column>
+                        <Column field="phone" header="No Handphone" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">No Handphone</span>
+                                {{ slotProps.data.phone }}
+                            </template>
+                        </Column>
+                        <Column field="address" header="Alamat Sesuai KTP" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Alamat Sesuai KTP</span>
+                                <text-clamp :text="slotProps.data.address" :max-lines="2" />
+                            </template>
+                        </Column>
+                        <Column field="rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">RT</span>
+                                {{ slotProps.data.rt }}
+                            </template>
+                        </Column>
+                        <Column field="rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:4rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">RW</span>
+                                {{ slotProps.data.rw }}
+                            </template>
+                        </Column>
+                        <Column field="provinsi" header="Provinsi" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Provinsi</span>
+                                {{ slotProps.data.provinsi }}
+                            </template>
+                        </Column>
+                        <Column field="kota" header="Kota" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kota</span>
+                                {{ slotProps.data.kota }}
+                            </template>
+                        </Column>
+                        <Column field="kecamatan" header="Kecamatan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kecamatan</span>
+                                {{ slotProps.data.kecamatan }}
+                            </template>
+                        </Column>
+                        <Column field="kelurahan" header="Kelurahan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kelurahan</span>
+                                {{ slotProps.data.kelurahan }}
+                            </template>
+                        </Column>
+                        <Column field="kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:8rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kode POS</span>
+                                {{ slotProps.data.kode_pos }}
+                            </template>
+                        </Column>
+                        <Column field="residence_address" header="Alamat Domisili" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Alamat Domisili</span>
+                                <text-clamp :text="slotProps.data.residence_address" :max-lines="2" />
+                            </template>
+                        </Column>
+                        <Column field="residence_rt" header="RT" :sortable="false" headerStyle="width:14%; min-width:4rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">RT</span>
+                                {{ slotProps.data.residence_rt }}
+                            </template>
+                        </Column>
+                        <Column field="residence_rw" header="RW" :sortable="false" headerStyle="width:14%; min-width:4rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">RW</span>
+                                {{ slotProps.data.residence_rw }}
+                            </template>
+                        </Column>
+                        <Column field="residence_provinsi" header="Provinsi" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Provinsi</span>
+                                {{ slotProps.data.residence_provinsi }}
+                            </template>
+                        </Column>
+                        <Column field="residence_kota" header="Kota" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kota</span>
+                                {{ slotProps.data.residence_kota }}
+                            </template>
+                        </Column>
+                        <Column field="residence_kecamatan" header="Kecamatan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kecamatan</span>
+                                {{ slotProps.data.residence_kecamatan }}
+                            </template>
+                        </Column>
+                        <Column field="residence_kelurahan" header="Kelurahan" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kelurahan</span>
+                                {{ slotProps.data.residence_kelurahan }}
+                            </template>
+                        </Column>
+                        <Column field="residence_kode_pos" header="Kode POS" :sortable="false" headerStyle="width:14%; min-width:8rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Kode POS</span>
+                                {{ slotProps.data.residence_kode_pos }}
+                            </template>
+                        </Column>
+                        <Column field="residence_status" header="Status" :sortable="false" headerStyle="width:14%; min-width:8rem;">
+                            <template #body="slotProps">
+                                {{ generateStatus(slotProps.data.status) }}
+                            </template>
+                        </Column>
+                        <Column field="residence_status" header="Petugas" :sortable="false" headerStyle="width:14%; min-width:8rem;">
+                            <template #body="slotProps">
+                                {{ slotProps.data.updated_by }}
+                            </template>
+                        </Column>
+                        <template #footer>
+                            <Paginator
+                                v-model:first="indexPage"
+                                v-model:rows="rows"
+                                :totalRecords="totalRecords"
+                                :rowsPerPageOptions="[10, 20, 30]"
+                                @page="getDataDropdown"
+                                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} penerima"
+                            />
+                        </template>
+                    </DataTable>
 
-                    <div class="field">
-                        <label class="mb-3">Category</label>
+                    <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
+                        <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" />
+                        <div class="field">
+                            <label for="name">Name</label>
+                            <InputText id="name" v-model.trim="product.name" required="true" autofocus :class="{ 'p-invalid': submitted && !product.name }" />
+                            <small class="p-invalid" v-if="submitted && !product.name">Name is required.</small>
+                        </div>
+                        <div class="field">
+                            <label for="description">Description</label>
+                            <Textarea id="description" v-model="product.description" required="true" rows="3" cols="20" />
+                        </div>
+
+                        <div class="field">
+                            <label for="inventoryStatus" class="mb-3">Inventory Status</label>
+                            <Dropdown id="inventoryStatus" v-model="product.inventoryStatus" :options="provinces" optionLabel="label" placeholder="Select a Status">
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value && slotProps.value.value">
+                                        <span :class="'product-badge status-' + slotProps.value.value">{{ slotProps.value.label }}</span>
+                                    </div>
+                                    <div v-else-if="slotProps.value && !slotProps.value.value">
+                                        <span :class="'product-badge status-' + slotProps.value.toLowerCase()">{{ slotProps.value }}</span>
+                                    </div>
+                                    <span v-else>
+                                        {{ slotProps.placeholder }}
+                                    </span>
+                                </template>
+                            </Dropdown>
+                        </div>
+
+                        <div class="field">
+                            <label class="mb-3">Category</label>
+                            <div class="formgrid grid">
+                                <div class="field-radiobutton col-6">
+                                    <RadioButton id="category1" name="category" value="Accessories" v-model="product.category" />
+                                    <label for="category1">Accessories</label>
+                                </div>
+                                <div class="field-radiobutton col-6">
+                                    <RadioButton id="category2" name="category" value="Clothing" v-model="product.category" />
+                                    <label for="category2">Clothing</label>
+                                </div>
+                                <div class="field-radiobutton col-6">
+                                    <RadioButton id="category3" name="category" value="Electronics" v-model="product.category" />
+                                    <label for="category3">Electronics</label>
+                                </div>
+                                <div class="field-radiobutton col-6">
+                                    <RadioButton id="category4" name="category" value="Fitness" v-model="product.category" />
+                                    <label for="category4">Fitness</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="formgrid grid">
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category1" name="category" value="Accessories" v-model="product.category" />
-                                <label for="category1">Accessories</label>
+                            <div class="field col">
+                                <label for="price">Price</label>
+                                <InputNumber id="price" v-model="product.price" mode="currency" currency="USD" locale="en-US" :class="{ 'p-invalid': submitted && !product.price }" :required="true" />
+                                <small class="p-invalid" v-if="submitted && !product.price">Price is required.</small>
                             </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category2" name="category" value="Clothing" v-model="product.category" />
-                                <label for="category2">Clothing</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category3" name="category" value="Electronics" v-model="product.category" />
-                                <label for="category3">Electronics</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category4" name="category" value="Fitness" v-model="product.category" />
-                                <label for="category4">Fitness</label>
+                            <div class="field col">
+                                <label for="quantity">Quantity</label>
+                                <InputNumber id="quantity" v-model="product.quantity" integeronly />
                             </div>
                         </div>
-                    </div>
+                        <template #footer>
+                            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+                            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        </template>
+                    </Dialog>
 
-                    <div class="formgrid grid">
-                        <div class="field col">
-                            <label for="price">Price</label>
-                            <InputNumber id="price" v-model="product.price" mode="currency" currency="USD" locale="en-US" :class="{ 'p-invalid': submitted && !product.price }" :required="true" />
-                            <small class="p-invalid" v-if="submitted && !product.price">Price is required.</small>
+                    <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                        <div class="flex align-items-center justify-content-center">
+                            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                            <span v-if="product"
+                                >Are you sure you want to delete <b>{{ product.name }}</b
+                                >?</span
+                            >
                         </div>
-                        <div class="field col">
-                            <label for="quantity">Quantity</label>
-                            <InputNumber id="quantity" v-model="product.quantity" integeronly />
+                        <template #footer>
+                            <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
+                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
+                        </template>
+                    </Dialog>
+
+                    <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                        <div class="flex align-items-center justify-content-center">
+                            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                            <span v-if="product">Are you sure you want to delete the selected products?</span>
                         </div>
-                    </div>
-                    <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
-                    </template>
-                </Dialog>
-
-                <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product"
-                            >Are you sure you want to delete <b>{{ product.name }}</b
-                            >?</span
-                        >
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
-                    </template>
-                </Dialog>
-
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
-                    </template>
-                </Dialog>
+                        <template #footer>
+                            <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
+                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
+                        </template>
+                    </Dialog>
+                </div>
             </div>
         </div>
     </div>
