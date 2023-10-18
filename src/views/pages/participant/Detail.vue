@@ -612,8 +612,8 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
 
             <template v-slot:end v-if="participant.status !== `DONE` && participant.status !== `REJECTED`">
                 <Button :label="gugur ? `Batal` : `Gugur`" class="p-button-danger ml-2" @click="handleGugur" :modal="true" />
-                <!-- <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" /> -->
-                <Button label="Sesuai" class="p-button-info ml-2" :disabled="gugur === true" />
+                <Button label="Sesuai" class="p-button-info ml-2" @click="openDialog" :disabled="gugur === true" />
+                <!-- <Button label="Sesuai" class="p-button-info ml-2" :disabled="gugur === true" /> -->
                 <div>
                     {{ console.log(gugur) }}
                 </div>
