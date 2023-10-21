@@ -33,7 +33,6 @@ onMounted(() => {
           label: 'Dashboard',
           items: [
             { label: 'Home', icon: 'pi pi-fw pi-home', to: '/' },
-            { label: 'Import Data', icon: 'pi pi-file-import', to: '/import' },
             { label: 'Penerima Sembako', icon: 'pi pi-fw pi-inbox', to: '/participant' },
           ]
         }
