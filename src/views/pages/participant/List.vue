@@ -562,7 +562,7 @@ const getDataDropdown = async () => {
                                 v-model:rows="rows"
                                 :totalRecords="totalRecords"
                                 :rowsPerPageOptions="[10, 20, 30]"
-                                @page="getDataDropdown"
+                                @page="handleFilter"
                                 template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} penerima"
                             />

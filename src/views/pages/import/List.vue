@@ -173,7 +173,7 @@ const saveParticipants = () => {
         }
         if (file.value.size > 4000) {
             isLoading.value = true;
-          formData.append('uploaded_by', user.value);
+            formData.append('uploaded_by', user.value);
             participantService
                 .importParticipant(formData)
                 .then((result) => {
