@@ -555,9 +555,9 @@ const { defineComponentBinds, errors, handleSubmit, defineInputBinds } = useForm
 // Define fields
 const tests = defineInputBinds('tests');
 
-const onSubmit = handleSubmit(values => {
-  // Submit to API
-  console.log(values);
+const onSubmit = handleSubmit((values) => {
+    // Submit to API
+    console.log(values);
 });
 
 const name = defineComponentBinds('name');
@@ -595,9 +595,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
 //   value: o.toLowerCase(),
 // }));
 
-
 // TODO: Rapihin Field dan Button
-
 </script>
 
 <template>
@@ -1162,8 +1160,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         </div>
                     </div>
                     <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                        <!-- <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" /> -->
-                        <button class="submit mr-4">Submit</button>
+                         <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" />
                     </div>
                 </div>
             </div>
@@ -1227,12 +1224,11 @@ input[type='number']::-webkit-outer-spin-button {
 .submit {
     padding: 1rem 1.45rem;
     color: white;
-    background-color: #3B82F6;
+    background-color: #3b82f6;
     border-radius: 6px;
     outline: none;
     border: none;
     font-weight: bold;
     cursor: pointer;
 }
-
 </style>
