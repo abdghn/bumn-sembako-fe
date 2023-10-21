@@ -276,7 +276,7 @@ const handleProvinsi = () => {
                     <Column field="username" header="Uploaded By" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Uploaded By</span>
-                            {{ slotProps.data.uploaded_by }}
+                            {{ slotProps.data.uploaded_by ? slotProps.data.uploaded_by : '-' }}
                         </template>
                     </Column>
                     <Column header="Export" headerStyle="min-width:14rem;">
