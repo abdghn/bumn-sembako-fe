@@ -14,6 +14,7 @@ const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const product = ref({});
+const user = ref(window.localStorage.getItem('name'));
 const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
@@ -106,7 +107,6 @@ const saveProduct = () => {
     }
 };
 
-
 const deleteProduct = () => {
     try {
         const id = product.value.id;
@@ -173,20 +173,21 @@ const saveParticipants = () => {
         }
         if (file.value.size > 4000) {
             isLoading.value = true;
-            participantService.importParticipant(formData)
-            .then((result) => {
-                toast.add({ severity: 'success', summary: 'Successful', detail: 'Upload Bulk Success', life: 3000 });
-                products.value.unshift(result);
-                isLoading.value = false;
-                uploadBulkDialog.value = false;
-            })
-            .catch(() => {
-                toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
-            });
+          formData.append('uploaded_by', user.value);
+            participantService
+                .importParticipant(formData)
+                .then((result) => {
+                    toast.add({ severity: 'success', summary: 'Successful', detail: 'Upload Bulk Success', life: 3000 });
+                    products.value.unshift(result);
+                    isLoading.value = false;
+                    uploadBulkDialog.value = false;
+                })
+                .catch(() => {
+                    toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
+                });
         } else {
             toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
         }
-        
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
     }
@@ -204,8 +205,7 @@ const handleProvinsi = () => {
                 <Toast />
                 <Toolbar class="mb-4">
                     <template v-slot:start>
-                        <div class="my-2">
-                        </div>
+                        <div class="my-2"></div>
                     </template>
 
                     <template v-slot:end>
@@ -271,6 +271,12 @@ const handleProvinsi = () => {
                             <div style="color: red">
                                 {{ slotProps.data.failed_rows }}
                             </div>
+                        </template>
+                    </Column>
+                    <Column field="username" header="Uploaded By" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Uploaded By</span>
+                            {{ slotProps.data.uploaded_by }}
                         </template>
                     </Column>
                     <Column header="Export" headerStyle="min-width:14rem;">
@@ -361,8 +367,8 @@ const handleProvinsi = () => {
             <FileUpload mode="basic" :multiple="false" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :maxFileSize="10000000" customUpload @select="onSelectedFiles" />
         </div>
         <template v-if="isLoading" #footer>
-            <Button label="Cancel" class="p-button-danger" @click="hideDialog" disabled/>
-            <Button label="Save" class="p-button-info" @click="saveParticipants" disabled/>
+            <Button label="Cancel" class="p-button-danger" @click="hideDialog" disabled />
+            <Button label="Save" class="p-button-info" @click="saveParticipants" disabled />
         </template>
         <template v-else #footer>
             <Button label="Cancel" class="p-button-danger" @click="hideDialog" />
