@@ -250,7 +250,6 @@ const handleKeyup = () => {
 const resetFilter = () => {
     loadingPage.value = true;
     products.value = [];
-    indexPage.value = 0;
     rows.value = 10;
     province.value = null;
     city.value = null;
@@ -273,7 +272,6 @@ const resetFilter = () => {
 };
 
 const handleFilter = () => {
-    indexPage.value = 0;
     rows.value = 10;
     loadingPage.value = true;
     products.value = [];
