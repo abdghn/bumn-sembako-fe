@@ -251,6 +251,7 @@ const resetFilter = () => {
     loadingPage.value = true;
     products.value = [];
     rows.value = 10;
+    indexPage.value = 0;
     province.value = null;
     city.value = null;
     district.value = null;
@@ -272,7 +273,8 @@ const resetFilter = () => {
 };
 
 const handleFilter = () => {
-    rows.value = 10;
+    rows.value = 10
+    indexPage.value = 0
     loadingPage.value = true;
     products.value = [];
     const params = {
@@ -293,6 +295,29 @@ const handleFilter = () => {
     });
 
     loadingPage.value = false;
+};
+
+const handlePaginate = () => {
+  loadingPage.value = true;
+  products.value = [];
+  const params = {
+    page: indexPage.value / rows.value + 1,
+    size: rows.value
+  };
+
+  if (paramProvince.value) params.provinsi = paramProvince.value;
+  if (paramCity.value) params.kota = paramCity.value;
+  if (paramDistrict.value) params.kecamatan = paramDistrict.value;
+  if (paramVillage.value) params.kelurahan = paramVillage.value;
+  if (paramStatus.value) params.status = paramStatus.value;
+  if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
+
+  participantService.getParticipants(params).then((result) => {
+    products.value = result.data;
+    totalRecords.value = result.total;
+  });
+
+  loadingPage.value = false;
 };
 
 const initFilters = () => {
@@ -560,7 +585,7 @@ const getDataDropdown = async () => {
                                 v-model:rows="rows"
                                 :totalRecords="totalRecords"
                                 :rowsPerPageOptions="[10, 20, 30]"
-                                @page="handleFilter"
+                                @page="handlePaginate"
                                 template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} penerima"
                             />
