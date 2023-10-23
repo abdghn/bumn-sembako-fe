@@ -115,18 +115,21 @@ const handleExport = () => {
             evaluasi: evaluasiValue.value,
             solusi: solusiValue.value
         };
-        toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
-        setTimeout(() => {
-            reportService.exportReport(payload).then((result) => {
-            const link = document.createElement('a');
-            link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
-            const name = result.split('/');
-            link.target = '_blank';
-            link.download = name[1];
-            link.click();
-            router.go(0);
-        });
-        }, 1000);
+        reportService
+            .exportReport(payload)
+            .then((result) => {
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
+                const link = document.createElement('a');
+                link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
+                const name = result.split('/');
+                link.target = '_blank';
+                link.download = name[1];
+                link.click();
+            })
+            .catch((e) => {
+                console.log(e);
+                toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
+            });
 
         // reportService.exportReport(payload).then((result) => {
         //     const link = document.createElement('a');
