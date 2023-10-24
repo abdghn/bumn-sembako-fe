@@ -41,6 +41,7 @@ const jenisKelamin = ref(null);
 const regionService = new RegionService();
 const user = ref(window.localStorage.getItem('name'));
 const status = ref(null);
+const loading = ref(false);
 
 onMounted(async () => {
     await participantService
@@ -84,6 +85,7 @@ const openDialogSubmit = () => {
 };
 
 const handleSesuai = () => {
+    loading.value = true;
     if (file.value === null) {
         if (gugur.value) {
             participant.value.status = 'REJECTED';
@@ -133,9 +135,13 @@ const handleSesuai = () => {
             .updateParticipant(participant.value.id, formData)
             .then((result) => {
                 toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
+                loading.value = false
+                displayConfirmationSesuai.value = false;
+                displayConfirmationSubmit.value = false;
                 participant.value = result;
             })
             .catch(() => {
+                loading.value = false
                 toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
             });
 
@@ -143,17 +149,20 @@ const handleSesuai = () => {
             router.push('/participant');
         }
     } catch (e) {
+        loading.value = false
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
+
+    loading.value = false
     displayConfirmationSesuai.value = false;
     displayConfirmationSubmit.value = false;
 };
 
 const handleSubmits = async () => {
-    const loading = ref(true);
     submitted.value = true;
 
     try {
+        loading.value = true;
         const formData = new FormData();
         if (file.value !== null) {
             formData.append('file', file.value);
@@ -188,18 +197,21 @@ const handleSubmits = async () => {
             .updateParticipant(participant.value.id, formData)
             .then(() => {
                 toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
-                loading.value = false;
+                loading.value = false
 
                 if (!loading.value) {
                     setTimeout(() => router.push('/participant'), 2000);
                 }
             })
             .catch(() => {
+                loading.value = false
                 toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
             });
     } catch (e) {
+        loading.value = false
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
+    loading.value = false
 };
 
 const handleCopy = async () => {
@@ -728,7 +740,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 :disabled="!gugur === true"
                                 placeholder="Nama Peserta"
                                 aria-describedby="name-help"
-                                :class="{ 'p-invalid': submitted && !newParticipant.name ? errors.name : !newParticipant.name ? errors.name : '' }"
+                                :class="{ 'p-invalid': newParticipant.name ? '' : errors.name }"
                                 v-model.trim="newParticipant.name"
                             />
                             <small id="name-help" class="p-error">
@@ -747,7 +759,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                                 v-model.trim="newParticipant.nik"
                                 :useGrouping="false"
                                 aria-describedby="nik-help"
-                                :class="{ 'p-invalid': submitted && !newParticipant.nik ? errors.nik : !newParticipant.nik ? errors.nik : '' }"
+                                :class="{ 'p-invalid': newParticipant.nik ? '' : errors.nik }"
                             />
                             <small id="nik-help" class="p-error">
                                 {{ errors.nik }}
@@ -755,32 +767,20 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         </div>
                         <div class="field">
                             <label for="age1">Jenis Kelamin</label>
-                            <!-- <Dropdown
+                            <Dropdown
                                 v-bind="jkel"
                                 v-model="newParticipant.gender"
                                 :options="genders"
                                 :disabled="!gugur === true"
-                                aria-describedby="jkel-help"
-                                :class="{ 'p-invalid': jkel ? '' : errors.jkel }"
                                 optionValue="code"
                                 optionLabel="name"
                                 placeholder="Jenis Kelamin"
                                 @change="handleGender"
-                            /> -->
-                            <Dropdown
-                                v-bind="jkel"
-                                v-model="newParticipant.jkel"
-                                :options="genders"
-                                :disabled="!gugur === true"
-                                optionValue="code"
-                                optionLabel="name"
-                                placeholder="Jenis Kelamin"
-                                @change="handleGender"
-                                aria-describedby="jkel-help"
-                                :class="{ 'p-invalid': newParticipant.jkel ? '' : errors.jkel }"
+                                aria-describedby="gender-help"
+                                :class="{ 'p-invalid': newParticipant.gender ? '' : errors.gender }"
                             />
-                            <small id="jkel-help" class="p-error">
-                                {{ errors.jkel }}
+                            <small id="gender-help" class="p-error">
+                                {{ errors.gender }}
                             </small>
                         </div>
                         <div class="field">
@@ -1151,7 +1151,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-                <Button label="Yes" icon="pi pi-check" @click="handleSesuai" class="p-button-success" autofocus />
+                <Button label="Yes" icon="pi pi-check" :loading="loading" @click="handleSesuai" class="p-button-success" autofocus />
             </template>
         </Dialog>
         <!-- dialog -->
@@ -1162,8 +1162,8 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                 <h5 class="text-center">Apakah anda ingin input data peserta <b>BARU</b>?</h5>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-danger" />
-                <Button label="Yes" icon="pi pi-check" @click="handleSubmits" class="p-button-success" autofocus />
+                <Button label="No" icon="pi pi-times" :loading="loading" @click="closeConfirmation" class="p-button-danger"  />
+                <Button label="Yes" icon="pi pi-check" :loading="loading" @click="handleSubmits" class="p-button-success"/>
             </template>
         </Dialog>
         <!-- dialog -->

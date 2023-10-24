@@ -183,12 +183,15 @@ const saveParticipants = () => {
                     uploadBulkDialog.value = false;
                 })
                 .catch(() => {
+                    isLoading.value = false;
                     toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
                 });
         } else {
+            isLoading.value = false;
             toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
         }
     } catch (e) {
+        isLoading.value = false;
         toast.add({ severity: 'error', summary: 'Failed update CID Site', detail: 'Error Upload Data', life: 3000 });
     }
 };

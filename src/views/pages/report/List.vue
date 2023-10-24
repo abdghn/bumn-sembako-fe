@@ -35,6 +35,7 @@ const router = useRouter();
 const regionService = new RegionService();
 const dashboardService = new DashboardService();
 const reportService = new ReportService();
+const loading = ref(false)
 
 onBeforeMount(() => {
     initFilters();
@@ -107,6 +108,7 @@ const handleSearch = async () => {
 
 const handleExport = () => {
     try {
+        loading.value = true
         const payload = {
             provinsi: provinces.value[findStatusIndexById(province.value)].name,
             kota: cities.value[findCityIndexByName(city.value)].name,
@@ -118,6 +120,7 @@ const handleExport = () => {
         reportService
             .exportReport(payload)
             .then((result) => {
+                loading.value = false
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
                 const link = document.createElement('a');
                 link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
@@ -127,6 +130,7 @@ const handleExport = () => {
                 link.click();
             })
             .catch((e) => {
+                loading.value = false
                 console.log(e);
                 toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
             });
@@ -140,6 +144,7 @@ const handleExport = () => {
         //     link.click();
         // });
     } catch (e) {
+        loading.value = fale
         console.log(e);
         toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
     }
@@ -189,7 +194,12 @@ const getDataDropdown = async () => {
             <div class="card">
                 <h5>Menampilkan Data : {{ provinsi ?? '' }}{{ ' ' }}{{ city ?? '' }}</h5>
                 <Toast />
-                <Toolbar class="mb-4">
+                <div className="card flex justify-content-center" v-if="loading">
+                    <ProgressSpinner />
+                </div>
+
+                <div v-if="!loading"> 
+                    <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <span class="mr-4"
@@ -240,6 +250,7 @@ const getDataDropdown = async () => {
                 </div>
                 <div v-if="isActive === true" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
                     <Button label="Export PDF" class="p-button-info ml-2" @click="handleExport" />
+                </div>
                 </div>
             </div>
         </div>
