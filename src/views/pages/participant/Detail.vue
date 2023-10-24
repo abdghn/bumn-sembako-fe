@@ -33,7 +33,7 @@ const villages = ref([]);
 const residence_villages = ref([]);
 const isRejected = ref(false);
 const genders = ref([
-    { name: 'Laki-Laki', code: 'Laki-Laki' },
+    { name: 'Laki-laki', code: 'Laki-laki' },
     { name: 'Perempuan', code: 'Perempuan' }
 ]);
 const gender = ref(null);
