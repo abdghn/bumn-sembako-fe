@@ -661,9 +661,6 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     <div class="mb-4">
                         <FileUpload
                             v-if="participant.status !== `DONE`"
-                            v-bind="file"
-                            name="demo[]"
-                            @uploader="onUpload"
                             accept="image/*"
                             :maxFileSize="1000000"
                             customUpload
@@ -672,7 +669,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                             aria-describedby="file-help"
                             :class="{ 'p-invalid': file ? '' : errors.file }"
                         />
-                        <small id="file_penerima-help" class="p-error">
+                        <small id="file-help" class="p-error">
                             {{ file ? '' : errors.file }}
                         </small>
                     </div>
@@ -685,9 +682,6 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     <div class="mb-4">
                         <FileUpload
                             v-if="participant.status !== `DONE`"
-                            v-bind="file_penerima"
-                            name="demo[]"
-                            @uploader="onUpload"
                             accept="image/*"
                             :maxFileSize="1000000"
                             customUpload
@@ -726,21 +720,6 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     <div class="p-fluid">
                         <div class="field">
                             <label for="name1">Nama Peserta Baru (Sesuai KTP)*</label>
-                            <!-- <InputText
-                                v-bind="name"
-                                id="name1"
-                                type="text"
-                                :required="true"
-                                :disabled="!gugur === true"
-                                placeholder="Nama Peserta"
-                                aria-describedby="name-help"
-                                :class="{ 'p-invalid': submitted && !newParticipant.name ? errors.name : !newParticipant.name ? errors.name : '' }"
-                                v-model.trim="newParticipant.name"
-                            />
-                            <small id="name-help" class="p-error">
-                                {{ errors.name }}
-                            </small> -->
-                            <!-- <input v-bind="tests" /> -->
                             <InputText
                                 v-bind="name"
                                 id="name1"
@@ -815,22 +794,13 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                 </div>
                 <div class="field col">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
-                    <!-- <div class="mb-6">
-                        <FileUpload v-bind="file" required="true" name="demo[]" @uploader="onUpload" accept="image/*" mode="basic"
-                            :maxFileSize="1000000" customUpload :disabled="!gugur === true" @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': errors.file }"/>
-                        <small id="file-help" class="p-error">
-                          {{ errors.file }}
-                        </small>
-                    </div> -->
                     <div class="mb-4">
                         <FileUpload
-                            v-bind="file"
                             required="true"
-                            name="demo[]"
-                            @uploader="onUpload"
                             accept="image/*"
                             customUpload
                             :disabled="!gugur === true"
+                            :maxFileSize="1000000"
                             @select="onSelectedFiles"
                             aria-describedby="file-help"
                             :class="{ 'p-invalid': file ? '' : errors.file }"
@@ -843,11 +813,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                     </div>
                     <h5 class="mb-2">Unggah Foto Menerima Sembako Jelas</h5>
                     <FileUpload
-                        v-bind="file_penerima"
                         required="true"
-                        name="demo[]"
-                        @uploader="onUpload"
-                        :multiple="true"
                         accept="image/*"
                         :maxFileSize="1000000"
                         customUpload
