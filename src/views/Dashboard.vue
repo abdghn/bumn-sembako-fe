@@ -5,8 +5,10 @@ import DashboardService from '@/service/DashboardService';
 import RegionService from '@/service/RegionService';
 import { useLayout } from '@/layout/composables/layout';
 import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 const { isDarkTheme } = useLayout();
+const toast = useToast();
 
 const products = ref(null);
 const lineOptions = ref(null);
@@ -26,14 +28,13 @@ const paramCity = ref(null);
 const paramDistrict = ref(null);
 const paramVillage = ref(null);
 
-const isActive = ref(false);
-
 const productService = new ProductService();
 const dashboardService = new DashboardService();
 const regionService = new RegionService();
+const loading = ref(false);
 
-const userData = ref(window.localStorage.getItem("userData"))
-const user = JSON.parse(userData.value)
+const userData = ref(window.localStorage.getItem('userData'));
+const user = JSON.parse(userData.value);
 
 // Method
 onMounted(() => {
@@ -65,7 +66,6 @@ const findCityIndexByName = (name) => {
     return index;
 };
 
-
 const findDistrictsIndexByName = (name) => {
     let index = -1;
     for (let i = 0; i < districts.value.length; i++) {
@@ -87,7 +87,6 @@ const findVillagesIndexByName = (name) => {
     }
     return index;
 };
-
 
 const findProvincesIndexById = (id) => {
     let index = -1;
@@ -132,18 +131,12 @@ const findVillagesIndexById = (id) => {
     return index;
 };
 
-const getDetail = async () => {
-  try {
-    await dashboardService.dashboard({}).then((data) => (detail.value = data));
-  } catch (e) {
-    console.log(e)
-  }
-};
-
 const resetFilter = () => {
-    provinsi.value = null;
+    province.value = null;
     city.value = null;
-    dashboardService.dashboard({}).then((result) => (products.value = result));
+    paramProvince.value = null;
+    paramCity.value = null;
+    detail.value = null;
 };
 
 const handleSearch = async () => {
@@ -159,6 +152,33 @@ const handleSearch = async () => {
         await dashboardService.dashboard(params).then((result) => (detail.value = result));
     } catch (e) {
         Toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Menampilkan Data', life: 3000 });
+    }
+};
+
+const handleExport = async () => {
+    loading.value = true;
+    try {
+        const params = {};
+        // const dates = calendarValue.value;
+
+        if (paramProvince.value) params.provinsi = paramProvince.value;
+        if (paramCity.value) params.kota = paramCity.value;
+        if (paramDistrict.value) params.kecamatan = paramDistrict.value;
+        if (paramVillage.value) params.kelurahan = paramVillage.value;
+
+        await dashboardService.export(params).then((result) => {
+            setTimeout(() => {
+                loading.value = false;
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Export Data Berhasil', life: 3000 });
+                const link = document.createElement('a');
+                link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
+                const name = result.split('/');
+                link.download = name[1];
+                link.click();
+            }, 2000);
+        });
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export Data', life: 3000 });
     }
 };
 
@@ -216,12 +236,11 @@ const getDataDropdown = async () => {
             district.value = districts.value[findDistrictsIndexByName(dataDistrict.value)].id;
             await regionService.getVillage({ district_id: district.value }).then((result) => (villages.value = result));
             params.kecamatan = dataDistrict.value;
-
         }
 
         if (dataVillage.value !== null && villages.value[findVillagesIndexByName(dataVillage.value)]) {
-                village.value = villages.value[findVillagesIndexByName(dataVillage.value)].id;
-                params.kelurahan = dataVillage.value;
+            village.value = villages.value[findVillagesIndexByName(dataVillage.value)].id;
+            params.kelurahan = dataVillage.value;
         }
 
         window.localStorage.removeItem('provinsi');
@@ -306,80 +325,92 @@ watch(
 </script>
 
 <template>
-  <div className="card">
-    <h3 class="text-center">Dashboard Bakti Sosial 2023</h3>
-  </div>
-  <div className="card">
-      <h3 class="text-left mb-0">Total Sembako di kota anda : {{ detail?.total_quota ?? '0' }}</h3>
-  </div>
-  <Toolbar v-if="user.role !== 'STAFF-LAPANGAN'" class="mb-2" style="background: transparent; border: none;">
-    <template v-slot:start>
-      <div class="my-2" tyle="display: block">
-        <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-        <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
-        <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
-        <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage"/>
-      </div>
-    </template>
+    <div class="card">
+        <h3 class="text-center">Dashboard Bakti Sosial 2023</h3>
+        <Toast />
+    </div>
+    <div class="card">
+        <h3 class="text-left mb-0">Total Sembako di kota anda : {{ detail?.total_quota ?? '0' }}</h3>
+    </div>
+    <Toolbar v-if="user.role !== 'STAFF-LAPANGAN'" class="mb-2" style="background: transparent; border: none">
+        <template v-slot:start>
+            <div class="my-2" style="display: block">
+                <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
+                <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
+                <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
+                <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage" />
 
-    <template v-slot:end>
-      <Button label="Search" class="p-button-secondary ml-2" @click="handleSearch" />
-      <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
-    </template>
-  </Toolbar>
+                <!--              TODO: remove display none when preview-->
+                <Button label="Export Data" style="display: none" class="p-button-primary mr-4 mb-2" @click="handleExport" :loading="loading" />
+            </div>
+        </template>
+
+        <template v-slot:end>
+            <Button label="Search" class="p-button-secondary ml-2" @click="handleSearch" />
+            <Button label="Reset Filter" class="p-button-info ml-2" @click="resetFilter" />
+        </template>
+    </Toolbar>
     <div class="grid">
-      <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0" :style="{ 'height': '100%'}">
-          <div class="flex justify-content-center mb-3">
-            <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Total Penerima Bantuan Kota Anda</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.tota_penerima ?? '0' }}</h3> </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0" :style="{ height: '100%' }">
+                <div class="flex justify-content-center mb-3">
+                    <div class="text-center">
+                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Total Penerima Bantuan Kota Anda</h3>
+                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">
+                            <h3>{{ detail?.total_penerima ?? '0' }}</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0" :style="{ 'height': '100%'}">
-          <div class="flex justify-content-center mb-3">
-            <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Sudah Menerima Bantuan</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.total_sudah_menerima ?? '0' }}</h3> </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0" :style="{ height: '100%' }">
+                <div class="flex justify-content-center mb-3">
+                    <div class="text-center">
+                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Sudah Menerima Bantuan</h3>
+                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">
+                            <h3>{{ detail?.total_sudah_menerima ?? '0' }}</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0" :style="{ 'height': '100%'}">
-          <div class="flex justify-content-center mb-3">
-            <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Unggah Foto Penerima Bantuan</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.total_partial_done ?? '0' }}</h3> </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0" :style="{ height: '100%' }">
+                <div class="flex justify-content-center mb-3">
+                    <div class="text-center">
+                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Unggah Foto Penerima Bantuan</h3>
+                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">
+                            <h3>{{ detail?.total_partial_done ?? '0' }}</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0" :style="{ 'height': '100%'}">
-          <div class="flex justify-content-center mb-3">
-            <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Menerima Bantuan</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.total_belum_menerima ?? '0' }}</h3> </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0" :style="{ height: '100%' }">
+                <div class="flex justify-content-center mb-3">
+                    <div class="text-center">
+                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Belum Menerima Bantuan</h3>
+                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">
+                            <h3>{{ detail?.total_belum_menerima ?? '0' }}</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="col-12 lg:col-6 xl:col-3">
-
-      </div>
-      <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0" :style="{ 'height': '100%'}">
-          <div class="flex justify-content-center mb-3">
-            <div class="text-center">
-              <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>
-              <div class="text-900 font-medium text-xl align-items-center justify-content-center"> <h3>{{ detail?.total_data_gugur ?? 0 }}</h3> </div>
+        <div class="col-12 lg:col-6 xl:col-3"></div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0" :style="{ height: '100%' }">
+                <div class="flex justify-content-center mb-3">
+                    <div class="text-center">
+                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>
+                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">
+                            <h3>{{ detail?.total_data_gugur ?? 0 }}</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
 </template>

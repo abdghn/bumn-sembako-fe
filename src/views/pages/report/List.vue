@@ -144,7 +144,7 @@ const handleExport = () => {
         //     link.click();
         // });
     } catch (e) {
-        loading.value = fale
+        loading.value = false
         console.log(e);
         toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
     }
@@ -203,7 +203,7 @@ const getDataDropdown = async () => {
                     <template v-slot:start>
                         <div class="my-2">
                             <span class="mr-4"
-                                ><b>Total: {{ detail?.tota_penerima ?? '0' }}</b></span
+                                ><b>Total: {{ detail?.total_penerima ?? '0' }}</b></span
                             >
                             <span class="mr-4"
                                 ><b>Sudah Menerima: {{ detail?.total_sudah_menerima ?? '0' }}</b></span
