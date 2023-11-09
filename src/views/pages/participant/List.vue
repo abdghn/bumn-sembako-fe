@@ -242,12 +242,12 @@ const handleStatus = () => {
 };
 
 const handleKeyup = () => {
-    if (paramSearch.value.length > 3 || paramSearch.value.length === 0) {
+    if (paramSearch.value.length >= 3 || paramSearch.value.length === 0) {
         handleFilter();
     }
 };
 
-const resetFilter = () => {
+const resetFilter = async () => {
     loadingPage.value = true;
     products.value = [];
     rows.value = 10;
@@ -265,16 +265,43 @@ const resetFilter = () => {
     paramSearch.value = null;
     loadingPage.value = true;
     products.value = [];
-    participantService.getParticipants({ page: indexPage.value / rows.value + 1, size: rows.value }).then((result) => {
+    await participantService.getParticipants({ page: indexPage.value / rows.value + 1, size: rows.value }).then((result) => {
         products.value = result.data;
         totalRecords.value = result.total;
     });
     loadingPage.value = false;
 };
 
-const handleFilter = () => {
-    rows.value = 10
-    indexPage.value = 0
+const handleFilter = async () => {
+    products.value = [];
+    rows.value = 10;
+    indexPage.value = 0;
+    loadingPage.value = true;
+    const params = {
+        page: indexPage.value / rows.value + 1,
+        size: rows.value
+    };
+
+    try {
+        if (paramProvince.value) params.provinsi = paramProvince.value;
+        if (paramCity.value) params.kota = paramCity.value;
+        if (paramDistrict.value) params.kecamatan = paramDistrict.value;
+        if (paramVillage.value) params.kelurahan = paramVillage.value;
+        if (paramStatus.value) params.status = paramStatus.value;
+        if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
+
+        await participantService.getParticipants(params).then((result) => {
+            products.value = result.data;
+            totalRecords.value = result.total;
+        });
+    } catch (e) {
+        console.log(e);
+    }
+
+    loadingPage.value = false;
+};
+
+const handlePaginate = async () => {
     loadingPage.value = true;
     products.value = [];
     const params = {
@@ -282,42 +309,23 @@ const handleFilter = () => {
         size: rows.value
     };
 
-    if (paramProvince.value) params.provinsi = paramProvince.value;
-    if (paramCity.value) params.kota = paramCity.value;
-    if (paramDistrict.value) params.kecamatan = paramDistrict.value;
-    if (paramVillage.value) params.kelurahan = paramVillage.value;
-    if (paramStatus.value) params.status = paramStatus.value;
-    if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
+    try {
+        if (paramProvince.value) params.provinsi = paramProvince.value;
+        if (paramCity.value) params.kota = paramCity.value;
+        if (paramDistrict.value) params.kecamatan = paramDistrict.value;
+        if (paramVillage.value) params.kelurahan = paramVillage.value;
+        if (paramStatus.value) params.status = paramStatus.value;
+        if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
 
-    participantService.getParticipants(params).then((result) => {
-        products.value = result.data;
-        totalRecords.value = result.total;
-    });
+        await participantService.getParticipants(params).then((result) => {
+            products.value = result.data;
+            totalRecords.value = result.total;
+        });
+    } catch (e) {
+        console.log(e);
+    }
 
     loadingPage.value = false;
-};
-
-const handlePaginate = () => {
-  loadingPage.value = true;
-  products.value = [];
-  const params = {
-    page: indexPage.value / rows.value + 1,
-    size: rows.value
-  };
-
-  if (paramProvince.value) params.provinsi = paramProvince.value;
-  if (paramCity.value) params.kota = paramCity.value;
-  if (paramDistrict.value) params.kecamatan = paramDistrict.value;
-  if (paramVillage.value) params.kelurahan = paramVillage.value;
-  if (paramStatus.value) params.status = paramStatus.value;
-  if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
-
-  participantService.getParticipants(params).then((result) => {
-    products.value = result.data;
-    totalRecords.value = result.total;
-  });
-
-  loadingPage.value = false;
 };
 
 const initFilters = () => {
@@ -420,21 +428,22 @@ const getDataDropdown = async () => {
                     </template>
                 </Toolbar>
 
-                <div className="card flex justify-content-center" v-if="loadingPage">
-                    <ProgressSpinner />
-                </div>
-
-                <div v-if="!loadingPage">
-                    <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :filters="filters" responsiveLayout="scroll">
+                <div>
+                    <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :filters="filters" responsiveLayout="scroll" :loading="loadingPage">
                         <template #header>
                             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                                 <h5 class="m-0">List Penerima Sembako</h5>
                                 <span class="block mt-2 md:mt-0 p-input-icon-left">
                                     <i class="pi pi-search" />
-                                    <InputText v-model="paramSearch" placeholder="Search..." @keyup="handleKeyup" />
+                                    <InputText v-model="paramSearch" placeholder="Search..."  v-on:keyup="handleKeyup" />
                                 </span>
                             </div>
                         </template>
+
+                        <template #loading>
+                            <ProgressSpinner />
+                        </template>
+                        <template #empty></template>
                         <Column header="Action" headerStyle="min-width:6rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Action</span>
