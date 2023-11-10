@@ -90,5 +90,8 @@ fabric.properties
 !.idea/runConfigurations
 
 node_modules/
+dist/
+npm-debug.log
+yarn-error.log
 
 # End of https://www.toptal.com/developers/gitignore/api/webstorm+all
