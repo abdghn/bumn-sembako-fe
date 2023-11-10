@@ -35,7 +35,7 @@ const router = useRouter();
 const regionService = new RegionService();
 const dashboardService = new DashboardService();
 const reportService = new ReportService();
-const loading = ref(false)
+const loading = ref(false);
 
 onBeforeMount(() => {
     initFilters();
@@ -43,6 +43,8 @@ onBeforeMount(() => {
 onMounted(async () => {
     getDataDropdown();
 });
+
+const reports = ref(null);
 
 const findStatusIndexById = (id) => {
     let index = -1;
@@ -106,31 +108,42 @@ const handleSearch = async () => {
     }
 };
 
-const handleExport = () => {
+const exportData = (path) => {
+    const link = document.createElement('a');
+    link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + path;
+    const name = path.split('/');
+    link.target = '_blank';
+    link.download = name[1];
+    link.click();
+};
+
+const handleExport = async () => {
+    loading.value = true;
     try {
-        loading.value = true
         const payload = {
             provinsi: provinces.value[findStatusIndexById(province.value)].name,
             kota: cities.value[findCityIndexByName(city.value)].name,
             date: moment(calendarValue.value).format('YYYY-MM-DD'),
             jam: jamValue.value,
             evaluasi: evaluasiValue.value,
-            solusi: solusiValue.value
+            solusi: solusiValue.value,
+            total_sudah_menerima: detail.value.total_sudah_menerima
         };
-        reportService
+        await reportService
             .exportReport(payload)
             .then((result) => {
-                loading.value = false
-                toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
-                const link = document.createElement('a');
-                link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
-                const name = result.split('/');
-                link.target = '_blank';
-                link.download = name[1];
-                link.click();
+                loading.value = false;
+                reports.value = result;
+                // toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
+                // const link = document.createElement('a');
+                // link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
+                // const name = result.split('/');
+                // link.target = '_blank';
+                // link.download = name[1];
+                // link.click();
             })
             .catch((e) => {
-                loading.value = false
+                loading.value = false;
                 console.log(e);
                 toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
             });
@@ -144,7 +157,7 @@ const handleExport = () => {
         //     link.click();
         // });
     } catch (e) {
-        loading.value = false
+        loading.value = false;
         console.log(e);
         toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export PDF', life: 3000 });
     }
@@ -198,59 +211,94 @@ const getDataDropdown = async () => {
                     <ProgressSpinner />
                 </div>
 
-                <div v-if="!loading"> 
+                <div v-if="!loading">
                     <Toolbar class="mb-4">
-                    <template v-slot:start>
-                        <div class="my-2">
-                            <span class="mr-4"
-                                ><b>Total: {{ detail?.total_penerima ?? '0' }}</b></span
-                            >
-                            <span class="mr-4"
-                                ><b>Sudah Menerima: {{ detail?.total_sudah_menerima ?? '0' }}</b></span
-                            >
-                            <span class="mr-4"
-                                ><b>Calon Penerima: {{ detail?.total_partial_done ?? '0' }}</b></span
-                            >
-                            <span class="mr-4"
-                                ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span
-                            >
-                        </div>
-                    </template>
-                </Toolbar>
-                <Toolbar class="mb-4">
-                    <template v-slot:start>
-                        <div>
-                            <Dropdown class="mr-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-                            <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
-                            <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
-                            <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
-                            <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
-                        </div>
-                    </template>
+                        <template v-slot:start>
+                            <div class="my-2">
+                                <span class="mr-4"
+                                    ><b>Total: {{ detail?.total_penerima ?? '0' }}</b></span
+                                >
+                                <span class="mr-4"
+                                    ><b>Sudah Menerima: {{ detail?.total_sudah_menerima ?? '0' }}</b></span
+                                >
+                                <span class="mr-4"
+                                    ><b>Calon Penerima: {{ detail?.total_partial_done ?? '0' }}</b></span
+                                >
+                                <span class="mr-4"
+                                    ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span
+                                >
+                            </div>
+                        </template>
+                    </Toolbar>
+                    <Toolbar class="mb-4">
+                        <template v-slot:start>
+                            <div>
+                                <Dropdown class="mr-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
+                                <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
+                                <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
+                                <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
+                                <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
+                            </div>
+                        </template>
 
-                    <template v-slot:end>
-                        <div v-if="isActive === true">
-                            <Button label="Export PDF" class="p-button-info ml-2 inline-block" @click="handleExport" />
+                        <template v-slot:end>
+                            <div v-if="isActive === true">
+                                <Button label="Generate PDF" class="p-button-info ml-2 inline-block" @click="handleExport" />
+                            </div>
+                        </template>
+                    </Toolbar>
+
+                    <div v-if="isActive === true" class="grid p-fluid">
+                        <div class="col-12 xl:col-4">
+                            <h5>Jam</h5>
+                            <Editor v-model="jamValue" editorStyle="height: 320px" />
                         </div>
-                    </template>
-                </Toolbar>
-                <div v-if="isActive === true" class="grid p-fluid">
-                    <div class="col-12 xl:col-4">
-                        <h5>Jam</h5>
-                        <Editor v-model="jamValue" editorStyle="height: 320px" />
+                        <div class="col-12 xl:col-4">
+                            <h5>Evaluasi</h5>
+                            <Editor v-model="evaluasiValue" editorStyle="height: 320px" />
+                        </div>
+                        <div class="col-12 xl:col-4">
+                            <h5>Solusi</h5>
+                            <Editor v-model="solusiValue" editorStyle="height: 320px" />
+                        </div>
                     </div>
-                    <div class="col-12 xl:col-4">
-                        <h5>Evaluasi</h5>
-                        <Editor v-model="evaluasiValue" editorStyle="height: 320px" />
+
+                    <div v-if="isActive === true">
+                        <DataTable
+                            ref="dt"
+                            :value="reports"
+                            dataKey="id"
+                            :paginator="true"
+                            :rows="10"
+                            :filters="filters"
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                            :rowsPerPageOptions="[5, 10, 25]"
+                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} reports"
+                        >
+                            <Column field="no" header="No" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                                <template #body="slotProps">
+                                    <span class="p-column-title">No</span>
+                                    {{ slotProps.index + 1 }}
+                                </template>
+                            </Column>
+                            <Column field="name" header="File Name" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                                <template #body="slotProps">
+                                    <span class="p-column-title">File Name</span>
+                                    {{ slotProps.data.name }}
+                                </template>
+                            </Column>
+                            <Column field="path" header="Path" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                                <template #body="slotProps">
+                                    <span class="p-column-title">Path</span>
+                                    <Button label="Export" class="p-button-secondary mr-2" @click="exportData(slotProps.data.path)" />
+                                </template>
+                            </Column>
+                        </DataTable>
                     </div>
-                    <div class="col-12 xl:col-4">
-                        <h5>Solusi</h5>
-                        <Editor v-model="solusiValue" editorStyle="height: 320px" />
-                    </div>
-                </div>
-                <div v-if="isActive === true" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                    <Button label="Export PDF" class="p-button-info ml-2" @click="handleExport" />
-                </div>
+
+                    <!-- <div v-if="isActive === true" class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                        <Button label="Export PDF" class="p-button-info ml-2" @click="handleExport" />
+                    </div> -->
                 </div>
             </div>
         </div>
