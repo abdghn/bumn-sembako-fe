@@ -10,8 +10,10 @@ const toast = useToast();
 
 const products = ref(null);
 const productDialog = ref(false);
-const deleteProductDialog = ref(false);
+const deleteDialog = ref(false);
 const deleteProductsDialog = ref(false);
+const resetDialog = ref(false);
+const detailPariticpantDialog = ref(null);
 const product = ref({});
 const selectedProducts = ref(null);
 const dt = ref(null);
@@ -21,6 +23,8 @@ const rows = ref(10);
 const totalRecords = ref(100);
 const indexPage = ref(0);
 const loadingPage = ref(false);
+const userData = ref(window.localStorage.getItem('userData'));
+const user = JSON.parse(userData.value);
 
 //  <------ state dropdown ------>
 const provinces = ref([]);
@@ -51,6 +55,14 @@ const statuses = ref([
     { name: 'Calon Penerima', code: 'NOT DONE' }
 ]);
 
+const printStatuses = ref([
+    { name: 'Cetak semua', code: 'ALL' },
+    { name: 'Sudah cetak', code: 'DONE' },
+    { name: 'Gugur', code: 'NOT DONE' }
+]);
+
+const printStatus = ref(null);
+
 const participantService = new ParticipantService();
 const regionService = new RegionService();
 
@@ -64,6 +76,7 @@ onMounted(async () => {
 const hideDialog = () => {
     productDialog.value = false;
     submitted.value = false;
+    resetDialog.value = false;
 };
 
 const saveProduct = () => {
@@ -86,13 +99,40 @@ const saveProduct = () => {
     }
 };
 
-const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
-    deleteProductDialog.value = false;
-    product.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+const resetParticipant = () => {
+    try {
+        participantService
+            .resetParticipant(product.value.id)
+            .then(() => {
+                product.value.status = 'NOT DONE';
+                products.value[findIndexById(product.value.id)] = product.value;
+            })
+            .finally(() => {
+                resetDialog.value = false;
+                product.value = {};
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Penerima Berhasil di Reset', life: 3000 });
+            });
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed reset penerima', detail: 'Error ketika reset Penerima ', life: 3000 });
+    }
 };
 
+const deleteParticipant = () => {
+    try {
+        participantService
+            .deleteParticipant(product.value.id)
+            .then(() => {
+                products.value = products.value.filter((val) => val.id !== product.value.id);
+            })
+            .finally(() => {
+                deleteDialog.value = false;
+                product.value = {};
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Penerima berhasil dihapus', life: 3000 });
+            });
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed delete penerima', detail: 'Error ketika hapus penerima ', life: 3000 });
+    }
+};
 const findIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < products.value.length; i++) {
@@ -403,6 +443,16 @@ const getDataDropdown = async () => {
     }
     loadingPage.value = false;
 };
+
+const confirmResetParticipant = (detailParticipant) => {
+    product.value = { ...detailParticipant };
+    resetDialog.value = true;
+};
+
+const confirmDeleteParticipant = (detailParticipant) => {
+    product.value = { ...detailParticipant };
+    deleteDialog.value = true;
+};
 </script>
 
 <template>
@@ -435,7 +485,7 @@ const getDataDropdown = async () => {
                                 <h5 class="m-0">List Penerima Sembako</h5>
                                 <span class="block mt-2 md:mt-0 p-input-icon-left">
                                     <i class="pi pi-search" />
-                                    <InputText v-model="paramSearch" placeholder="Search..."  v-on:keyup="handleKeyup" />
+                                    <InputText v-model="paramSearch" placeholder="Search..." v-on:keyup="handleKeyup" />
                                 </span>
                             </div>
                         </template>
@@ -444,7 +494,20 @@ const getDataDropdown = async () => {
                             <ProgressSpinner />
                         </template>
                         <template #empty></template>
-                        <Column header="Action" headerStyle="min-width:6rem;">
+                        <Column v-if="user.role === 'ADMIN'" header="Action" headerStyle="min-width:26rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Action</span>
+                                <router-link :to="`participant/${slotProps.data.id}`">
+                                    <Button label="Detail" class="p-button-info mr-2" />
+                                </router-link>
+
+                                <Button label="Delete" class="p-button-danger mr-2" @click="confirmDeleteParticipant(slotProps.data)" />
+                                <Button label="Reset" class="p-button-primary mr-2" @click="confirmResetParticipant(slotProps.data)" />
+                                <Button label="Edit" class="p-button-secondary mt-2" />
+                            </template>
+                        </Column>
+
+                        <Column header="Action" headerStyle="min-width:6rem;" v-else>
                             <template #body="slotProps">
                                 <span class="p-column-title">Action</span>
                                 <router-link :to="`participant/${slotProps.data.id}`">
@@ -601,96 +664,31 @@ const getDataDropdown = async () => {
                         </template>
                     </DataTable>
 
-                    <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
-                        <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" />
-                        <div class="field">
-                            <label for="name">Name</label>
-                            <InputText id="name" v-model.trim="product.name" required="true" autofocus :class="{ 'p-invalid': submitted && !product.name }" />
-                            <small class="p-invalid" v-if="submitted && !product.name">Name is required.</small>
-                        </div>
-                        <div class="field">
-                            <label for="description">Description</label>
-                            <Textarea id="description" v-model="product.description" required="true" rows="3" cols="20" />
-                        </div>
-
-                        <div class="field">
-                            <label for="inventoryStatus" class="mb-3">Inventory Status</label>
-                            <Dropdown id="inventoryStatus" v-model="product.inventoryStatus" :options="provinces" optionLabel="label" placeholder="Select a Status">
-                                <template #value="slotProps">
-                                    <div v-if="slotProps.value && slotProps.value.value">
-                                        <span :class="'product-badge status-' + slotProps.value.value">{{ slotProps.value.label }}</span>
-                                    </div>
-                                    <div v-else-if="slotProps.value && !slotProps.value.value">
-                                        <span :class="'product-badge status-' + slotProps.value.toLowerCase()">{{ slotProps.value }}</span>
-                                    </div>
-                                    <span v-else>
-                                        {{ slotProps.placeholder }}
-                                    </span>
-                                </template>
-                            </Dropdown>
-                        </div>
-
-                        <div class="field">
-                            <label class="mb-3">Category</label>
-                            <div class="formgrid grid">
-                                <div class="field-radiobutton col-6">
-                                    <RadioButton id="category1" name="category" value="Accessories" v-model="product.category" />
-                                    <label for="category1">Accessories</label>
-                                </div>
-                                <div class="field-radiobutton col-6">
-                                    <RadioButton id="category2" name="category" value="Clothing" v-model="product.category" />
-                                    <label for="category2">Clothing</label>
-                                </div>
-                                <div class="field-radiobutton col-6">
-                                    <RadioButton id="category3" name="category" value="Electronics" v-model="product.category" />
-                                    <label for="category3">Electronics</label>
-                                </div>
-                                <div class="field-radiobutton col-6">
-                                    <RadioButton id="category4" name="category" value="Fitness" v-model="product.category" />
-                                    <label for="category4">Fitness</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="formgrid grid">
-                            <div class="field col">
-                                <label for="price">Price</label>
-                                <InputNumber id="price" v-model="product.price" mode="currency" currency="USD" locale="en-US" :class="{ 'p-invalid': submitted && !product.price }" :required="true" />
-                                <small class="p-invalid" v-if="submitted && !product.price">Price is required.</small>
-                            </div>
-                            <div class="field col">
-                                <label for="quantity">Quantity</label>
-                                <InputNumber id="quantity" v-model="product.quantity" integeronly />
-                            </div>
-                        </div>
-                        <template #footer>
-                            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
-                        </template>
-                    </Dialog>
-
-                    <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                         <div class="flex align-items-center justify-content-center">
                             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                             <span v-if="product"
-                                >Are you sure you want to delete <b>{{ product.name }}</b
+                                >Are you sure you want to delete <b>{{ product.name }} {{ product.nik }}</b
                                 >?</span
                             >
                         </div>
                         <template #footer>
-                            <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
+                            <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
+                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteParticipant" />
                         </template>
                     </Dialog>
 
-                    <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <Dialog v-model:visible="resetDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                         <div class="flex align-items-center justify-content-center">
                             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="product">Are you sure you want to delete the selected products?</span>
+                            <span v-if="product"
+                                >Are you sure you want to reset <b>{{ product.name }} {{ product.nik }}</b
+                                >?</span
+                            >
                         </div>
                         <template #footer>
-                            <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
+                            <Button label="No" icon="pi pi-times" class="p-button-text" @click="resetDialog = false" />
+                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="resetParticipant" />
                         </template>
                     </Dialog>
                 </div>
