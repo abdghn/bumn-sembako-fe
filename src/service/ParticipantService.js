@@ -29,4 +29,12 @@ export default class ParticipantService {
     getLogs(params) {
         return axiosApp.get('/v1/participant/import', { params }).then((d) => d.data.data);
     }
+
+    deleteParticipant(id) {
+        return axiosApp.delete('/v1/participant/' + id).then((d) => d.data.data);
+    }
+
+    resetParticipant(id) {
+        return axiosApp.put('/v1/participant/reset/' + id).then((d) => d.data.data);
+    }
 }

@@ -11,6 +11,7 @@ const { isDarkTheme } = useLayout();
 const toast = useToast();
 
 const products = ref(null);
+const participant = ref({});
 const lineOptions = ref(null);
 const detail = ref(null);
 const provinces = ref(null);
@@ -340,8 +341,7 @@ watch(
                 <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
                 <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage" />
 
-                <!--              TODO: remove display none when preview-->
-                <Button label="Export Data" style="display: none" class="p-button-primary mr-4 mb-2" @click="handleExport" :loading="loading" />
+                <Button label="Export Data" class="p-button-primary mr-4 mb-2" @click="handleExport" :loading="loading" />
             </div>
         </template>
 
