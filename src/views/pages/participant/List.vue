@@ -503,7 +503,9 @@ const confirmDeleteParticipant = (detailParticipant) => {
 
                                 <Button label="Delete" class="p-button-danger mr-2" @click="confirmDeleteParticipant(slotProps.data)" />
                                 <Button label="Reset" class="p-button-primary mr-2" @click="confirmResetParticipant(slotProps.data)" />
-                                <Button label="Edit" class="p-button-secondary mt-2" />
+                                <router-link :to="`participant/edit/${slotProps.data.id}`">
+                                    <Button label="Edit" class="p-button-secondary mt-2" />
+                                </router-link>
                             </template>
                         </Column>
 
