@@ -45,6 +45,15 @@ const router = createRouter({
                     }
                 },
                 {
+                    path: '/participant/edit/:id',
+                    name: 'participantedit',
+                    component: () => import('@/views/pages/participant/Edit.vue'),
+                    meta: {
+                        requiredAuthorization: true,
+                        apps: 'all'
+                    }
+                },
+                {
                     path: '/user',
                     name: 'user',
                     component: () => import('@/views/pages/user/List.vue'),
