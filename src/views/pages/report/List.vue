@@ -7,7 +7,6 @@ import RegionService from '@/service/RegionService';
 import DashboardService from '@/service/DashboardService';
 import ReportService from '@/service/ReportService';
 import moment from 'moment';
-import { useRouter } from 'vue-router';
 
 const toast = useToast();
 
@@ -30,8 +29,6 @@ const provinsi = ref(null);
 
 const detail = ref(null);
 
-const router = useRouter();
-
 const regionService = new RegionService();
 const dashboardService = new DashboardService();
 const reportService = new ReportService();
@@ -48,7 +45,7 @@ const reports = ref(null);
 const printStatuses = ref([
     { name: 'Cetak Semua', code: 'ALL' },
     { name: 'Sudah cetak', code: 'PRINTED' },
-    { name: 'Belum cetak', code: 'NOT PRINTED' },
+    { name: 'Belum cetak', code: 'NOT PRINTED' }
 ]);
 
 const printStatus = ref(null);
@@ -135,14 +132,16 @@ const handleExport = async () => {
             evaluasi: evaluasiValue.value,
             solusi: solusiValue.value,
             total_sudah_menerima: detail.value.total_sudah_menerima,
-            print_status: printStatus.value
+            has_printed: printStatus.value
         };
+
         await reportService
             .exportReport(payload)
             .then((result) => {
                 loading.value = false;
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
                 reports.value = result;
-                // toast.add({ severity: 'success', summary: 'Successful', detail: 'Export PDF Berhasil', life: 3000 });
+
                 // const link = document.createElement('a');
                 // link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
                 // const name = result.split('/');
@@ -221,34 +220,34 @@ const getDataDropdown = async () => {
 
                 <div v-if="!loading">
                     <Toolbar class="mb-4">
-                    <template v-slot:start>
-                        <div class="my-2">
-                            <span class="mr-4"
-                                ><b>Total: {{ detail?.total_penerima ?? '0' }}</b></span
-                            >
-                            <span class="mr-4"
-                                ><b>Sudah Menerima: {{ detail?.total_sudah_menerima ?? '0' }}</b></span
-                            >
-                            <span class="mr-4"
-                                ><b>Calon Penerima: {{ detail?.total_partial_done ?? '0' }}</b></span
-                            >
-                            <span class="mr-4"
-                                ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span
-                            >
-                        </div>
-                    </template>
-                </Toolbar>
-                <Toolbar class="mb-4">
-                    <template v-slot:start>
-                        <div>
-                            <Dropdown class="mr-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
-                            <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
-                            <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
-                            <Dropdown class="mr-3" v-model="printStatus" :options="printStatuses" optionValue="code" optionLabel="name" placeholder="Status" />
-                            <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
-                            <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
-                        </div>
-                    </template>
+                        <template v-slot:start>
+                            <div class="my-2">
+                                <span class="mr-4"
+                                    ><b>Total: {{ detail?.total_penerima ?? '0' }}</b></span
+                                >
+                                <span class="mr-4"
+                                    ><b>Sudah Menerima: {{ detail?.total_sudah_menerima ?? '0' }}</b></span
+                                >
+                                <span class="mr-4"
+                                    ><b>Calon Penerima: {{ detail?.total_partial_done ?? '0' }}</b></span
+                                >
+                                <span class="mr-4"
+                                    ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span
+                                >
+                            </div>
+                        </template>
+                    </Toolbar>
+                    <Toolbar class="mb-4">
+                        <template v-slot:start>
+                            <div>
+                                <Dropdown class="mr-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
+                                <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
+                                <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
+                                <Dropdown class="mr-3" v-model="printStatus" :options="printStatuses" optionValue="code" optionLabel="name" placeholder="Status" />
+                                <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
+                                <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
+                            </div>
+                        </template>
 
                         <template v-slot:end>
                             <div v-if="isActive === true">
