@@ -27,7 +27,7 @@ onMounted(() => {
         }
       ]
 
-    } else if(user.role === "STAFF-LAPANGAN") {
+    } else if(user.role === "STAFF-LAPANGAN" || user.role === "STAFF-YAYASAN") {
       model.value = [
         {
           label: 'Dashboard',
@@ -37,7 +37,7 @@ onMounted(() => {
           ]
         }
       ]
-    } else if(user.role === 'ADMIN-EO') {
+    } else if(user.role === 'ADMIN-EO' || user.role === 'ADMIN-YAYASAN') {
       model.value = [
         {
           label: 'Dashboard',

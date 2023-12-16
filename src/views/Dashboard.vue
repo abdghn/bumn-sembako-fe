@@ -37,6 +37,13 @@ const loading = ref(false);
 const userData = ref(window.localStorage.getItem('userData'));
 const user = JSON.parse(userData.value);
 
+const types = ref([
+    { name: 'EO', code: 'EO' },
+    { name: 'Yayasan', code: 'Yayasan' }
+]);
+
+const type = ref(null);
+
 // Method
 onMounted(() => {
     productService.getProductsSmall().then((data) => (products.value = data));
@@ -150,6 +157,14 @@ const handleSearch = async () => {
         if (paramDistrict.value) params.kecamatan = paramDistrict.value;
         if (paramVillage.value) params.kelurahan = paramVillage.value;
 
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            params.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            params.type = 'Yayasan';
+        } else if (type.value) {
+            params.type = type.value;
+        }
+
         await dashboardService.dashboard(params).then((result) => (detail.value = result));
     } catch (e) {
         Toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Menampilkan Data', life: 3000 });
@@ -166,6 +181,14 @@ const handleExport = async () => {
         if (paramCity.value) params.kota = paramCity.value;
         if (paramDistrict.value) params.kecamatan = paramDistrict.value;
         if (paramVillage.value) params.kelurahan = paramVillage.value;
+
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            params.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            params.type = 'Yayasan';
+        } else if (type.value) {
+            params.type = type.value;
+        }
 
         await dashboardService.export(params).then((result) => {
             setTimeout(() => {
@@ -244,8 +267,13 @@ const getDataDropdown = async () => {
             params.kelurahan = dataVillage.value;
         }
 
-        window.localStorage.removeItem('provinsi');
-        window.localStorage.removeItem('kota');
+        if (user?.role === 'ADMIN-EO' || user?.role === 'ADMIN-YAYASAN' || user?.role === 'ADMIN') {
+            window.localStorage.removeItem('provinsi');
+            window.localStorage.removeItem('kota');
+        } else {
+            await handleSearch();
+        }
+
         // state.detail = data
     } catch (error) {
         console.log(error);
@@ -333,13 +361,14 @@ watch(
     <div class="card">
         <h3 class="text-left mb-0">Total Sembako di kota anda : {{ detail?.total_quota ?? '0' }}</h3>
     </div>
-    <Toolbar v-if="user.role !== 'STAFF-LAPANGAN'" class="mb-2" style="background: transparent; border: none">
+    <Toolbar v-if="user.role === 'ADMIN-EO' || user.role === 'ADMIN-YAYASAN' || user.role === 'ADMIN'" class="mb-2" style="background: transparent; border: none">
         <template v-slot:start>
             <div class="my-2" style="display: block">
                 <Dropdown class="mr-4 mb-2" v-model="province" :options="provinces" optionValue="id" optionLabel="name" placeholder="Provinsi" @change="handleProvinsi" />
                 <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
                 <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
                 <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage" />
+                <Dropdown v-if="user.role === 'ADMIN'" class="mr-3" v-model="type" :options="types" optionValue="code" optionLabel="name" placeholder="Type" />
 
                 <Button label="Export Data" class="p-button-primary mr-4 mb-2" @click="handleExport" :loading="loading" />
             </div>
@@ -399,18 +428,18 @@ watch(
                 </div>
             </div>
         </div>
-        <div class="col-12 lg:col-6 xl:col-3"></div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0" :style="{ height: '100%' }">
-                <div class="flex justify-content-center mb-3">
-                    <div class="text-center">
-                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>
-                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">
-                            <h3>{{ detail?.total_data_gugur ?? 0 }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--        <div class="col-12 lg:col-6 xl:col-3"></div>-->
+        <!--        <div class="col-12 lg:col-6 xl:col-3">-->
+        <!--            <div class="card mb-0" :style="{ height: '100%' }">-->
+        <!--                <div class="flex justify-content-center mb-3">-->
+        <!--                    <div class="text-center">-->
+        <!--                        <h3 class="block text-500 font-medium mb-3" :style="{ 'font-size': '20px' }">Data Tidak Sesuai</h3>-->
+        <!--                        <div class="text-900 font-medium text-xl align-items-center justify-content-center">-->
+        <!--                            <h3>{{ detail?.total_data_gugur ?? 0 }}</h3>-->
+        <!--                        </div>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
     </div>
 </template>

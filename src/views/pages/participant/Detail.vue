@@ -51,9 +51,9 @@ onMounted(async () => {
     await regionService.getProvincies({}).then((result) => (provinces.value = result));
 });
 
-const onUpload = () => {
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
-};
+// const onUpload = () => {
+//     toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+// };
 
 const handleGugur = () => {
     if (!gugur.value) {
@@ -130,18 +130,19 @@ const handleSesuai = () => {
         formData.append('residence_kode_pos', participant.value.residence_kode_pos);
         formData.append('status', participant.value.status);
         formData.append('updated_by', user.value);
+        formData.append('type', participant.value.type);
 
         participantService
             .updateParticipant(participant.value.id, formData)
             .then((result) => {
                 toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
-                loading.value = false
+                loading.value = false;
                 displayConfirmationSesuai.value = false;
                 displayConfirmationSubmit.value = false;
                 participant.value = result;
             })
             .catch(() => {
-                loading.value = false
+                loading.value = false;
                 toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
             });
 
@@ -149,11 +150,11 @@ const handleSesuai = () => {
             router.push('/participant');
         }
     } catch (e) {
-        loading.value = false
+        loading.value = false;
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
 
-    loading.value = false
+    loading.value = false;
     displayConfirmationSesuai.value = false;
     displayConfirmationSubmit.value = false;
 };
@@ -192,26 +193,27 @@ const handleSubmits = async () => {
         formData.append('residence_kode_pos', newParticipant.value.residence_kode_pos);
         formData.append('status', 'REJECTED');
         formData.append('updated_by', user.value);
+        formData.append('type', newParticipant.value.type);
 
         participantService
             .updateParticipant(participant.value.id, formData)
             .then(() => {
                 toast.add({ severity: 'success', summary: 'Successful Update Penerima', detail: 'Penerima Updated', life: 3000 });
-                loading.value = false
+                loading.value = false;
 
                 if (!loading.value) {
                     setTimeout(() => router.push('/participant'), 2000);
                 }
             })
             .catch(() => {
-                loading.value = false
+                loading.value = false;
                 toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
             });
     } catch (e) {
-        loading.value = false
+        loading.value = false;
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
     }
-    loading.value = false
+    loading.value = false;
 };
 
 const handleCopy = async () => {
@@ -565,7 +567,7 @@ const { defineComponentBinds, errors, handleSubmit, defineInputBinds } = useForm
 // });
 
 // Define fields
-const tests = defineInputBinds('tests');
+// const tests = defineInputBinds('tests');
 
 const onSubmit = handleSubmit((values) => {
     // Submit to API
@@ -795,16 +797,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                 <div class="field col">
                     <h5 class="mb-2">Unggah foto dengan KTP Jelas</h5>
                     <div class="mb-4">
-                        <FileUpload
-                            required="true"
-                            accept="image/*"
-                            customUpload
-                            :disabled="!gugur === true"
-                            :maxFileSize="1000000"
-                            @select="onSelectedFiles"
-                            aria-describedby="file-help"
-                            :class="{ 'p-invalid': file ? '' : errors.file }"
-                        />
+                        <FileUpload required="true" accept="image/*" customUpload :disabled="!gugur === true" :maxFileSize="1000000" @select="onSelectedFiles" aria-describedby="file-help" :class="{ 'p-invalid': file ? '' : errors.file }" />
                         <div v-if="gugur === true">
                             <small id="file-help" class="p-error">
                                 {{ errors.file }}
@@ -1126,7 +1119,7 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                         </div>
                     </div>
                     <div class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
-                         <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" />
+                        <Button label="Submit" @click="openDialogSubmit" class="p-button-info mr-4" :modal="true" :disabled="!gugur === true" />
                     </div>
                 </div>
             </div>
@@ -1162,8 +1155,8 @@ const residence_kelurahan = defineComponentBinds('residence_kelurahan');
                 <h5 class="text-center">Apakah anda ingin input data peserta <b>BARU</b>?</h5>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" :loading="loading" @click="closeConfirmation" class="p-button-danger"  />
-                <Button label="Yes" icon="pi pi-check" :loading="loading" @click="handleSubmits" class="p-button-success"/>
+                <Button label="No" icon="pi pi-times" :loading="loading" @click="closeConfirmation" class="p-button-danger" />
+                <Button label="Yes" icon="pi pi-check" :loading="loading" @click="handleSubmits" class="p-button-success" />
             </template>
         </Dialog>
         <!-- dialog -->

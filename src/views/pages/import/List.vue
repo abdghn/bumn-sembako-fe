@@ -30,6 +30,13 @@ const cities = ref(null);
 
 const organizations = ref(null);
 
+const types = ref([
+    { name: 'EO', code: 'EO' },
+    { name: 'Yayasan', code: 'Yayasan' }
+]);
+
+const type = ref('EO');
+
 const regionService = new RegionService();
 const participantService = new ParticipantService();
 
@@ -174,6 +181,7 @@ const saveParticipants = () => {
         if (file.value.size > 4000) {
             isLoading.value = true;
             formData.append('uploaded_by', user.value);
+            formData.append('type', type.value);
             participantService
                 .importParticipant(formData)
                 .then((result) => {
@@ -282,6 +290,12 @@ const handleProvinsi = () => {
                             {{ slotProps.data.uploaded_by ? slotProps.data.uploaded_by : '-' }}
                         </template>
                     </Column>
+                  <Column field="type" header="Type" :sortable="false" headerStyle="width:14%; min-width:10rem;">
+                    <template #body="slotProps">
+                      <span class="p-column-title">Type</span>
+                      {{ slotProps.data.type ? slotProps.data.type : '-' }}
+                    </template>
+                  </Column>
                     <Column header="Export" headerStyle="min-width:14rem;">
                         <template #body="slotProps">
                             <div v-if="slotProps.data.status !== 'Success All'">
@@ -365,9 +379,16 @@ const handleProvinsi = () => {
         <div v-if="isLoading" style="display: flex">
             <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s" aria-label="Custom ProgressSpinner" />
         </div>
-        <div v-else class="field">
-            <label for="file">File</label>
-            <FileUpload mode="basic" :multiple="false" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :maxFileSize="10000000" customUpload @select="onSelectedFiles" />
+        <div v-else>
+            <div class="field">
+                <label for="type">Type</label>
+                <Dropdown v-model="type" :options="types" optionValue="code" optionLabel="name" placeholder="Type" />
+            </div>
+
+            <div class="field">
+                <label for="file">File</label>
+                <FileUpload mode="basic" :multiple="false" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" :maxFileSize="10000000" customUpload @select="onSelectedFiles" />
+            </div>
         </div>
         <template v-if="isLoading" #footer>
             <Button label="Cancel" class="p-button-danger" @click="hideDialog" disabled />

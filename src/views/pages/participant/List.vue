@@ -51,17 +51,16 @@ const village = ref(null);
 const statuses = ref([
     { name: 'Selesai', code: 'DONE' },
     { name: 'Belum unggah foto', code: 'PARTIAL_DONE' },
-    { name: 'Gugur', code: 'REJECTED' },
+    // { name: 'Gugur', code: 'REJECTED' },
     { name: 'Calon Penerima', code: 'NOT DONE' }
 ]);
 
-const printStatuses = ref([
-    { name: 'Cetak semua', code: 'ALL' },
-    { name: 'Sudah cetak', code: 'DONE' },
-    { name: 'Gugur', code: 'NOT DONE' }
+const types = ref([
+    { name: 'EO', code: 'EO' },
+    { name: 'Yayasan', code: 'Yayasan' }
 ]);
 
-const printStatus = ref(null);
+const type = ref(null);
 
 const participantService = new ParticipantService();
 const regionService = new RegionService();
@@ -305,7 +304,16 @@ const resetFilter = async () => {
     paramSearch.value = null;
     loadingPage.value = true;
     products.value = [];
-    await participantService.getParticipants({ page: indexPage.value / rows.value + 1, size: rows.value }).then((result) => {
+    const filter = { page: indexPage.value / rows.value + 1, size: rows.value };
+    if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+        filter.type = 'EO';
+    } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+        filter.type = 'Yayasan';
+    } else if (type.value) {
+        filter.type = type.value;
+    }
+
+    await participantService.getParticipants(filter).then((result) => {
         products.value = result.data;
         totalRecords.value = result.total;
     });
@@ -329,6 +337,13 @@ const handleFilter = async () => {
         if (paramVillage.value) params.kelurahan = paramVillage.value;
         if (paramStatus.value) params.status = paramStatus.value;
         if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            params.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            params.type = 'Yayasan';
+        } else if (type.value) {
+            params.type = type.value;
+        }
 
         await participantService.getParticipants(params).then((result) => {
             products.value = result.data;
@@ -356,6 +371,13 @@ const handlePaginate = async () => {
         if (paramVillage.value) params.kelurahan = paramVillage.value;
         if (paramStatus.value) params.status = paramStatus.value;
         if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            params.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            params.type = 'Yayasan';
+        } else if (type.value) {
+            params.type = type.value;
+        }
 
         await participantService.getParticipants(params).then((result) => {
             products.value = result.data;
@@ -430,6 +452,14 @@ const getDataDropdown = async () => {
             params.kelurahan = dataVillage.value;
         }
 
+      if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+        params.type = 'EO';
+      } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+        params.type = 'Yayasan';
+      } else if (type.value) {
+        params.type = type.value;
+      }
+
         await participantService.getParticipants(params).then((result) => {
             products.value = result.data;
             totalRecords.value = result.total;
@@ -468,6 +498,7 @@ const confirmDeleteParticipant = (detailParticipant) => {
                             <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
                             <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage" />
                             <Dropdown class="mr-4 mb-2" v-model="status" :options="statuses" optionValue="code" optionLabel="name" placeholder="Status" @change="handleStatus" />
+                            <Dropdown v-if="user.role === 'ADMIN'" class="mr-3" v-model="type" :options="types" optionValue="code" optionLabel="name" placeholder="Type" />
                         </div>
                     </template>
 

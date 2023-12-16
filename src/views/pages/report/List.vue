@@ -48,7 +48,17 @@ const printStatuses = ref([
     { name: 'Belum cetak', code: 'NOT PRINTED' }
 ]);
 
+const types = ref([
+    { name: 'EO', code: 'EO' },
+    { name: 'Yayasan', code: 'Yayasan' }
+]);
+
+const type = ref(null);
+
 const printStatus = ref(null);
+
+const userData = ref(window.localStorage.getItem('userData'));
+const user = JSON.parse(userData.value);
 
 const findStatusIndexById = (id) => {
     let index = -1;
@@ -103,6 +113,12 @@ const handleSearch = async () => {
         if (city.value) params.kota = city.value;
         if (calendarValue.value) params.date = moment(dates).format('YYYY-MM-DD');
 
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            params.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            params.type = 'Yayasan';
+        }
+
         await dashboardService.dashboard(params).then((result) => (detail.value = result));
         if (detail.value !== null) {
             isActive.value = true;
@@ -134,6 +150,14 @@ const handleExport = async () => {
             total_sudah_menerima: detail.value.total_sudah_menerima,
             has_printed: printStatus.value
         };
+
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            payload.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            payload.type = 'Yayasan';
+        } else if (type.value) {
+            payload.type = type.value;
+        }
 
         await reportService
             .exportReport(payload)
@@ -231,9 +255,9 @@ const getDataDropdown = async () => {
                                 <span class="mr-4"
                                     ><b>Calon Penerima: {{ detail?.total_partial_done ?? '0' }}</b></span
                                 >
-                                <span class="mr-4"
-                                    ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span
-                                >
+                                <!--                                <span class="mr-4"-->
+                                <!--                                    ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span-->
+                                <!--                                >-->
                             </div>
                         </template>
                     </Toolbar>
@@ -244,6 +268,8 @@ const getDataDropdown = async () => {
                                 <Dropdown class="mr-2" v-model="city" :options="cities" optionValue="name" optionLabel="name" placeholder="Kota" />
                                 <Calendar placeholder="Pilih Tanggal" :showIcon="false" :showButtonBar="true" class="my-2 mr-4" v-model="calendarValue"></Calendar>
                                 <Dropdown class="mr-3" v-model="printStatus" :options="printStatuses" optionValue="code" optionLabel="name" placeholder="Status" />
+                                <Dropdown v-if="user.role === 'ADMIN'" class="mr-3" v-model="type" :options="types" optionValue="code" optionLabel="name" placeholder="Type" />
+
                                 <Button label="Search" class="p-button-secondary mb-2" @click="handleSearch" />
                                 <Button label="Clear Filter" class="p-button-info ml-2 mb-2" @click="resetFilter" />
                             </div>

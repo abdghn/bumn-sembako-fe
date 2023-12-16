@@ -320,9 +320,14 @@ const handleSubmits = async () => {
                 newParticipant.value.residence_kecamatan = residence_districts.value[findResidenceDistrictsIndexByName(newParticipant.value.residence_kecamatan)].id;
                 newParticipant.value.residence_kelurahan = residence_villages.value[findResidenceVillagesIndexByName(newParticipant.value.residence_kelurahan)].id;
             })
-            .catch(() => {
+            .catch((e) => {
+              console.log(e)
                 loading.value = false;
-                toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
+                if (e?.response?.data?.message === 'NIK already exists') {
+                    toast.add({ severity: 'error', summary: 'Failed update penerima', detail: e?.response?.data?.message, life: 3000 });
+                } else {
+                    toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
+                }
             });
     } catch (e) {
         loading.value = false;

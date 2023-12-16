@@ -36,7 +36,6 @@ onMounted(async () => {
     getDataDropdown();
 });
 
-
 const findProvinceIndexByName = (name) => {
     let index = -1;
     for (let i = 0; i < provinces.value.length; i++) {
@@ -75,7 +74,7 @@ const getDataDropdown = async () => {
         const params = { page: 1, size: 100 };
         // productService.getProducts().then((data) => (products.value = data));
         await regionService.getProvincies({}).then((result) => (provinces.value = result));
-        await organizationService.getOrganizationEO({}).then((result) => (organizations.value = result));
+        await organizationService.getOrganizationYayasan({}).then((result) => (organizations.value = result));
 
         const dataProvince = ref(window.localStorage.getItem('provinsi'));
         const dataCity = ref(window.localStorage.getItem('kota'));
@@ -110,7 +109,7 @@ const handleProvinsi = () => {
 const handleRegister = () => {
     if (username.value && password.value) {
         authService
-            .register({ username: username.value, password: password.value, name: name.value, provinsi: provinsi.value, kota: city.value, organization_id: organization.value })
+            .registerYayasan({ username: username.value, password: password.value, name: name.value, provinsi: provinsi.value, kota: city.value, organization_id: organization.value })
             .then(() => {
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Register Success', life: 3000 });
                 setTimeout(() => {
@@ -140,7 +139,7 @@ const handleRegister = () => {
                         <InputText id="name1" type="text" placeholder="Nama Lengkap" class="w-full md:w-30rem mb-3" style="padding: 1rem" v-model="name" />
 
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Mitra/Organisasi</label>
-                        <Dropdown v-model="organization" class="w-full md:w-30rem mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization"/>
+                        <Dropdown v-model="organization" class="w-full md:w-30rem mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
 
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
                         <Dropdown v-model="province" class="w-full md:w-30rem mb-3" :options="provinces" optionValue="id" optionLabel="name" placeholder="Select Provinsi" @change="handleProvinsi" />

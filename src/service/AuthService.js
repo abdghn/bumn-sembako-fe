@@ -8,4 +8,8 @@ export default class AuthService {
     register(body) {
         return axiosApp.post('/v1/register', body).then((d) => d.data.data);
     }
+
+    registerYayasan(body) {
+        return axiosApp.post('/v1/register-yayasan', body).then((d) => d.data.data);
+    }
 }

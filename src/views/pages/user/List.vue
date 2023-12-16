@@ -26,6 +26,25 @@ const provinsi = ref(null);
 const cities = ref(null);
 const city = ref({});
 
+const roles = ref([
+    {
+        name: 'ADMIN-EO',
+        code: 'ADMIN-EO'
+    },
+    {
+        name: 'STAFF-LAPANGAN',
+        code: 'STAFF-LAPANGAN'
+    },
+    {
+        name: 'ADMIN-YAYASAN',
+        code: 'ADMIN-YAYASAN'
+    },
+    {
+        name: 'STAFF-YAYASAN',
+        code: 'STAFF-YAYASAN'
+    }
+]);
+
 const organizations = ref(null);
 const organization = ref({});
 
@@ -68,7 +87,7 @@ const saveProduct = () => {
                         products.value[findIndexById(id)] = result;
                         productDialog.value = false;
                         product.value = {};
-                      submitted.value = false;
+                        submitted.value = false;
                     })
                     .catch(() => toast.add({ severity: 'error', summary: 'Failed update User', detail: 'Error when update User', life: 3000 }));
             } catch (e) {
@@ -84,7 +103,7 @@ const saveProduct = () => {
                         products.value.push(result);
                         productDialog.value = false;
                         product.value = {};
-                      submitted.value = false;
+                        submitted.value = false;
                     })
                     .catch(() => toast.add({ severity: 'error', summary: 'Failed add new User', detail: 'Error when add new User ', life: 3000 }));
             } catch (e) {
@@ -108,8 +127,7 @@ const findProvincesIndexByName = (name) => {
 const editProduct = (editProduct) => {
     product.value = { ...editProduct };
     if (product.value.provinsi !== '' && product.value.provinsi) {
-      console.log(product.value.provinsi)
-        regionService.getRegencies({ province_id: provinces.value[findProvinceIndexByName(product.value.provinsi)].id }).then((result) => (cities.value = result));
+        regionService.getRegencies({ province_id: provinces.value[findProvinceIndexByName(product.value.provinsi.toUpperCase())].id }).then((result) => (cities.value = result));
         product.value.provinsi = provinces.value[findProvinceIndexByName(product.value.provinsi)].id;
     }
     productDialog.value = true;
@@ -308,9 +326,13 @@ const handleProvinsi = () => {
                         <small class="p-invalid" v-if="submitted && !product.name">Name is required.</small>
                     </div>
                     <div class="field">
-                        <label for="name1" class="block text-900 text-xl font-medium mb-2">EO</label>
+                        <label for="name1" class="block text-900 text-xl font-medium mb-2">Mitra/Organisasi</label>
                         <Dropdown v-model="product.organization_id" class="w-full mb-3" :options="organizations" optionValue="id" optionLabel="name" placeholder="Select Organization" />
                     </div>
+                  <div class="field">
+                    <label for="name1" class="block text-900 text-xl font-medium mb-2">Role</label>
+                    <Dropdown v-model="product.role" class="w-full mb-3" :options="roles" optionValue="code" optionLabel="name" placeholder="Select Role" />
+                  </div>
                     <div class="field">
                         <label for="name1" class="block text-900 text-xl font-medium mb-2">Provinsi</label>
                         <Dropdown v-model="product.provinsi" class="w-full mb-3" :options="provinces" optionValue="id" optionLabel="name" placeholder="Select Provinsi" @change="handleProvinsi" />
