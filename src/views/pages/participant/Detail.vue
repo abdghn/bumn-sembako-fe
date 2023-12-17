@@ -205,10 +205,15 @@ const handleSubmits = async () => {
                     setTimeout(() => router.push('/participant'), 2000);
                 }
             })
-            .catch(() => {
-                loading.value = false;
+            .catch((e) => {
+              console.log(e)
+              loading.value = false;
+              if (e?.response?.data?.message === 'NIK already exists') {
+                toast.add({ severity: 'error', summary: 'Failed update penerima', detail: e?.response?.data?.message, life: 3000 });
+              } else {
                 toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
-            });
+              }
+            })
     } catch (e) {
         loading.value = false;
         toast.add({ severity: 'error', summary: 'Failed update penerima', detail: 'Error when update penerima', life: 3000 });
