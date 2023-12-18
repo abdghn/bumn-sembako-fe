@@ -336,7 +336,7 @@ const handleFilter = async () => {
         if (paramDistrict.value) params.kecamatan = paramDistrict.value;
         if (paramVillage.value) params.kelurahan = paramVillage.value;
         if (paramStatus.value) params.status = paramStatus.value;
-        if (paramSearch.value && paramSearch.value.length > 3) params.search = paramSearch.value;
+        if (paramSearch.value) params.search = paramSearch.value;
         if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
             params.type = 'EO';
         } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
@@ -516,7 +516,7 @@ const confirmDeleteParticipant = (detailParticipant) => {
                                 <h5 class="m-0">List Penerima Sembako</h5>
                                 <span class="block mt-2 md:mt-0 p-input-icon-left">
                                     <i class="pi pi-search" />
-                                    <InputText v-model="paramSearch" placeholder="Search..." v-on:keyup="handleKeyup" />
+                                    <InputText v-model="paramSearch" placeholder="Search..." v-on:keyup.enter="handleFilter" />
                                 </span>
                             </div>
                         </template>
