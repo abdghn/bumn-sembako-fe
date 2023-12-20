@@ -117,6 +117,8 @@ const handleSearch = async () => {
             params.type = 'EO';
         } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
             params.type = 'Yayasan';
+        } else if (type.value) {
+          params.type = type.value;
         }
 
         await dashboardService.dashboard(params).then((result) => (detail.value = result));
@@ -253,7 +255,7 @@ const getDataDropdown = async () => {
                                     ><b>Sudah Menerima: {{ detail?.total_sudah_menerima ?? '0' }}</b></span
                                 >
                                 <span class="mr-4"
-                                    ><b>Calon Penerima: {{ detail?.total_partial_done ?? '0' }}</b></span
+                                    ><b>Calon Penerima: {{ detail?.total_belum_menerima ?? '0' }}</b></span
                                 >
                                 <!--                                <span class="mr-4"-->
                                 <!--                                    ><b>Gugur: {{ detail?.total_belum_menerima ?? '0' }}</b></span-->
