@@ -554,7 +554,7 @@ const confirmDeleteParticipant = (detailParticipant) => {
                                 {{ slotProps.index + 1 + indexPage }}
                             </template>
                         </Column>
-                      <Column field="type" header="Tipe" :sortable="false" headerStyle="width:14%; min-width:10rem;" v-if="user?.role === 'ADMIN'">
+                      <Column field="type" header="Tipe" :sortable="false" headerStyle="width:14%; min-width:10rem;" v-if="user?.role === 'ADMIN' || user?.role === 'ADMIN-EO' || user?.role === 'ADMIN-YAYASAN'">
                         <template #body="slotProps">
                           <span class="p-column-title">Tipe</span>
                           {{ slotProps.data.type }}
