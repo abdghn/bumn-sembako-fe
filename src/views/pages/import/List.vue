@@ -261,7 +261,7 @@ const handleProvinsi = () => {
                     <Column field="username" header="Created At" :sortable="false" headerStyle="width:14%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Created At</span>
-                            {{ moment(slotProps.data.created_at).format('DD-MM-YYYY, h:mm') }}
+                            {{ slotProps?.data?.created_at ?  moment(slotProps?.data?.created_at).format('DD-MM-YYYY, h:mm') : "" }}
                         </template>
                     </Column>
                     <Column field="username" header="Total Rows" :sortable="false" headerStyle="width:14%; min-width:10rem;">

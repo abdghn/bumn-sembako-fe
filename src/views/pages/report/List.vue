@@ -111,7 +111,7 @@ const handleSearch = async () => {
 
         if (provinsi.value) params.provinsi = provinsi.value;
         if (city.value) params.kota = city.value;
-        if (calendarValue.value) params.date = moment(dates).format('YYYY-MM-DD');
+        if (calendarValue.value) params.date = dates ? moment(dates).format('YYYY-MM-DD') : "";
 
         if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
             params.type = 'EO';
@@ -145,7 +145,7 @@ const handleExport = async () => {
         const payload = {
             provinsi: provinces.value[findStatusIndexById(province.value)].name,
             kota: cities.value[findCityIndexByName(city.value)].name,
-            date: moment(calendarValue.value).format('YYYY-MM-DD'),
+            date: calendarValue.value?  moment(calendarValue.value).format('YYYY-MM-DD') : "",
             jam: jamValue.value,
             evaluasi: evaluasiValue.value,
             solusi: solusiValue.value,
