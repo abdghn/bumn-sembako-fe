@@ -8,4 +8,8 @@ export default class DashboardService {
     export(params) {
         return axiosApp.get('/v1/excel', { params }).then((d) => d.data.data);
     }
+
+    exportParticipant(body) {
+        return axiosApp.post('/v1/report/csv/export', body).then((d) => d.data.data);
+    }
 }

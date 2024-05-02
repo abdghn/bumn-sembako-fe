@@ -33,6 +33,8 @@ const productService = new ProductService();
 const dashboardService = new DashboardService();
 const regionService = new RegionService();
 const loading = ref(false);
+const loadingParticipant = ref(false);
+const canExport = ref(true);
 
 const userData = ref(window.localStorage.getItem('userData'));
 const user = JSON.parse(userData.value);
@@ -145,6 +147,7 @@ const resetFilter = () => {
     paramProvince.value = null;
     paramCity.value = null;
     detail.value = null;
+    canExport.value = true;
 };
 
 const handleSearch = async () => {
@@ -206,7 +209,43 @@ const handleExport = async () => {
     }
 };
 
+const handleExportParticipant = async () => {
+    loadingParticipant.value = true;
+    try {
+        const params = {};
+        // const dates = calendarValue.value;
+
+        if (paramProvince.value) params.provinsi = paramProvince.value;
+        if (paramCity.value) params.kota = paramCity.value;
+        if (paramDistrict.value) params.kecamatan = paramDistrict.value;
+        if (paramVillage.value) params.kelurahan = paramVillage.value;
+
+        if (user?.role === 'STAFF-LAPANGAN' || user?.role === 'ADMIN-EO') {
+            params.type = 'EO';
+        } else if (user?.role === 'STAFF-YAYASAN' || user?.role === 'ADMIN-YAYASAN') {
+            params.type = 'Yayasan';
+        } else if (type.value) {
+            params.type = type.value;
+        }
+
+        await dashboardService.exportParticipant(params).then((result) => {
+            setTimeout(() => {
+                loadingParticipant.value = false;
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Export Data Penerima Berhasil', life: 3000 });
+                const link = document.createElement('a');
+                link.href = import.meta.env.VITE_BACKEND_URL + '/v1/' + result;
+                const name = result.split('/');
+                link.download = name[1];
+                link.click();
+            }, 2000);
+        });
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Gagal', detail: 'Gagal Export Data Penerima', life: 3000 });
+    }
+};
+
 const handleProvinsi = async () => {
+    canExport.value = false;
     paramProvince.value = provinces.value[findProvincesIndexById(province.value)].name;
     await regionService.getRegencies({ province_id: province.value }).then((result) => (cities.value = result));
 };
@@ -223,6 +262,10 @@ const handleDistrict = () => {
 
 const handleVillage = () => {
     paramVillage.value = villages.value[findVillagesIndexById(village.value)].name;
+};
+
+const handleType = () => {
+    canExport.value = false;
 };
 
 const getDataDropdown = async () => {
@@ -368,9 +411,10 @@ watch(
                 <Dropdown class="mr-4 mb-2" v-model="city" :options="cities" optionValue="id" optionLabel="name" placeholder="Kota" @change="handleCity" />
                 <Dropdown class="mr-4 mb-2" v-model="district" :options="districts" optionValue="id" optionLabel="name" placeholder="Kecamatan" @change="handleDistrict" />
                 <Dropdown class="mr-4 mb-2" v-model="village" :options="villages" optionValue="id" optionLabel="name" placeholder="Kelurahan" @change="handleVillage" />
-                <Dropdown v-if="user.role === 'ADMIN'" class="mr-3" v-model="type" :options="types" optionValue="code" optionLabel="name" placeholder="Type" />
+                <Dropdown v-if="user.role === 'ADMIN'" class="mr-3" v-model="type" :options="types" optionValue="code" optionLabel="name" placeholder="Type" @change="handleType" />
 
-                <Button label="Export Data" class="p-button-primary mr-4 mb-2" @click="handleExport" :loading="loading" />
+                <Button label="Export Data Wilayah" class="p-button-primary mr-4 mb-2" @click="handleExport" :loading="loading" />
+                <Button label="Export Data Penerima" class="p-button-success mr-4 mb-2" @click="handleExportParticipant" :loading="loadingParticipant" :disabled="canExport" />
             </div>
         </template>
 
